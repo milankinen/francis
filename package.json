@@ -13,7 +13,9 @@
   "jsnext:main": "lib/index.js",
   "scripts": {
     "prebuild": "rm -rf lib dist && mkdir lib dist",
-    "build": "tsc && rollup -c rollup.config.js && rollup -c rollup.min.config.js"
+    "build": "tsc && rollup -c rollup.config.js && rollup -c rollup.min.config.js",
+    "lint": "tsc && tslint 'src/**/*.ts'",
+    "test": "npm run lint"
   },
   "devDependencies": {
     "@types/node": "^7.0.16",
