@@ -1,0 +1,17 @@
+{
+  "name": "francis",
+  "version": "0.0.1",
+  "description": "Bacon++",
+  "author": "Matti Lankinen <m.lankinen@iki.fi>",
+  "license": "MIT",
+  "keywords": [
+    "reactive programming",
+    "frp",
+    "typescript"
+  ],
+  "main": "dist/francis.js",
+  "esnext:main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
