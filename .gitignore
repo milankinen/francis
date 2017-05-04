@@ -1,7 +1,9 @@
 node_modules
 lib
 dist
+.vscode
 
 *.log
 *.js
 *.map
+!rollup.*

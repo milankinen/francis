@@ -10,8 +10,19 @@
     "typescript"
   ],
   "main": "dist/francis.js",
-  "esnext:main": "lib/index.js",
+  "jsnext:main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prebuild": "rm -rf lib dist && mkdir lib dist",
+    "build": "tsc && rollup -c rollup.config.js && rollup -c rollup.min.config.js"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.16",
+    "rollup": "^0.41.6",
+    "rollup-plugin-buble": "^0.15.0",
+    "rollup-plugin-closure-compiler-js": "^1.0.4",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-replace": "^1.1.1",
+    "tslint": "^5.2.0",
+    "typescript": "2.3.x"
   }
 }
