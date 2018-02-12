@@ -1,13 +1,17 @@
-import cjs from 'rollup-plugin-commonjs'
-import buble from 'rollup-plugin-buble'
+import cjs from "rollup-plugin-commonjs"
+import buble from "rollup-plugin-buble"
+import replace from "rollup-plugin-replace"
 
 export default {
-  entry: 'lib/index.js',
-  format: 'umd',
-  moduleName: 'Francis',
+  input: "lib/index.js",
+  output: {
+    name: "Francis",
+    format: "umd",
+    file: "dist/francis.js"
+  },
   plugins: [
     cjs(),
-    buble()
-  ],
-  dest: 'dist/francis.js'
+    buble(),
+    replace({"process.env.NODE_ENV": JSON.stringify("development")}),
+  ]
 };

@@ -13,18 +13,29 @@
   "jsnext:main": "lib/index.js",
   "scripts": {
     "prebuild": "rm -rf lib dist && mkdir lib dist",
-    "build": "tsc && rollup -c rollup.config.js && rollup -c rollup.min.config.js",
-    "lint": "tsc && tslint 'src/**/*.ts'",
-    "test": "npm run lint"
+    "package:default": "rollup -c rollup.config.js && rollup -c rollup.min.config.js",
+    "package:oo": "rollup -c rollup.bacon.config.js && rollup -c rollup.bacon.min.config.js",
+    "build": "tsc && npm run package:default && npm run package:oo",
+    "postbuild": "package-size ./dist/francis.min.js",
+    "lint": "tslint 'src/**/*.ts'",
+    "test": "npm run lint",
+    "format": "prettier --write 'src/**/*.ts' && tslint --fix --project .",
+    "ts-node": "ts-node -O '{\"module\": \"commonjs\"}'",
+    "ncu": "ncu -u -a && ncu -u -a --packageFile perf/package.json"
   },
   "devDependencies": {
-    "@types/node": "^7.0.16",
-    "rollup": "^0.41.6",
-    "rollup-plugin-buble": "^0.15.0",
-    "rollup-plugin-closure-compiler-js": "^1.0.4",
-    "rollup-plugin-commonjs": "^8.0.2",
-    "rollup-plugin-replace": "^1.1.1",
-    "tslint": "^5.2.0",
-    "typescript": "2.3.x"
+    "@types/node": "^9.4.7",
+    "baconjs": "^2.0.5",
+    "npm-check-updates": "^2.14.1",
+    "package-size": "^1.6.0",
+    "prettier": "^1.11.1",
+    "rollup": "^0.56.5",
+    "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-closure-compiler-js": "^1.0.6",
+    "rollup-plugin-commonjs": "^9.0.0",
+    "rollup-plugin-replace": "^2.0.0",
+    "ts-node": "^5.0.1",
+    "tslint": "^5.9.1",
+    "typescript": "2.7.x"
   }
 }
