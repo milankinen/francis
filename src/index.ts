@@ -15,6 +15,7 @@ export { map } from "./operators/map"
 export { filter } from "./operators/filter"
 export { take } from "./operators/take"
 export { first } from "./operators/first"
+export { zipAsArray } from "./operators/zip"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"
