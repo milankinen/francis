@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es6",                      
-    "module": "es2015",                    
-    "outDir": "lib",                        
-    "declaration": true,             
-    "sourceMap": true,               
-    "strict": true,                            
+    "target": "es6",
+    "module": "es2015",
+    "outDir": "lib",
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedParameters": false,

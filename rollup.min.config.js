@@ -8,12 +8,12 @@ export default {
   output: {
     name: "Francis",
     format: "umd",
-    file: "dist/francis.min.js"
+    file: "dist/francis.min.js",
   },
   plugins: [
     cjs(),
     buble(),
-    replace({"process.env.NODE_ENV": JSON.stringify("production")}),
-    closure({processCommonJsModules: false})
-  ]
-};
+    replace({ "process.env.NODE_ENV": JSON.stringify("production") }),
+    closure({ processCommonJsModules: false }),
+  ],
+}

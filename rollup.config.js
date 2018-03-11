@@ -7,11 +7,7 @@ export default {
   output: {
     name: "Francis",
     format: "umd",
-    file: "dist/francis.js"
+    file: "dist/francis.js",
   },
-  plugins: [
-    cjs(),
-    buble(),
-    replace({"process.env.NODE_ENV": JSON.stringify("development")}),
-  ]
-};
+  plugins: [cjs(), buble(), replace({ "process.env.NODE_ENV": JSON.stringify("development") })],
+}
