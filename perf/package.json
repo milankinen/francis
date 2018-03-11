@@ -1,0 +1,15 @@
+{
+  "name": "francis-perftests",
+  "version": "0.0.1",
+  "description": "Performance tests for Francis",
+  "author": "Matti Lankinen <m.lankinen@iki.fi>",
+  "private": true,
+  "license": "MIT",
+  "keywords": [],
+  "devDependencies": {
+    "baconjs": "^2.0.5",
+    "benchmark": "^2.1.4",
+    "rxjs": "^5.5.6",
+    "xstream": "^11.2.0"
+  }
+}
