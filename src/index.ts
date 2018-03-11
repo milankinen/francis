@@ -5,3 +5,7 @@ export { Observable } from "./Observable"
 export { EventStream } from "./EventStream"
 export { AnyObs, Property } from "./Property"
 
+// factory functions
+export { once } from "./sources/once"
+export { constant } from "./sources/constant"
+
