@@ -19,3 +19,5 @@ export { zipAsArray } from "./operators/zip"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"
+
+export { log } from "./operators/log"

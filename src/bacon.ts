@@ -4,6 +4,7 @@ import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
+import * as Log from "./operators/log"
 import * as Map from "./operators/map"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
@@ -13,6 +14,7 @@ import { AnyObs, Property } from "./Property"
 declare module "./Observable" {
   interface Observable<A> {
     subscribe(handler: Handler<A>): Dispose
+    log(label?: string): Dispose
     map<B>(project: Projection<A, B>): Observable<B>
     filter(predicate: Predicate<A>): Observable<A>
     take(n: number): Observable<A>
@@ -116,6 +118,10 @@ export type SampleFn<V, S, R> = (value: V, sample: S) => R
 
 Observable.prototype.subscribe = function<A>(handler: Handler<A>): Dispose {
   return Subscribe.subscribe(handler, this)
+}
+
+Observable.prototype.log = function(label?: string): Dispose {
+  return Log.log(label, this)
 }
 
 Observable.prototype.map = function<A, B>(project: Projection<A, B>): Observable<B> {
