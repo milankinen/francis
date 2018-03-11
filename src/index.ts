@@ -17,6 +17,7 @@ export { take } from "./operators/take"
 export { first } from "./operators/first"
 export { zipAsArray } from "./operators/zip"
 export { combineAsArray } from "./operators/combine"
+export { flatMapLatest } from "./operators/flatMap"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"

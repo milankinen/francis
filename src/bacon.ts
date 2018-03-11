@@ -4,6 +4,7 @@ import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
+import * as FlatMap from "./operators/flatMap"
 import * as Log from "./operators/log"
 import * as Map from "./operators/map"
 import * as Subscribe from "./operators/subscribe"
@@ -19,6 +20,7 @@ declare module "./Observable" {
     filter(predicate: Predicate<A>): Observable<A>
     take(n: number): Observable<A>
     first(): Observable<A>
+    flatMapLatest<B>(project: Projection<A, Observable<B>>): Observable<B>
     zipAsArray<B>(s1: Observable<B>): Observable<[A, B]>
     zipAsArray<B, C>(s1: Observable<B>, s2: Observable<C>): Observable<[A, B, C]>
     zipAsArray<B, C, D>(
@@ -49,6 +51,7 @@ declare module "./EventStream" {
     filter(predicate: Predicate<A>): EventStream<A>
     take(n: number): EventStream<A>
     first(): EventStream<A>
+    flatMapLatest<B>(project: Projection<A, Observable<B>>): EventStream<B>
     zipAsArray<B>(s1: AnyObs<B>): EventStream<[A, B]>
     zipAsArray<B, C>(s1: AnyObs<B>, s2: AnyObs<C>): EventStream<[A, B, C]>
     zipAsArray<B, C, D>(s1: AnyObs<B>, s2: AnyObs<C>, s3: AnyObs<D>): EventStream<[A, B, C, D]>
@@ -75,6 +78,7 @@ declare module "./Property" {
     filter(predicate: Predicate<A>): Property<A>
     take(n: number): Property<A>
     first(): Property<A>
+    flatMapLatest<B>(project: Projection<A, Observable<B>>): Property<B>
     zipAsArray<B>(s1: AnyObs<B>): EventStream<[A, B]>
     zipAsArray<B, C>(s1: AnyObs<B>, s2: AnyObs<C>): EventStream<[A, B, C]>
     zipAsArray<B, C, D>(s1: AnyObs<B>, s2: AnyObs<C>, s3: AnyObs<D>): EventStream<[A, B, C, D]>
@@ -146,6 +150,11 @@ Observable.prototype.zipAsArray = ({
   },
 } as any).zipAsArray
 
+Observable.prototype.flatMapLatest = function<A, B>(
+  project: Projection<A, Observable<B>>,
+): Observable<B> {
+  return FlatMap._flatMapLatest(project, this)
+}
 // factory functions
 
 export { once } from "./sources/once"
