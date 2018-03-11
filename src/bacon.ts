@@ -7,6 +7,7 @@ import * as First from "./operators/first"
 import * as FlatMap from "./operators/flatMap"
 import * as Log from "./operators/log"
 import * as Map from "./operators/map"
+import * as Sample from "./operators/sample"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as ToProperty from "./operators/toProperty"
@@ -81,6 +82,10 @@ declare module "./Property" {
     take(n: number): Property<A>
     first(): Property<A>
     flatMapLatest<B>(project: Projection<A, Observable<B>>): Property<B>
+    sampleBy<B>(sampler: EventStream<B>): EventStream<A>
+    sampleBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
+    sampleBy<B>(sampler: Property<B>): Property<A>
+    sampleBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
     zipAsArray<B>(s1: AnyObs<B>): EventStream<[A, B]>
     zipAsArray<B, C>(s1: AnyObs<B>, s2: AnyObs<C>): EventStream<[A, B, C]>
     zipAsArray<B, C, D>(s1: AnyObs<B>, s2: AnyObs<C>, s3: AnyObs<D>): EventStream<[A, B, C, D]>
@@ -162,6 +167,16 @@ Observable.prototype.flatMapLatest = function<A, B>(
 
 EventStream.prototype.toProperty = function<A>(initialValue: A): Property<A> {
   return ToProperty.toProperty(initialValue, this)
+}
+
+// Property specific operators
+
+Property.prototype.sampleBy = function<A, B, C>(
+  sampler: Observable<B>,
+  f?: SampleFn<A, B, C>,
+): any {
+  const fn = f === undefined ? (v: A, s: B) => v as any : f
+  return Sample._sampleByF(sampler, fn, this)
 }
 
 // factory functions
