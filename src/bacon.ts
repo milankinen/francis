@@ -62,6 +62,7 @@ Observable.prototype.first = function<A>(): Observable<A> {
 
 export { once } from "./sources/once"
 export { constant } from "./sources/constant"
+export { fromArray } from "./sources/fromArray"
 
 // classes and interfaces
 

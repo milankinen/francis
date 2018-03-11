@@ -8,6 +8,7 @@ export { AnyObs, Property } from "./Property"
 // factory functions
 export { once } from "./sources/once"
 export { constant } from "./sources/constant"
+export { fromArray } from "./sources/fromArray"
 
 // operators
 export { map } from "./operators/map"
