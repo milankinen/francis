@@ -2,8 +2,10 @@ node_modules
 lib
 dist
 .vscode
+*.iml
+.idea
 
 *.log
-*.js
 *.map
-!rollup.*
+dist
+lib
