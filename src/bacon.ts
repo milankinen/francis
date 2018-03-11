@@ -151,6 +151,7 @@ Observable.prototype.zipAsArray = ({
 export { once } from "./sources/once"
 export { constant } from "./sources/constant"
 export { fromArray } from "./sources/fromArray"
+export { combineAsArray } from "./operators/combine"
 export { zipAsArray } from "./operators/zip"
 
 // classes and interfaces
