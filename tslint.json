@@ -2,6 +2,15 @@
   "extends": "tslint:recommended",
   "rules": {
     "semicolon": [true, "never"],
-    "interface-name": false
+    "interface-name": false,
+    "no-bitwise": false,
+    "variable-name": false,
+    "no-conditional-assignment": false,
+    "max-classes-per-file": [],
+    "no-empty-interface": false,
+    "arrow-parens": false,
+    "curly": false,
+    "no-empty": false,
+    "prefer-for-of": false
   }
 }
