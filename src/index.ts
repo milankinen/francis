@@ -9,3 +9,6 @@ export { AnyObs, Property } from "./Property"
 export { once } from "./sources/once"
 export { constant } from "./sources/constant"
 
+
+// subscribers / side-effects
+export { subscribe } from "./operators/subscribe"
