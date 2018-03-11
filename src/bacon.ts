@@ -9,6 +9,7 @@ import * as Log from "./operators/log"
 import * as Map from "./operators/map"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
+import * as ToProperty from "./operators/toProperty"
 import * as Zip from "./operators/zip"
 import { AnyObs, Property } from "./Property"
 
@@ -52,6 +53,7 @@ declare module "./EventStream" {
     take(n: number): EventStream<A>
     first(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, Observable<B>>): EventStream<B>
+    toProperty(initialValue: A): Property<A>
     zipAsArray<B>(s1: AnyObs<B>): EventStream<[A, B]>
     zipAsArray<B, C>(s1: AnyObs<B>, s2: AnyObs<C>): EventStream<[A, B, C]>
     zipAsArray<B, C, D>(s1: AnyObs<B>, s2: AnyObs<C>, s3: AnyObs<D>): EventStream<[A, B, C, D]>
@@ -155,6 +157,13 @@ Observable.prototype.flatMapLatest = function<A, B>(
 ): Observable<B> {
   return FlatMap._flatMapLatest(project, this)
 }
+
+// EventStream specific operators
+
+EventStream.prototype.toProperty = function<A>(initialValue: A): Property<A> {
+  return ToProperty.toProperty(initialValue, this)
+}
+
 // factory functions
 
 export { once } from "./sources/once"
