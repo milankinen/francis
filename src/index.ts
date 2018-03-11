@@ -1,11 +1,7 @@
-
-const __DEV__ = process.env.NODE_ENV != "production"
-
-export interface Stream {
-  __type: "stream"
-}
-
-export interface Property {
-  __type: "property"
-}
+// interfaces and classes
+export * from "./Event"
+export * from "./_interfaces"
+export { Observable } from "./Observable"
+export { EventStream } from "./EventStream"
+export { AnyObs, Property } from "./Property"
 
