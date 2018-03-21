@@ -113,6 +113,8 @@ class Zip<A, B> extends Operator<Indexed<A>, B> implements IndexedEndSubscriber 
     this.handleEvent(tx, val, true)
   }
 
+  // TODO no-initial case
+
   public event(tx: Transaction, val: Indexed<A>): void {
     this.handleEvent(tx, val, false)
   }

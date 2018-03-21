@@ -92,7 +92,11 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     }
   }
 
-  public noinitial(tx: Transaction): void {}
+  public noinitial(tx: Transaction): void {
+    if (--this.nInitials === 0) {
+      this.next.noinitial(tx)
+    }
+  }
 
   public event(tx: Transaction, ival: Indexed<A>): void {
     const { val, idx } = ival
