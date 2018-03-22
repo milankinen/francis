@@ -291,17 +291,10 @@ export interface AbortSubscriptionListener<T> {
 }
 
 export class AbortSubscriptionTask<T> implements Task {
-  private act: boolean = true
-
   constructor(private li: AbortSubscriptionListener<T>, private subscriber: Subscriber<T>) {}
 
   public run(): void {
-    // tslint:disable-next-line:no-unused-expression
-    this.act && this.li.handleAbort(this.subscriber)
-  }
-
-  public cancel(): void {
-    this.act = false
+    this.li.handleAbort(this.subscriber)
   }
 }
 

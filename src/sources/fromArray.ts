@@ -1,26 +1,48 @@
-import { sendRootEnd, sendRootEvent, Subscriber } from "../_core"
+import { sendRootEnd, sendRootEvent, Source, Subscriber, Subscription } from "../_core"
 import { EventStream } from "../EventStream"
-import { Activation, ActivationState, root } from "./_stream"
+import { identity } from "../operators/_base"
+import { Scheduler, Task } from "../scheduler/index"
 
 export function fromArray<T>(events: T[]): EventStream<T> {
-  return root(new FromArray(events))
+  return new EventStream(identity(new FromArray(events)))
 }
 
-class FromArray<T> implements Activation<T> {
-  private _i: number
-  constructor(private _items: T[]) {
-    this._i = 0
+class FromArray<T> implements Source<T> {
+  public weight: number = 1
+  public i: number
+
+  constructor(public items: T[]) {
+    this.i = 0
   }
-  public run(subscriber: Subscriber<T>, state: ActivationState): void {
-    const items = this._items
+
+  public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, weight: number): Subscription {
+    const task = new ActivateFromArrayTask(this, subscriber)
+    scheduler.scheduleEventStreamActivation(task)
+    return task
+  }
+}
+
+class ActivateFromArrayTask<T> implements Task, Subscription {
+  private active: boolean = true
+  constructor(private state: FromArray<T>, private subscriber: Subscriber<T>) {}
+
+  public run(): void {
+    const subscriber = this.subscriber
+    const state = this.state
+    const items = this.state.items
     const n = items.length
-    let i = this._i
-    for (; i < n && state.running; i++) {
-      sendRootEvent(subscriber, items[i])
+    for (; this.active && state.i < n; ++state.i) {
+      sendRootEvent(subscriber, items[state.i])
     }
-    this._i = i
-    if (state.running === true) {
-      sendRootEnd(subscriber)
-    }
+    // tslint:disable-next-line:no-unused-expression
+    this.active && sendRootEnd(this.subscriber)
+  }
+
+  public dispose(): void {
+    this.active = false
+  }
+
+  public reorder(order: number): void {
+    /* no-op */
   }
 }

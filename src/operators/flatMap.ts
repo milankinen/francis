@@ -15,8 +15,7 @@ import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
-import { DefaultScheduler } from "../scheduler/DefaultScheduler"
-import { currentScheduler, Scheduler, Task } from "../scheduler/index"
+import { currentScheduler, OnTimeout, Scheduler, Task, Timeout } from "../scheduler/index"
 import { EventType } from "./_base"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
@@ -189,14 +188,16 @@ interface QueuedEvent<T> {
 }
 
 class InnerSubscriptionScheduler implements Scheduler {
-  private impl: Scheduler = new DefaultScheduler()
-  constructor(private delegate: Scheduler) {}
-
-  public schedulePropertyActivation(task: Task): void {
-    this.impl.schedulePropertyActivation(task)
+  private impl: Scheduler
+  constructor(private delegate: Scheduler) {
+    this.impl = delegate.newInstance()
   }
 
-  public scheduleEventStreamActivation(task: Task): void {
+  public newInstance(): Scheduler {
+    return new InnerSubscriptionScheduler(this)
+  }
+
+  public schedulePropertyActivation(task: Task): void {
     this.impl.schedulePropertyActivation(task)
   }
 
@@ -204,11 +205,19 @@ class InnerSubscriptionScheduler implements Scheduler {
     this.impl.schedulePropertyActivation(task)
   }
 
-  public scheduleDelayed(task: Task, delay: number): void {
-    this.delegate.scheduleDelayed(task, delay)
+  public scheduleEventStreamActivation(task: Task): void {
+    this.impl.schedulePropertyActivation(task)
+  }
+
+  public scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout {
+    return this.delegate.scheduleTimeout(onTimeout, delay)
   }
 
   public run(): void {
     this.impl.run()
+  }
+
+  public hasPendingTasks(): boolean {
+    return this.impl.hasPendingTasks() || this.delegate.hasPendingTasks()
   }
 }

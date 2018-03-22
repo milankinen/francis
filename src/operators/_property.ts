@@ -1,6 +1,7 @@
 import { NONE, sendRootEnd, sendRootInitial, sendRootNoInitial, Subscriber } from "../_core"
 import { Transaction } from "../_tx"
 import { Scheduler } from "../scheduler/index"
+import { Task } from "../scheduler/Scheduler"
 import { AbortSubscriptionListener, AbortSubscriptionTask, MulticastImplementation } from "./_base"
 
 export class PropertyMulticast<T> extends MulticastImplementation<T>
@@ -44,16 +45,21 @@ export class PropertyMulticast<T> extends MulticastImplementation<T>
   }
 
   public handleAbort(subsciber: Subscriber<T>): void {
-    this.__replayState(subsciber)
+    this.handleReplayState(subsciber)
   }
 
-  private __replayState(dest: Subscriber<T>): void {
+  public handleReplayState(subsciber: Subscriber<T>): void {
     // tslint:disable-next-line:no-unused-expression
-    dest.isActive() &&
-      (this.val === NONE ? sendRootNoInitial(dest) : sendRootInitial(dest, this.val))
+    subsciber.isActive() &&
+      (this.val === NONE ? sendRootNoInitial(subsciber) : sendRootInitial(subsciber, this.val))
     // tslint:disable-next-line:no-unused-expression
-    this.ended && dest.isActive() && sendRootEnd(dest)
+    this.ended && subsciber.isActive() && sendRootEnd(subsciber)
   }
 }
 
-class ReplayStateTask<T> extends AbortSubscriptionTask<T> {}
+class ReplayStateTask<T> implements Task {
+  constructor(private pmc: PropertyMulticast<T>, private dest: Subscriber<T>) {}
+  public run(): void {
+    this.pmc.handleReplayState(this.dest)
+  }
+}

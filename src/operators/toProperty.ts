@@ -42,15 +42,10 @@ class ToProperty<T> extends Operator<T, T> {
 }
 
 class ToPropertyActivationTask<T> implements Task {
-  private active: boolean = true
-
   constructor(private op: ToProperty<T>) {}
 
   public run(): void {
     // tslint:disable-next-line:no-unused-expression
-    this.active && sendRootInitial(this.op, this.op.initVal)
-  }
-  public cancel(): void {
-    this.active = false
+    this.op.isActive() && sendRootInitial(this.op, this.op.initVal)
   }
 }
