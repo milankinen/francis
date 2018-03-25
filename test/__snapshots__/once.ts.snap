@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`once emits its value only one time 1`] = `
+Array [
+  Object {
+    "s": "a",
+    "x": Next {
+      "value": "tsers",
+    },
+  },
+  Object {
+    "s": "a",
+    "x": End {},
+  },
+  Object {
+    "s": "b",
+    "x": End {},
+  },
+]
+`;
+
+exports[`once is async 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`once is multicasted 1`] = `
+Array [
+  Object {
+    "s": "b",
+    "x": Next {
+      "value": "tsers",
+    },
+  },
+  Object {
+    "s": "a",
+    "x": Next {
+      "value": "tsers",
+    },
+  },
+  Object {
+    "s": "b",
+    "x": End {},
+  },
+  Object {
+    "s": "a",
+    "x": End {},
+  },
+]
+`;

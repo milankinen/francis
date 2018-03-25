@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`constant can be subscribed many times and subscribers always get the same value 1`] = `
+Array [
+  Object {
+    "s": "a",
+    "x": Initial {
+      "value": "tsers",
+    },
+  },
+  Object {
+    "s": "a",
+    "x": End {},
+  },
+  Object {
+    "s": "b",
+    "x": Initial {
+      "value": "tsers",
+    },
+  },
+  Object {
+    "s": "b",
+    "x": End {},
+  },
+  Object {
+    "s": "c",
+    "x": Initial {
+      "value": "tsers",
+    },
+  },
+  Object {
+    "s": "c",
+    "x": End {},
+  },
+]
+`;
+
+exports[`constant is sync 1`] = `
+Array [
+  Initial {
+    "value": "tsers",
+  },
+  End {},
+  Sync {},
+]
+`;
