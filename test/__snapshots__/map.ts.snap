@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.map accepts constant value instead of function 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`F.map allows partially appliable arguments for method calls 1`] = `
+Array [
+  Next {
+    "value": "tsers??",
+  },
+  End {},
+]
+`;
+
+exports[`F.map can detect mapped value's method and call it 1`] = `
+Array [
+  Next {
+    "value": "tsers!",
+  },
+  End {},
+]
+`;
+
+exports[`F.map can extract mapped value's property 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`F.map can extract nested properties as well 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`F.map can map to a Property value 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Next {
+    "value": "tsers",
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`F.map maps Next events with the given function and ignores Error events 1`] = `
+Array [
+  Next {
+    "value": "lol!",
+  },
+  Error {
+    "error": "fuk",
+  },
+  Next {
+    "value": "bal!",
+  },
+  End {},
+]
+`;
+
+exports[`F.map works with method call on given object, with partial application 1`] = `
+Array [
+  Next {
+    "value": "Hello Sir!!",
+  },
+  Next {
+    "value": "Hello Francis!!",
+  },
+  End {},
+]
+`;
+
+exports[`F.map worls also with computed properties 1`] = `
+Array [
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
