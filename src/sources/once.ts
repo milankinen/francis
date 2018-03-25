@@ -1,47 +1,28 @@
-import { sendRootEnd, sendRootEvent, Source, Subscriber, Subscription } from "../_core"
+import { Subscriber } from "../_core"
 import { EventStream } from "../EventStream"
 import { identity } from "../operators/_base"
-import { Scheduler, Task } from "../scheduler/index"
+import { Scheduler } from "../scheduler/index"
+import { Activation, Root } from "./_base"
 
 export function once<T>(value: T): EventStream<T> {
   return new EventStream(identity(new Once(value)))
 }
 
-class Once<T> implements Source<T> {
-  public weight: number = 1
-  public val: T
-  public sent: boolean
-
-  constructor(value: T) {
-    this.sent = false
-    this.val = value
+class Once<T> extends Root<T> {
+  constructor(public val: T) {
+    super(false)
   }
 
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, weight: number): Subscription {
-    const task = new ActivateOnceTask(this, subscriber)
-    scheduler.scheduleEventStreamActivation(task)
-    return task
+  protected activate(scheduler: Scheduler, subscriber: Subscriber<T>): Activation<T, Once<T>> {
+    return new OnceActivation(this, subscriber)
   }
 }
 
-class ActivateOnceTask<T> implements Task, Subscription {
-  private active: boolean = true
-  constructor(private state: Once<T>, private subscriber: Subscriber<T>) {}
-
-  public run(): void {
-    if (this.active && !this.state.sent) {
-      this.state.sent = true
-      sendRootEvent(this.subscriber, this.state.val)
-    }
+class OnceActivation<T> extends Activation<T, Once<T>> {
+  protected start(): void {
+    this.sendNext(this.owner.val)
     // tslint:disable-next-line:no-unused-expression
-    this.active && sendRootEnd(this.subscriber)
+    this.active && this.sendEnd()
   }
-
-  public dispose(): void {
-    this.active = false
-  }
-
-  public reorder(order: number): void {
-    /* no-op */
-  }
+  protected stop(): void {}
 }

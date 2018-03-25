@@ -1,40 +1,28 @@
-import { sendRootEnd, sendRootInitial, Source, Subscriber, Subscription } from "../_core"
+import { sendRootEnd, sendRootInitial, Subscriber } from "../_core"
 import { identity } from "../operators/_base"
 import { Property } from "../Property"
-import { Scheduler, Task } from "../scheduler/index"
+import { Scheduler } from "../scheduler/index"
+import { Activation, Root } from "./_base"
 
 export function constant<T>(val: T): Property<T> {
   return new Property(identity(new Constant(val)))
 }
 
-class Constant<T> implements Source<T> {
-  public weight: number = 1
+class Constant<T> extends Root<T> {
+  constructor(public val: T) {
+    super(true)
+  }
 
-  constructor(private val: T) {}
-
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, weight: number): Subscription {
-    const task = new ActivateConstantTask(this.val, subscriber)
-    scheduler.schedulePropertyActivation(task)
-    return task
+  protected activate(scheduler: Scheduler, subscriber: Subscriber<T>): Activation<T, Constant<T>> {
+    return new ConstActivation(this, subscriber)
   }
 }
 
-class ActivateConstantTask<T> implements Task, Subscription {
-  private active: boolean = true
-  constructor(private val: T, private subscriber: Subscriber<T>) {}
-
-  public run(): void {
-    // tslint:disable-next-line:no-unused-expression
-    this.active && sendRootInitial(this.subscriber, this.val)
+class ConstActivation<T> extends Activation<T, Constant<T>> {
+  protected start(): void {
+    sendRootInitial(this.subscriber, this.owner.val)
     // tslint:disable-next-line:no-unused-expression
     this.active && sendRootEnd(this.subscriber)
   }
-
-  public dispose(): void {
-    this.active = false
-  }
-
-  public reorder(order: number): void {
-    /* no-op */
-  }
+  protected stop(): void {}
 }
