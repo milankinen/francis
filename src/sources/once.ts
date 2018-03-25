@@ -20,7 +20,7 @@ class Once<T> extends Root<T> {
 
 class OnceActivation<T> extends Activation<T, Once<T>> {
   protected start(): void {
-    this.sendNext(this.owner.val)
+    this.send(this.owner.val)
     this.active && this.sendEnd()
   }
   protected stop(): void {}

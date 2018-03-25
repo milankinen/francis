@@ -25,7 +25,7 @@ class FromArrayActivation<T> extends Activation<T, FromArray<T>> {
     const items = owner.items
     const n = items.length
     for (; this.active && owner.i < n; ++owner.i) {
-      this.sendNext(items[owner.i])
+      this.send(items[owner.i])
     }
     this.active && this.sendEnd()
   }
