@@ -9,7 +9,7 @@
   "devDependencies": {
     "baconjs": "^2.0.5",
     "benchmark": "^2.1.4",
-    "rxjs": "^5.5.6",
+    "rxjs": "^5.5.7",
     "xstream": "^11.2.0"
   }
 }
