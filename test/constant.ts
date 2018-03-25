@@ -1,28 +1,32 @@
-import * as B from "../src/bacon"
+import * as F from "../bacon"
 import { runner, Sync } from "./_base"
 
-test("constant is sync", done => {
-  runner()
-    .setup(record => {
-      B.constant("tsers").subscribe(record)
-      record(Sync)
-    })
-    .after(rec => {
-      expect(rec).toMatchSnapshot()
-    })
-    .run(done)
-})
+describe("F.once", () => {
+  it("sends single event and ends", done => {
+    runner()
+      .setup(record => F.constant("tsers").subscribe(record))
+      .after(rec => expect(rec).toMatchSnapshot())
+      .run(done)
+  })
 
-test("constant can be subscribed many times and subscribers always get the same value", done => {
-  runner()
-    .setup((record, wait) => {
-      const prop = B.constant("tsers")
-      prop.subscribe(x => record({ s: "a", x }))
-      prop.subscribe(x => record({ s: "b", x }))
-      wait(100, () => prop.subscribe(x => record({ s: "c", x })))
-    })
-    .after(rec => {
-      expect(rec).toMatchSnapshot()
-    })
-    .run(done)
+  it("is activated synchronously", done => {
+    runner()
+      .setup(record => {
+        F.constant("tsers").subscribe(record)
+        record(Sync)
+      })
+      .after(rec => expect(rec).toMatchSnapshot())
+      .run(done)
+  })
+
+  it("sends its value to every subscriber", done => {
+    runner()
+      .setup((record, wait) => {
+        const prop = F.constant("tsers")
+        prop.subscribe(x => record({ s: "a", x }))
+        wait(100, () => prop.subscribe(x => record({ s: "b", x })))
+      })
+      .after(rec => expect(rec).toMatchSnapshot())
+      .run(done)
+  })
 })
