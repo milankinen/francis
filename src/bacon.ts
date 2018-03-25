@@ -1,4 +1,5 @@
 import { Dispose, Handler, Predicate, Projection } from "./_interfaces"
+import { toFunction } from "./_interrop"
 import { identity } from "./_util"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
@@ -12,7 +13,7 @@ import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as ToProperty from "./operators/toProperty"
 import * as Zip from "./operators/zip"
-import { AnyObs, Property } from "./Property"
+import { AnyObs, isProperty, Property } from "./Property"
 
 declare module "./Observable" {
   interface Observable<A> {
@@ -49,7 +50,7 @@ declare module "./Observable" {
 
 declare module "./EventStream" {
   interface EventStream<A> {
-    map<B>(project: Projection<A, B>): EventStream<B>
+    map<B>(project: Projection<A, B>, ...args: any[]): EventStream<B>
     filter(predicate: Predicate<A>): EventStream<A>
     take(n: number): EventStream<A>
     first(): EventStream<A>
@@ -77,7 +78,7 @@ declare module "./EventStream" {
 
 declare module "./Property" {
   interface Property<A> {
-    map<B>(project: Projection<A, B>): Property<B>
+    map<B>(project: Projection<A, B>, ...args: any[]): Property<B>
     filter(predicate: Predicate<A>): Property<A>
     take(n: number): Property<A>
     first(): Property<A>
@@ -135,8 +136,16 @@ Observable.prototype.log = function(label?: string): Dispose {
   return Log.log(label, this)
 }
 
-Observable.prototype.map = function<A, B>(project: Projection<A, B>): Observable<B> {
-  return Map._map(project, this)
+Observable.prototype.map = function<A, B>(
+  project: Projection<A, B>,
+  // tslint:disable-next-line:trailing-comma
+  ...args: any[]
+): Observable<B> {
+  if (isProperty(project as any)) {
+    return Sample._sampleByF(this, (v: any, _: any) => v, project as any)
+  } else {
+    return Map._map(toFunction(project, args), this)
+  }
 }
 
 Observable.prototype.filter = function<A>(predicate: Predicate<A>): Observable<A> {
