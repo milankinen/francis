@@ -27,7 +27,6 @@ class FromArrayActivation<T> extends Activation<T, FromArray<T>> {
     for (; this.active && owner.i < n; ++owner.i) {
       this.sendNext(items[owner.i])
     }
-    // tslint:disable-next-line:no-unused-expression
     this.active && this.sendEnd()
   }
 

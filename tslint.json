@@ -11,6 +11,7 @@
     "arrow-parens": false,
     "curly": false,
     "no-empty": false,
-    "prefer-for-of": false
+    "prefer-for-of": false,
+    "no-unused-expression": false
   }
 }

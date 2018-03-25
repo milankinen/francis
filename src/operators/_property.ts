@@ -49,10 +49,8 @@ export class PropertyMulticast<T> extends MulticastImplementation<T>
   }
 
   public handleReplayState(subsciber: Subscriber<T>): void {
-    // tslint:disable-next-line:no-unused-expression
     subsciber.isActive() &&
       (this.val === NONE ? sendRootNoInitial(subsciber) : sendRootInitial(subsciber, this.val))
-    // tslint:disable-next-line:no-unused-expression
     this.ended && subsciber.isActive() && sendRootEnd(subsciber)
   }
 }

@@ -101,7 +101,6 @@ export abstract class Operator<A, B>
   private __active: boolean = false
 
   constructor(origin: Source<A>) {
-    // tslint:disable-next-line:no-unused-expression
     false && disableNoUnusedWarning(this.__handleDispose, this.__handeReorder)
     this.source = origin
     this.order = MAX_ORDER + 1
@@ -277,7 +276,6 @@ export abstract class Operator<A, B>
   }
   private __handeReorder(subscriber: Subscriber<B>, order: number): void {
     const next = this.next.next
-    // tslint:disable-next-line:no-unused-expression
     next instanceof MulticastDelegatee && next.updateOrder(subscriber, order)
     if (order < this.order) {
       this.__updateOrder(order)
@@ -362,7 +360,6 @@ class MulticastDelegatee<T> implements Subscriber<T> {
   public initial(tx: Transaction, val: T): void {
     let next = this.head
     while (next !== NIL) {
-      // tslint:disable-next-line:no-unused-expression
       next.a && sendInitialSafely(tx, next.s, val)
       next = next.n
     }
@@ -371,7 +368,6 @@ class MulticastDelegatee<T> implements Subscriber<T> {
   public noinitial(tx: Transaction): void {
     let next = this.head
     while (next !== NIL) {
-      // tslint:disable-next-line:no-unused-expression
       next.a && sendNoInitialSafely(tx, next.s)
       next = next.n
     }
@@ -380,7 +376,6 @@ class MulticastDelegatee<T> implements Subscriber<T> {
   public event(tx: Transaction, val: T): void {
     let next = this.head
     while (next !== NIL) {
-      // tslint:disable-next-line:no-unused-expression
       next.a && sendEventSafely(tx, next.s, val)
       next = next.n
     }
@@ -389,7 +384,6 @@ class MulticastDelegatee<T> implements Subscriber<T> {
   public error(tx: Transaction, err: Error): void {
     let next = this.head
     while (next !== NIL) {
-      // tslint:disable-next-line:no-unused-expression
       next.a && sendErrorSafely(tx, next.s, err)
       next = next.n
     }
@@ -398,7 +392,6 @@ class MulticastDelegatee<T> implements Subscriber<T> {
   public end(tx: Transaction): void {
     let next = this.head
     while (next !== NIL) {
-      // tslint:disable-next-line:no-unused-expression
       next.a && sendEndSafely(tx, next.s)
       next = next.n
     }

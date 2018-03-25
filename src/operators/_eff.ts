@@ -17,7 +17,6 @@ export class EffectRunner<T> implements Subscriber<T> {
   private __subs: Subscription | null = null
 
   constructor() {
-    // tslint:disable-next-line:no-unused-expression
     false && disableNoUnusedWarning(this.__init)
   }
 

@@ -21,7 +21,6 @@ class Constant<T> extends Root<T> {
 class ConstActivation<T> extends Activation<T, Constant<T>> {
   protected start(): void {
     sendRootInitial(this.subscriber, this.owner.val)
-    // tslint:disable-next-line:no-unused-expression
     this.active && sendRootEnd(this.subscriber)
   }
   protected stop(): void {}

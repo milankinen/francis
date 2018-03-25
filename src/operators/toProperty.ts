@@ -45,7 +45,6 @@ class ToPropertyActivationTask<T> implements Task {
   constructor(private op: ToProperty<T>) {}
 
   public run(): void {
-    // tslint:disable-next-line:no-unused-expression
     this.op.isActive() && sendRootInitial(this.op, this.op.initVal)
   }
 }

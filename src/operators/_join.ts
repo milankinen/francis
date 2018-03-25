@@ -9,14 +9,12 @@ export abstract class JoinOperator<A, B, P> extends Operator<A, B> {
 
   constructor(origin: Source<A>) {
     super(origin)
-    // tslint:disable-next-line:no-unused-expression
     false && disableNoUnusedWarning(this.__handleJoin)
   }
 
   public abstract continueJoin(tx: Transaction, param: P): void
 
   protected queueJoin(tx: Transaction, param: P): void {
-    // tslint:disable-next-line:no-unused-expression
     this.__join === null &&
       tx.queue((this.__join = new Join(initPriority(this.weight, this.order), this as any, param)))
   }

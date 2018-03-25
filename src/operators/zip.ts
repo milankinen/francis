@@ -147,7 +147,6 @@ class Zip<A, B> extends Operator<Indexed<A>, B> implements IndexedEndSubscriber 
       const { vals, shouldEnd } = this.popVals()
       const result = f(vals)
       initial ? this.next.initial(tx, result) : this.next.event(tx, result)
-      // tslint:disable-next-line:no-unused-expression
       shouldEnd && this.next.isActive() && this.next.end(tx)
     }
   }
@@ -165,7 +164,6 @@ class Zip<A, B> extends Operator<Indexed<A>, B> implements IndexedEndSubscriber 
         ++this.nWaitNext
         // buffer is now empty and ended so we can't zip new values anymore, thus
         // we should end the zip stream now
-        // tslint:disable-next-line:no-unused-expression
         b.ended && (shouldEnd = true)
       }
     }

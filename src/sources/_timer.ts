@@ -31,7 +31,6 @@ class Tick<T> extends Activation<T, TimerBase<T>> implements OnTimeout {
         this.send(events[i])
       }
     }
-    // tslint:disable-next-line:no-unused-expression
     this.active && (this.timeout = this.scheduler.scheduleTimeout(this, this.owner.interval))
   }
 

@@ -23,13 +23,11 @@ class Filter<T> extends Operator<T, T> {
 
   public event(tx: Transaction, val: T): void {
     const predicate = this.p
-    // tslint:disable-next-line:no-unused-expression
     predicate(val) && this.next.event(tx, val)
   }
 
   public initial(tx: Transaction, val: T): void {
     const predicate = this.p
-    // tslint:disable-next-line:no-unused-expression
     predicate(val) ? this.next.initial(tx, val) : this.next.noinitial(tx)
   }
 }

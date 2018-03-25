@@ -23,18 +23,15 @@ class Take<T> extends Operator<T, T> {
 
   public initial(tx: Transaction, val: T): void {
     this.next.initial(tx, val)
-    // tslint:disable-next-line:no-unused-expression
     --this.n === 0 && this.next.end(tx)
   }
 
   public event(tx: Transaction, val: T): void {
     this.next.event(tx, val)
-    // tslint:disable-next-line:no-unused-expression
     --this.n === 0 && this.next.end(tx)
   }
 
   public handleAbort(subscriber: Subscriber<T>): void {
-    // tslint:disable-next-line:no-unused-expression
     subscriber.isActive() && sendRootEnd(subscriber)
   }
 

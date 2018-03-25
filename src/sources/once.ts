@@ -21,7 +21,6 @@ class Once<T> extends Root<T> {
 class OnceActivation<T> extends Activation<T, Once<T>> {
   protected start(): void {
     this.sendNext(this.owner.val)
-    // tslint:disable-next-line:no-unused-expression
     this.active && this.sendEnd()
   }
   protected stop(): void {}

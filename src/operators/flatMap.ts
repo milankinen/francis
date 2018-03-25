@@ -110,7 +110,6 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   }
 
   public pipedNoInitial(sender: Pipe<B>, tx: Transaction): void {
-    // tslint:disable-next-line:no-unused-expression
     this.initStage && this.pushQ(tx, { type: EventType.NO_INITIAL, next: null })
   }
 

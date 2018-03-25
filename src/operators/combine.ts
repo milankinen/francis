@@ -54,7 +54,6 @@ export function _combine<A, B>(
   while (n--) {
     // TODO: ensure that obs is actually an observable
     const obs = observables[n]
-    // tslint:disable-next-line:no-unused-expression
     isProperty(obs) && ++nProps
     sources[n] = obs.op
   }
