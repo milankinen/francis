@@ -10,6 +10,7 @@ export { once } from "./sources/once"
 export { constant } from "./sources/constant"
 export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
+export { fromPoll } from "./sources/fromPoll"
 
 // operators
 export { map } from "./operators/map"

@@ -185,13 +185,14 @@ export { once } from "./sources/once"
 export { constant } from "./sources/constant"
 export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
+export { fromPoll } from "./sources/fromPoll"
 export { combineAsArray } from "./operators/combine"
 export { zipAsArray } from "./operators/zip"
 
 // classes and interfaces
 
-export * from "./Event"
 export * from "./_interfaces"
+export { Initial, Next, Error, End } from "./Event"
 export { Observable } from "./Observable"
 export { EventStream } from "./EventStream"
 export { AnyObs, Property } from "./Property"
