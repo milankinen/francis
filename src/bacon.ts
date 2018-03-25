@@ -184,6 +184,7 @@ Property.prototype.sampleBy = function<A, B, C>(
 export { once } from "./sources/once"
 export { constant } from "./sources/constant"
 export { fromArray } from "./sources/fromArray"
+export { sequentially } from "./sources/sequentially"
 export { combineAsArray } from "./operators/combine"
 export { zipAsArray } from "./operators/zip"
 

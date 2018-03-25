@@ -21,6 +21,10 @@ export class Next<T> implements Event {
   constructor(public value: T) {}
 }
 
+export function isNext<T>(e: Event): e is Next<T> {
+  return e.isNext
+}
+
 // prettier-ignore
 export class Initial<T> implements Event {
   public hasValue!: boolean
@@ -29,6 +33,10 @@ export class Initial<T> implements Event {
   public isError!: boolean
   public isEnd!: boolean
   constructor(public value: T) {}
+}
+
+export function isInitial<T>(e: Event): e is Initial<T> {
+  return e.isInitial
 }
 
 // prettier-ignore
@@ -40,6 +48,9 @@ export class Error implements Event {
   public isEnd!: boolean
   constructor(public error: JSError) {}
 }
+export function isError(e: Event): e is Error {
+  return e.isError
+}
 
 // prettier-ignore
 export class End implements Event {
@@ -48,6 +59,10 @@ export class End implements Event {
   public isInitial!: boolean
   public isError!: boolean
   public isEnd!: boolean
+}
+
+export function isEnd(e: Event): e is End {
+  return e.isEnd
 }
 
 Next.prototype.hasValue = true

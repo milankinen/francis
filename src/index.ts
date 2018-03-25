@@ -9,6 +9,7 @@ export { AnyObs, Property } from "./Property"
 export { once } from "./sources/once"
 export { constant } from "./sources/constant"
 export { fromArray } from "./sources/fromArray"
+export { sequentially } from "./sources/sequentially"
 
 // operators
 export { map } from "./operators/map"
