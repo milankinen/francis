@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`F.once is activated asynchronously 1`] = `
+exports[`F.fromArray is activated asynchronously 1`] = `
 Array [
   Sync {},
   Object {
@@ -38,7 +38,7 @@ Array [
 ]
 `;
 
-exports[`F.once sends its value only one time 1`] = `
+exports[`F.fromArray sends its value only one time 1`] = `
 Array [
   Object {
     "s": "a",
@@ -63,7 +63,7 @@ Array [
 ]
 `;
 
-exports[`F.once sends single event and ends 1`] = `
+exports[`F.fromArray sends single event and ends 1`] = `
 Array [
   Next {
     "value": "lol",
@@ -75,7 +75,7 @@ Array [
 ]
 `;
 
-exports[`F.once supports event wrappers such as Next and Error 1`] = `
+exports[`F.fromArray supports event wrappers such as Next and Error 1`] = `
 Array [
   Next {
     "value": "lol",

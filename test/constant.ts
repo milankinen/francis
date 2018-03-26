@@ -1,7 +1,7 @@
 import * as F from "../bacon"
 import { runner, Sync } from "./_base"
 
-describe("F.once", () => {
+describe("F.constant", () => {
   it("sends single event and ends", done => {
     runner()
       .setup(record => F.constant("tsers").subscribe(record))

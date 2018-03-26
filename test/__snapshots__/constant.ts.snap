@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`F.once is activated synchronously 1`] = `
+exports[`F.constant is activated synchronously 1`] = `
 Array [
   Initial {
     "value": "tsers",
@@ -10,7 +10,7 @@ Array [
 ]
 `;
 
-exports[`F.once sends its value to every subscriber 1`] = `
+exports[`F.constant sends its value to every subscriber 1`] = `
 Array [
   Object {
     "s": "a",
@@ -35,7 +35,7 @@ Array [
 ]
 `;
 
-exports[`F.once sends single event and ends 1`] = `
+exports[`F.constant sends single event and ends 1`] = `
 Array [
   Initial {
     "value": "tsers",
