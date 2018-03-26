@@ -18,7 +18,7 @@
     "compile:ts": "tsc -p ./tsconfig.build.json",
     "build": "npm run compile:ts && npm run package:default && npm run package:oo",
     "postbuild": "package-size ./dist/francis.min.js",
-    "lint": "tslint 'src/**/*.ts'",
+    "lint": "tslint 'src/**/*.ts' 'test/**/*.ts'",
     "prettify": "prettier --write 'src/**/*.ts'",
     "linterfixes": "tslint --fix --project .",
     "format": "npm run prettify && npm run linterfixes",
@@ -42,7 +42,8 @@
     "ts-jest": "^22.4.2",
     "ts-node": "^5.0.1",
     "tslint": "^5.9.1",
-    "typescript": "2.7.x"
+    "typescript": "2.7.x",
+    "typescript-snapshots-plugin": "^1.1.1"
   },
   "jest": {
     "transform": {

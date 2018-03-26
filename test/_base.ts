@@ -1,4 +1,4 @@
-import { Scheduler, withScheduler } from "../src/scheduler/index"
+import { withScheduler } from "../src/scheduler/index"
 import { TestScheduler } from "../src/scheduler/TestScheduler"
 
 export type RunnerSetupFn = (
@@ -27,10 +27,9 @@ export class ObservableRunner {
 
   public run(done: jest.DoneCallback): void {
     const { setupFn, afterFn } = this
-    const NONE = {}
     withScheduler(new TestScheduler(), (scheduler: TestScheduler, ready: () => void) => {
-      const recording = []
-      const record = x => recording.push(x)
+      const recording = [] as any[]
+      const record = (x: any) => recording.push(x)
       const wait = (t: number, op: () => any) => {
         scheduler.scheduleTimeout({ due: op }, t)
       }

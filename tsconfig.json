@@ -9,9 +9,13 @@
     "noImplicitAny": true,
     "strictNullChecks": true,
     "noUnusedParameters": false,
-    "noUnusedLocals": true
+    "noUnusedLocals": true,
+    "plugins": [{
+      "name": "typescript-snapshots-plugin"
+    }]
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "test/**/*.ts"
   ]
 }
