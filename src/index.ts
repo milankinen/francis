@@ -21,6 +21,7 @@ export { combineAsArray } from "./operators/combine"
 export { flatMapLatest } from "./operators/flatMap"
 export { toProperty } from "./operators/toProperty"
 export { sampleBy, sampleByF } from "./operators/sample"
+export { startWith } from "./operators/startWith"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"

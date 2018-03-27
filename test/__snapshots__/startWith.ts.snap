@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.startWith applied to Property doesn't emit anything if Property already has an initial event 1`] = `
+Array [
+  Initial {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`F.startWith applied to Property emits synchronous initial event for property having no initial event 1`] = `
+Array [
+  Initial {
+    "value": "initial",
+  },
+  Sync {},
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;

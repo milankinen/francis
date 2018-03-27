@@ -8,6 +8,7 @@ import * as FlatMap from "./operators/flatMap"
 import * as Log from "./operators/log"
 import * as Map from "./operators/map"
 import * as Sample from "./operators/sample"
+import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as ToProperty from "./operators/toProperty"
@@ -22,6 +23,7 @@ declare module "./Observable" {
     take(n: number): Observable<A>
     first(): Observable<A>
     flatMapLatest<B>(project: Projection<A, Observable<B>>): Observable<B>
+    startWith(value: A): Observable<A>
   }
 }
 
@@ -32,7 +34,8 @@ declare module "./EventStream" {
     take(n: number): EventStream<A>
     first(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, Observable<B>>): EventStream<B>
-    toProperty(initialValue: A): Property<A>
+    toProperty(initialValue?: A): Property<A>
+    startWith(value: A): EventStream<A>
   }
 }
 
@@ -47,6 +50,7 @@ declare module "./Property" {
     sampleBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
     sampleBy<B>(sampler: Property<B>): Property<A>
     sampleBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
+    startWith(value: A): Property<A>
   }
 }
 
@@ -92,10 +96,17 @@ Observable.prototype.flatMapLatest = function<A, B>(
   return FlatMap._flatMapLatest(project, this)
 }
 
+Observable.prototype.startWith = function<A>(value: A): Observable<A> {
+  return StartWith._startWith(value, this)
+}
 // EventStream specific operators
 
-EventStream.prototype.toProperty = function<A>(initialValue: A): Property<A> {
-  return ToProperty.toProperty(initialValue, this)
+EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
+  if (arguments.length === 0) {
+    return ToProperty.toProperty(this)
+  } else {
+    return StartWith._startWithP(initialValue, ToProperty.toProperty(this))
+  }
 }
 
 // Property specific operators

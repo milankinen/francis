@@ -6,6 +6,7 @@ import {
   sendEventSafely,
   sendInitialSafely,
   sendNoInitialSafely,
+  sendRootNoInitial,
   Source,
   Subscriber,
   Subscription,
@@ -294,6 +295,14 @@ export class AbortSubscriptionTask<T> implements Task {
 
   public run(): void {
     this.li.handleAbort(this.subscriber)
+  }
+}
+
+export class SendNoInitialTask implements Task {
+  constructor(private subscriber: Subscriber<any>) {}
+
+  public run(): void {
+    this.subscriber.isActive() && sendRootNoInitial(this.subscriber)
   }
 }
 
