@@ -174,8 +174,12 @@ export abstract class Operator<A, B>
   }
 
   protected abort(scheduler: Scheduler, subscriber: Subscriber<B>, order: number): Subscription {
-    scheduler.scheduleAbortSubscription(new AbortSubscriptionTask(this, subscriber))
-    return this.activateLate(scheduler, subscriber, order)
+    if (this.sync) {
+      scheduler.schedulePropertyActivation(new AbortSubscriptionTask(this, subscriber))
+    } else {
+      scheduler.scheduleEventStreamActivation(new AbortSubscriptionTask(this, subscriber))
+    }
+    return NOOP_SUBSCRIPTION
   }
 
   protected propagateReorder(order: number): void {

@@ -27,10 +27,6 @@ export class TestScheduler implements Scheduler {
     this.scheduleSync(task)
   }
 
-  public scheduleAbortSubscription(task: Task): void {
-    this.scheduleSync(task)
-  }
-
   public scheduleEventStreamActivation(task: Task): void {
     this.scheduleMicroTask(task)
   }

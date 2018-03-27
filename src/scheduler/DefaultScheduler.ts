@@ -18,10 +18,6 @@ export class DefaultScheduler implements Scheduler {
     this.queueSyncTask(task)
   }
 
-  public scheduleAbortSubscription(task: Task): void {
-    this.queueSyncTask(task)
-  }
-
   public scheduleEventStreamActivation(task: Task): void {
     this.queueMicroTask(task)
   }

@@ -200,10 +200,6 @@ class InnerSubscriptionScheduler implements Scheduler {
     this.impl.schedulePropertyActivation(task)
   }
 
-  public scheduleAbortSubscription(task: Task): void {
-    this.impl.schedulePropertyActivation(task)
-  }
-
   public scheduleEventStreamActivation(task: Task): void {
     this.impl.schedulePropertyActivation(task)
   }

@@ -13,8 +13,6 @@ export interface OnTimeout {
 export interface Scheduler {
   schedulePropertyActivation(task: Task): void
 
-  scheduleAbortSubscription(task: Task): void
-
   scheduleEventStreamActivation(task: Task): void
 
   scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout

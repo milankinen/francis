@@ -11,7 +11,7 @@ export class PropertyMulticast<T> extends MulticastImplementation<T>
 
   public beforeActivation(scheduler: Scheduler, subscriber: Subscriber<T>): boolean {
     if (this.ended) {
-      scheduler.scheduleAbortSubscription(new AbortSubscriptionTask(this, subscriber))
+      scheduler.schedulePropertyActivation(new AbortSubscriptionTask(this, subscriber))
       return false
     } else {
       return true
