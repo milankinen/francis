@@ -11,7 +11,7 @@ export function toProperty<T>(initialValue: T, stream: EventStream<T>): Property
 
 class ToProperty<T> extends Operator<T, T> {
   constructor(source: Source<T>, public initVal: T) {
-    super(source)
+    super(source, true)
   }
 
   public initial(tx: Transaction, val: T): void {

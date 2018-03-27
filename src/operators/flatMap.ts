@@ -41,8 +41,8 @@ export function _flatMapLatest<A, B>(
 ): Observable<B> {
   const op = observable.op
   return isProperty(observable)
-    ? new Property(new FlatMapLatest(op, project, true))
-    : new EventStream(new FlatMapLatest(op, project, false))
+    ? new Property(new FlatMapLatest(op, true, project))
+    : new EventStream(new FlatMapLatest(op, false, project))
 }
 
 class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B> {
@@ -56,10 +56,10 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
 
   constructor(
     source: Source<A>,
+    sync: boolean,
     private readonly proj: Projection<A, Observable<B>>,
-    private readonly sync: boolean,
   ) {
-    super(source)
+    super(source, sync)
   }
 
   public initial(tx: Transaction, val: A): void {

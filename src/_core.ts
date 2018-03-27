@@ -22,7 +22,8 @@ export interface Subscription {
 }
 
 export interface Source<T> {
-  weight: number
+  readonly weight: number
+  readonly sync: boolean
 
   subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription
 }

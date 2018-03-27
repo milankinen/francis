@@ -7,10 +7,11 @@ import {
   Subscriber,
   Subscription,
 } from "../_core"
+import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { isProperty, Property } from "../Property"
+import { Property } from "../Property"
 import { Scheduler } from "../scheduler/index"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
@@ -44,19 +45,18 @@ export function _sampleByF<S, V, R>(
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): Observable<R> {
-  const op = new Sample(project, value.op, sampler.op)
-  return isProperty(sampler) ? new Property(op) : new EventStream(op)
+  const cs = new CompositeSource(value.op, sampler.op, new Pipe(null as any))
+  return makeObservable(new Sample(cs, project))
 }
 
 class Sample<S, V, R> extends JoinOperator<S, R, boolean> implements PipeDest<V> {
   private sample: S
   private val: V
 
-  constructor(private p: (value: V, sample: S) => R, valueSrc: Source<V>, sampleSrc: Source<S>) {
-    super(new CompositeSource(valueSrc, sampleSrc, new Pipe(null as any)))
+  constructor(source: CompositeSource<S, V>, private p: (value: V, sample: S) => R) {
+    super(source, source.sync)
     this.val = this.sample = NONE
-    const cs = this.source as CompositeSource<S, V>
-    cs.vDest = new Pipe(this)
+    source.vDest = new Pipe(this)
   }
 
   public initial(tx: Transaction, sample: S): void {
@@ -86,9 +86,11 @@ class Sample<S, V, R> extends JoinOperator<S, R, boolean> implements PipeDest<V>
   public pipedEvent(sender: Pipe<V>, tx: Transaction, val: V): void {
     this.val = val
   }
+
   public pipedError(sender: Pipe<V>, tx: Transaction, err: Error): void {
     this.error(tx, err)
   }
+
   public pipedEnd(sender: Pipe<V>, tx: Transaction): void {
     const cs = this.source as CompositeSource<S, V>
     cs.disposeValue()
@@ -96,10 +98,12 @@ class Sample<S, V, R> extends JoinOperator<S, R, boolean> implements PipeDest<V>
 }
 
 class CompositeSource<S, V> implements Source<S>, Subscription {
-  public weight: number
+  public readonly weight: number
+  public readonly sync: boolean
   private vSubs: Subscription
   private sSubs: Subscription
   constructor(public vSrc: Source<V>, public sSrc: Source<S>, public vDest: Subscriber<V>) {
+    this.sync = this.sSrc.sync
     this.weight = vSrc.weight + sSrc.weight
     this.vSubs = this.sSubs = NOOP_SUBSCRIPTION
   }

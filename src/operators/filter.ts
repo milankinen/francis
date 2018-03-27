@@ -1,9 +1,10 @@
 import { Source } from "../_core"
 import { Predicate } from "../_interfaces"
+import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { derive, Property } from "../Property"
+import { Property } from "../Property"
 import { Operator } from "./_base"
 
 export function filter<T>(predicate: Predicate<T>, stream: EventStream<T>): EventStream<T>
@@ -13,12 +14,12 @@ export function filter<T>(predicate: Predicate<T>, observable: Observable<T>): O
 }
 
 export function _filter<T>(predicate: Predicate<T>, observable: Observable<T>): Observable<T> {
-  return derive(observable, new Filter(observable.op, predicate))
+  return makeObservable(new Filter(observable.op, predicate))
 }
 
 class Filter<T> extends Operator<T, T> {
   constructor(source: Source<T>, private p: Predicate<T>) {
-    super(source)
+    super(source, source.sync)
   }
 
   public event(tx: Transaction, val: T): void {

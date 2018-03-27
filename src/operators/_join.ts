@@ -7,8 +7,8 @@ import { Operator } from "./_base"
 export abstract class JoinOperator<A, B, P> extends Operator<A, B> {
   private __join: Join<P> | null = null
 
-  constructor(origin: Source<A>) {
-    super(origin)
+  constructor(origin: Source<A>, sync: boolean) {
+    super(origin, sync)
     false && disableNoUnusedWarning(this.__handleJoin)
   }
 

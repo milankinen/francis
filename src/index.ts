@@ -2,8 +2,8 @@
 export * from "./Event"
 export * from "./_interfaces"
 export { Observable } from "./Observable"
-export { EventStream } from "./EventStream"
-export { AnyObs, Property } from "./Property"
+export { EventStream, isEventStream } from "./EventStream"
+export { Property, isProperty } from "./Property"
 
 // factory functions
 export { once } from "./sources/once"

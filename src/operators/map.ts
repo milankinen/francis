@@ -1,9 +1,10 @@
 import { Source } from "../_core"
 import { Projection } from "../_interfaces"
+import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { derive, Property } from "../Property"
+import { Property } from "../Property"
 import { Operator } from "./_base"
 
 export function map<A, B>(project: Projection<A, B>, stream: EventStream<A>): EventStream<B>
@@ -13,12 +14,12 @@ export function map<A, B>(project: Projection<A, B>, observable: Observable<A>):
 }
 
 export function _map<A, B>(project: Projection<A, B>, observable: Observable<A>): Observable<B> {
-  return derive(observable, new Map(observable.op, project))
+  return makeObservable(new Map(observable.op, project))
 }
 
 class Map<A, B> extends Operator<A, B> {
   constructor(source: Source<A>, private p: Projection<A, B>) {
-    super(source)
+    super(source, source.sync)
   }
 
   public event(tx: Transaction, val: A): void {

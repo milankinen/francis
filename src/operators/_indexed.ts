@@ -16,26 +16,36 @@ const NOOP_IES = new class NoopIES {
 }()
 
 export class IndexedSource<T> implements Source<Indexed<T>>, Subscription {
-  public weight: number
+  public readonly weight: number
+  public readonly sync: boolean
 
+  private readonly nSyncSrcs: number
   private ies: IndexedEndSubscriber
   private subs: Subscription[]
 
   constructor(private sources: Array<Source<T>>) {
+    let nSync = 0
     let w = 0
     let n = sources.length
     this.subs = Array(n)
     while (n--) {
+      sources[n].sync && ++nSync
       w += sources[n].weight
       this.subs[n] = NOOP_SUBSCRIPTION
     }
     this.weight = w
+    this.sync = nSync === sources.length
     this.subs = []
     this.ies = NOOP_IES
+    this.nSyncSrcs = nSync
   }
 
   public size(): number {
     return this.sources.length
+  }
+
+  public numSyncItems(): number {
+    return this.nSyncSrcs
   }
 
   public setEndSubscriber(ies: IndexedEndSubscriber): void {

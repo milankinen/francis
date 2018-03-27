@@ -1,8 +1,9 @@
 import { sendRootEnd, Source, Subscriber, Subscription } from "../_core"
+import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { derive, Property } from "../Property"
+import { Property } from "../Property"
 import { Scheduler } from "../scheduler/index"
 import { Operator } from "./_base"
 
@@ -13,12 +14,12 @@ export function take<T>(n: number, observable: Observable<T>): Observable<T> {
 }
 
 export function _take<T>(n: number, observable: Observable<T>): Observable<T> {
-  return derive(observable, new Take(observable.op, n))
+  return makeObservable(new Take(observable.op, n))
 }
 
 class Take<T> extends Operator<T, T> {
   constructor(source: Source<T>, private n: number) {
-    super(source)
+    super(source, source.sync)
   }
 
   public initial(tx: Transaction, val: T): void {

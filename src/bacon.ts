@@ -11,7 +11,7 @@ import * as Sample from "./operators/sample"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as ToProperty from "./operators/toProperty"
-import { AnyObs, isProperty, Property } from "./Property"
+import { isProperty, Property } from "./Property"
 
 declare module "./Observable" {
   interface Observable<A> {
@@ -123,4 +123,4 @@ export * from "./_interfaces"
 export { Initial, Next, Error, End } from "./Event"
 export { Observable } from "./Observable"
 export { EventStream } from "./EventStream"
-export { AnyObs, Property } from "./Property"
+export { Property } from "./Property"

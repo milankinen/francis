@@ -1,7 +1,7 @@
 import { NONE, sendEndSafely, sendErrorSafely, sendEventSafely, sendInitialSafely } from "../_core"
 import { Transaction } from "../_tx"
 import { Observable } from "../Observable"
-import { isProperty, Property } from "../Property"
+import { Property } from "../Property"
 import { EventType } from "./_base"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { ErrorQueue, JoinOperator } from "./_join"
@@ -50,15 +50,13 @@ export function _combine<A, B>(
   observables: Array<Observable<A>>,
 ): Property<B> {
   let n = observables.length
-  let nProps = 0
   const sources = Array(n)
   while (n--) {
     // TODO: ensure that obs is actually an observable
     const obs = observables[n]
-    isProperty(obs) && ++nProps
     sources[n] = obs.op
   }
-  const op = new Combine<A, B>(new IndexedSource(sources), nProps, f)
+  const op = new Combine<A, B>(new IndexedSource(sources), f)
   return new Property(op)
 }
 
@@ -71,13 +69,13 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
   private qEnd: EventType.END | 0 = 0
   private qErrors: ErrorQueue = new ErrorQueue()
 
-  constructor(source: IndexedSource<A>, private nProps: number, private f: (vals: A[]) => B) {
-    super(source)
+  constructor(source: IndexedSource<A>, private f: (vals: A[]) => B) {
+    super(source, true)
     source.setEndSubscriber(this)
     const n = source.size()
     this.vals = Array(n)
     this.nVals = this.nEnds = n
-    this.nInitials = nProps
+    this.nInitials = source.numSyncItems()
     this.resetState()
   }
 
@@ -150,7 +148,7 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
 
   private resetState(): void {
     let n = this.vals.length
-    this.nInitials = this.nProps
+    this.nInitials = (this.source as IndexedSource<A>).numSyncItems()
     this.nVals = this.nEnds = n
     this.qEnd = this.qNext = 0
     this.qErrors.clear()

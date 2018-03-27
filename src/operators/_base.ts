@@ -30,7 +30,7 @@ export enum EventType {
  * @param source Unicasted "bare" source
  */
 export function identity<T>(source: Source<T>): Operator<T, T> {
-  return new Identity(source)
+  return new Identity(source, source.sync)
 }
 
 export abstract class MulticastImplementation<T> implements Subscriber<T> {
@@ -92,6 +92,7 @@ const NOOP_MCAST = new class NoopImpl extends MulticastImplementation<any> {}()
 export abstract class Operator<A, B>
   implements Subscriber<A>, Source<B>, AbortSubscriptionListener<B> {
   public readonly weight: number
+  public readonly sync: boolean
 
   protected readonly order: number
   protected readonly source: Source<A>
@@ -100,9 +101,10 @@ export abstract class Operator<A, B>
   private __subs: Subscription = NOOP_SUBSCRIPTION
   private __active: boolean = false
 
-  constructor(origin: Source<A>) {
+  constructor(origin: Source<A>, sync: boolean) {
     false && disableNoUnusedWarning(this.__handleDispose, this.__handeReorder)
     this.source = origin
+    this.sync = sync
     this.order = MAX_ORDER + 1
     this.weight = origin.weight
   }
