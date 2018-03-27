@@ -1,6 +1,5 @@
 import { Dispose, Handler, Predicate, Projection } from "./_interfaces"
 import { toFunction } from "./_interrop"
-import { identity } from "./_util"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Filter from "./operators/filter"
@@ -12,7 +11,6 @@ import * as Sample from "./operators/sample"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as ToProperty from "./operators/toProperty"
-import * as Zip from "./operators/zip"
 import { AnyObs, isProperty, Property } from "./Property"
 
 declare module "./Observable" {
@@ -24,27 +22,6 @@ declare module "./Observable" {
     take(n: number): Observable<A>
     first(): Observable<A>
     flatMapLatest<B>(project: Projection<A, Observable<B>>): Observable<B>
-    zipAsArray<B>(s1: Observable<B>): Observable<[A, B]>
-    zipAsArray<B, C>(s1: Observable<B>, s2: Observable<C>): Observable<[A, B, C]>
-    zipAsArray<B, C, D>(
-      s1: Observable<B>,
-      s2: Observable<C>,
-      s3: Observable<D>,
-    ): Observable<[A, B, C, D]>
-    zipAsArray<B, C, D, E>(
-      s1: Observable<B>,
-      s2: Observable<C>,
-      s3: Observable<D>,
-      s4: Observable<E>,
-    ): Observable<[A, B, C, D, E]>
-    zipAsArray<B, C, D, E, F>(
-      s1: Observable<B>,
-      s2: Observable<C>,
-      s3: Observable<D>,
-      s4: Observable<E>,
-      s5: Observable<F>,
-    ): Observable<[A, B, C, D, E, F]>
-    zipAsArray(...other: Array<Observable<any>>): Observable<any[]>
   }
 }
 
@@ -56,23 +33,6 @@ declare module "./EventStream" {
     first(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, Observable<B>>): EventStream<B>
     toProperty(initialValue: A): Property<A>
-    zipAsArray<B>(s1: AnyObs<B>): EventStream<[A, B]>
-    zipAsArray<B, C>(s1: AnyObs<B>, s2: AnyObs<C>): EventStream<[A, B, C]>
-    zipAsArray<B, C, D>(s1: AnyObs<B>, s2: AnyObs<C>, s3: AnyObs<D>): EventStream<[A, B, C, D]>
-    zipAsArray<B, C, D, E>(
-      s1: AnyObs<B>,
-      s2: AnyObs<C>,
-      s3: AnyObs<D>,
-      s4: AnyObs<E>,
-    ): EventStream<[A, B, C, D, E]>
-    zipAsArray<B, C, D, E, F>(
-      s1: AnyObs<B>,
-      s2: AnyObs<C>,
-      s3: AnyObs<D>,
-      s4: AnyObs<E>,
-      s5: AnyObs<F>,
-    ): EventStream<[A, B, C, D, E, F]>
-    zipAsArray(...other: Array<AnyObs<any>>): EventStream<any[]>
   }
 }
 
@@ -87,40 +47,6 @@ declare module "./Property" {
     sampleBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
     sampleBy<B>(sampler: Property<B>): Property<A>
     sampleBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
-    zipAsArray<B>(s1: AnyObs<B>): EventStream<[A, B]>
-    zipAsArray<B, C>(s1: AnyObs<B>, s2: AnyObs<C>): EventStream<[A, B, C]>
-    zipAsArray<B, C, D>(s1: AnyObs<B>, s2: AnyObs<C>, s3: AnyObs<D>): EventStream<[A, B, C, D]>
-    zipAsArray<B, C, D, E>(
-      s1: AnyObs<B>,
-      s2: AnyObs<C>,
-      s3: AnyObs<D>,
-      s4: AnyObs<E>,
-    ): EventStream<[A, B, C, D, E]>
-    zipAsArray<B, C, D, E, F>(
-      s1: AnyObs<B>,
-      s2: AnyObs<C>,
-      s3: AnyObs<D>,
-      s4: AnyObs<E>,
-      s5: AnyObs<F>,
-    ): EventStream<[A, B, C, D, E, F]>
-    zipAsArray(...other: Array<AnyObs<any>>): EventStream<any[]>
-    zipAsArray<B>(p1: Property<B>): Property<[A, B]>
-    zipAsArray<B, C>(p1: Property<B>, p2: Property<C>): Property<[A, B, C]>
-    zipAsArray<B, C, D>(p1: Property<B>, p2: Property<C>, p3: Property<D>): Property<[A, B, C, D]>
-    zipAsArray<B, C, D, E>(
-      p1: Property<B>,
-      p2: Property<C>,
-      p3: Property<D>,
-      p4: Property<E>,
-    ): Property<[A, B, C, D, E]>
-    zipAsArray<B, C, D, E, F>(
-      p1: Property<B>,
-      p2: Property<C>,
-      p3: Property<D>,
-      p4: Property<E>,
-      p5: Property<F>,
-    ): Property<[A, B, C, D, E, F]>
-    zipAsArray(...other: Array<Property<any>>): Property<any[]>
   }
 }
 
@@ -160,12 +86,6 @@ Observable.prototype.first = function<A>(): Observable<A> {
   return First._first(this)
 }
 
-Observable.prototype.zipAsArray = ({
-  zipAsArray(...other: Array<Observable<any>>): Observable<any[]> {
-    return Zip._zip(identity, [this as any].concat(other))
-  },
-} as any).zipAsArray
-
 Observable.prototype.flatMapLatest = function<A, B>(
   project: Projection<A, Observable<B>>,
 ): Observable<B> {
@@ -196,7 +116,6 @@ export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"
 export { combineAsArray } from "./operators/combine"
-export { zipAsArray } from "./operators/zip"
 
 // classes and interfaces
 

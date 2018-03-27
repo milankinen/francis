@@ -17,7 +17,6 @@ export { map } from "./operators/map"
 export { filter } from "./operators/filter"
 export { take } from "./operators/take"
 export { first } from "./operators/first"
-export { zipAsArray } from "./operators/zip"
 export { combineAsArray } from "./operators/combine"
 export { flatMapLatest } from "./operators/flatMap"
 export { toProperty } from "./operators/toProperty"
@@ -25,5 +24,4 @@ export { sampleBy, sampleByF } from "./operators/sample"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"
-
 export { log } from "./operators/log"
