@@ -1,9 +1,10 @@
-import { NONE, sendEventSafely, sendInitialSafely } from "../_core"
+import { NONE, sendEndSafely, sendErrorSafely, sendEventSafely, sendInitialSafely } from "../_core"
 import { Transaction } from "../_tx"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
+import { EventType } from "./_base"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
-import { JoinOperator } from "./_join"
+import { ErrorQueue, JoinOperator } from "./_join"
 
 export function combineAsArray<T>(observables: Array<Observable<T>>): Property<T[]>
 export function combineAsArray<A>(o1: Observable<A>): Property<[A]>
@@ -66,16 +67,18 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
   private nInitials: number
   private nVals: number
   private nEnds: number
-  private sendInitial: boolean
+  private qNext: EventType.INITIAL | EventType.EVENT | 0 = 0
+  private qEnd: EventType.END | 0 = 0
+  private qErrors: ErrorQueue = new ErrorQueue()
 
   constructor(source: IndexedSource<A>, private nProps: number, private f: (vals: A[]) => B) {
     super(source)
+    source.setEndSubscriber(this)
     const n = source.size()
     this.vals = Array(n)
     this.nVals = this.nEnds = n
     this.nInitials = nProps
-    this.sendInitial = false
-    this.resetBuffer()
+    this.resetState()
   }
 
   public initial(tx: Transaction, ival: Indexed<A>): void {
@@ -84,7 +87,7 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     this.vals[idx] = val
     --this.nInitials
     if ((prev === NONE && --this.nVals === 0) || this.nVals === 0) {
-      this.sendInitial = true
+      this.qNext = EventType.INITIAL
       this.queueJoin(tx, null)
     } else if (this.nInitials === 0) {
       this.next.noinitial(tx)
@@ -102,14 +105,15 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     const prev = this.vals[idx]
     this.vals[idx] = val
     if ((prev === NONE && --this.nVals === 0) || this.nVals === 0) {
-      this.sendInitial = false
+      this.qNext = EventType.INITIAL
       this.queueJoin(tx, null)
     }
   }
 
   public iend(tx: Transaction, idx: number): void {
     if (--this.nEnds === 0) {
-      this.next.end(tx)
+      this.qEnd = EventType.END
+      this.queueJoin(tx, null)
     } else {
       const isrc = this.source as IndexedSource<A>
       isrc.disposeIdx(idx)
@@ -117,23 +121,39 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
   }
 
   public continueJoin(tx: Transaction, ignore: null): void {
-    const f = this.f
-    if (this.isActive()) {
-      this.sendInitial
-        ? sendInitialSafely(tx, this.next, f(this.vals))
-        : sendEventSafely(tx, this.next, f(this.vals))
+    if (this.qNext !== 0) {
+      const isInitial = this.qNext === EventType.INITIAL
+      const { f } = this
+      this.qNext = 0
+      this.isActive() &&
+        (isInitial
+          ? sendInitialSafely(tx, this.next, f(this.vals))
+          : sendEventSafely(tx, this.next, f(this.vals)))
+    }
+    if (this.qErrors.hasErrors()) {
+      const errs = this.qErrors.popAll()
+      const n = errs.length
+      for (let i = 0; this.isActive() && i < n; i++) {
+        sendErrorSafely(tx, this.next, errs[i])
+      }
+    }
+    if (this.qEnd !== 0) {
+      this.qEnd = 0
+      this.isActive() && sendEndSafely(tx, this.next)
     }
   }
 
   protected handleDispose(): void {
-    this.resetBuffer()
+    this.resetState()
     this.dispose()
   }
 
-  private resetBuffer(): void {
+  private resetState(): void {
     let n = this.vals.length
     this.nInitials = this.nProps
     this.nVals = this.nEnds = n
+    this.qEnd = this.qNext = 0
+    this.qErrors.clear()
     while (n--) {
       this.vals[n] = NONE
     }

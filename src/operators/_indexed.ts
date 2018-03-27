@@ -11,7 +11,9 @@ export interface IndexedEndSubscriber {
   iend(tx: Transaction, idx: number): void
 }
 
-const NOOP_IES = { iend: () => undefined } as IndexedEndSubscriber
+const NOOP_IES = new class NoopIES {
+  public iend(tx: Transaction, idx: number) {}
+}()
 
 export class IndexedSource<T> implements Source<Indexed<T>>, Subscription {
   public weight: number
