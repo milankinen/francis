@@ -1,12 +1,21 @@
 import { __DEVBUILD__, assert } from "../_assert"
-import { NONE, sendEndSafely, sendErrorSafely, sendEventSafely, sendInitialSafely } from "../_core"
+import {
+  NONE,
+  sendEndSafely,
+  sendErrorSafely,
+  sendEventSafely,
+  sendInitialSafely,
+  Subscriber,
+  Subscription,
+} from "../_core"
 import { toObservable } from "../_interrop"
 import { Transaction } from "../_tx"
 import { isArray } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
+import { Scheduler } from "../scheduler/index"
 import { constant } from "../sources/constant"
-import { EventType } from "./_base"
+import { EventType, SendNoInitialTask } from "./_base"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { ErrorQueue, JoinOperator } from "./_join"
 import { _map, map } from "./map"
@@ -151,6 +160,18 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
       this.qEnd = 0
       this.isActive() && sendEndSafely(tx, this.next)
     }
+  }
+
+  protected handleActivation(
+    scheduler: Scheduler,
+    subscriber: Subscriber<B>,
+    order: number,
+  ): Subscription {
+    if (this.nInitialsLeft === 0) {
+      // PropertyMulticast will send no-initial event for late subscribers
+      scheduler.schedulePropertyActivation(new SendNoInitialTask(subscriber))
+    }
+    return this.activate(scheduler, subscriber, order)
   }
 
   protected handleDispose(): void {
