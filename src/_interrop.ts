@@ -4,7 +4,7 @@ import { isFunction, isObject } from "./_util"
 import { Observable } from "./Observable"
 import { constant } from "./sources/constant"
 
-export function toObservable<T, O extends Observable<T>>(maybeObs: O): O {
+export function toObservable<T, O extends Observable<T>>(maybeObs: O | T): O {
   if (isObservable(maybeObs)) {
     return maybeObs
   } else {

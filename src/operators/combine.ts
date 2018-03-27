@@ -5,38 +5,41 @@ import { Transaction } from "../_tx"
 import { isArray } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
+import { constant } from "../sources/constant"
 import { EventType } from "./_base"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { ErrorQueue, JoinOperator } from "./_join"
+import { _map, map } from "./map"
+import { toProperty } from "./toProperty"
 
-export function combineAsArray<T>(observables: Array<Observable<T>>): Property<T[]>
-export function combineAsArray<A>(o1: Observable<A>): Property<[A]>
-export function combineAsArray<A, B>(o1: Observable<A>, o2: Observable<B>): Property<[A, B]>
+export function combineAsArray<T>(observables: Array<Observable<T> | T>): Property<T[]>
+export function combineAsArray<A>(o1: Observable<A> | A): Property<[A]>
+export function combineAsArray<A, B>(o1: Observable<A> | A, o2: Observable<B> | B): Property<[A, B]>
 export function combineAsArray<A, B, C>(
-  o1: Observable<A>,
-  o2: Observable<B>,
-  o3: Observable<C>,
+  o1: Observable<A> | A,
+  o2: Observable<B> | B,
+  o3: Observable<C> | C,
 ): Property<[A, B, C]>
 export function combineAsArray<A, B, C, D>(
-  o1: Observable<A>,
-  o2: Observable<B>,
-  o3: Observable<C>,
-  o4: Observable<D>,
+  o1: Observable<A> | A,
+  o2: Observable<B> | B,
+  o3: Observable<C> | C,
+  o4: Observable<D> | D,
 ): Property<[A, B, C, D]>
 export function combineAsArray<A, B, C, D, E>(
-  o1: Observable<A>,
-  o2: Observable<B>,
-  o3: Observable<C>,
-  o4: Observable<D>,
-  o5: Observable<E>,
+  o1: Observable<A> | A,
+  o2: Observable<B> | B,
+  o3: Observable<C> | C,
+  o4: Observable<D> | D,
+  o5: Observable<E> | E,
 ): Property<[A, B, C, D, E]>
 export function combineAsArray<A, B, C, D, E, F>(
-  o1: Observable<A>,
-  o2: Observable<B>,
-  o3: Observable<C>,
-  o4: Observable<D>,
-  o5: Observable<E>,
-  o6: Observable<F>,
+  o1: Observable<A> | A,
+  o2: Observable<B> | B,
+  o3: Observable<C> | C,
+  o4: Observable<D> | D,
+  o5: Observable<E> | E,
+  o6: Observable<F> | F,
 ): Property<[A, B, C, D, E, F]>
 export function combineAsArray(...observables: Array<Observable<any>>): Property<any[]>
 export function combineAsArray<T>(...observables: any[]): Property<T[]> {
@@ -52,16 +55,21 @@ export function combineAsArray<T>(...observables: any[]): Property<T[]> {
 
 export function _combine<A, B>(
   f: (vals: A[]) => B,
-  observables: Array<Observable<A>>,
+  observables: Array<Observable<A> | A>,
 ): Property<B> {
   let n = observables.length
-  const sources = Array(n)
-  while (n--) {
-    const obs = toObservable(observables[n])
-    sources[n] = obs.op
+  if (n === 0) {
+    return map(f, constant([] as A[]))
+  } else if (n === 1) {
+    return toProperty(_map(val => f([val]), toObservable<A, Observable<A>>(observables[0])))
+  } else {
+    const sources = Array(n)
+    while (n--) {
+      const obs = toObservable(observables[n])
+      sources[n] = obs.op
+    }
+    return new Property(new Combine<A, B>(new IndexedSource(sources), f))
   }
-  const op = new Combine<A, B>(new IndexedSource(sources), f)
-  return new Property(op)
 }
 
 class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber {

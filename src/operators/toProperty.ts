@@ -1,13 +1,13 @@
 import { __DEVBUILD__, assert } from "../_assert"
 import { Source, Subscriber, Subscription } from "../_core"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
-import { Property } from "../Property"
+import { Observable } from "../Observable"
+import { isProperty, Property } from "../Property"
 import { Scheduler } from "../scheduler/index"
 import { Operator, SendNoInitialTask } from "./_base"
 
-export function toProperty<T>(stream: EventStream<T>): Property<T> {
-  return new Property(new ToProperty(stream.op))
+export function toProperty<T>(observable: Observable<T>): Property<T> {
+  return isProperty<T>(observable) ? observable : new Property(new ToProperty(observable.op))
 }
 
 class ToProperty<T> extends Operator<T, T> {
