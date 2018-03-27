@@ -154,18 +154,13 @@ export abstract class Operator<A, B>
 
   public handleAbort(subscriber: Subscriber<B>): void {}
 
-  protected activateFirst(
-    scheduler: Scheduler,
-    subscriber: Subscriber<B>,
-    order: number,
-  ): Subscription {
-    // TODO
+  protected activate(scheduler: Scheduler, subscriber: Subscriber<B>, order: number): Subscription {
     this.__active = true
     this.__subs = this.source.subscribe(scheduler, this, order)
     return new MulticastSubscription(subscriber, this as any)
   }
 
-  protected activateLate(
+  protected multicast(
     scheduler: Scheduler,
     subscriber: Subscriber<B>,
     order: number,
@@ -182,7 +177,7 @@ export abstract class Operator<A, B>
     return NOOP_SUBSCRIPTION
   }
 
-  protected propagateReorder(order: number): void {
+  protected reorder(order: number): void {
     this.__subs.reorder(order)
   }
 
@@ -197,7 +192,7 @@ export abstract class Operator<A, B>
     subscriber: Subscriber<B>,
     order: number,
   ): Subscription {
-    return this.activateFirst(scheduler, subscriber, order)
+    return this.activate(scheduler, subscriber, order)
   }
 
   protected handleMulticast(
@@ -205,11 +200,11 @@ export abstract class Operator<A, B>
     subscriber: Subscriber<B>,
     order: number,
   ): Subscription {
-    return this.activateLate(scheduler, subscriber, order)
+    return this.multicast(scheduler, subscriber, order)
   }
 
   protected handleReorder(order: number): void {
-    this.propagateReorder(order)
+    this.reorder(order)
   }
 
   protected handleDispose(): void {

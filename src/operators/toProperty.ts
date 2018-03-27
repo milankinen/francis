@@ -28,7 +28,7 @@ class ToProperty<T> extends Operator<T, T> {
     order: number,
   ): Subscription {
     scheduler.schedulePropertyActivation(new ToPropertyActivationTask(this))
-    return this.activateFirst(scheduler, subscriber, order)
+    return this.activate(scheduler, subscriber, order)
   }
 
   protected handleMulticast(
@@ -37,7 +37,7 @@ class ToProperty<T> extends Operator<T, T> {
     order: number,
   ): Subscription {
     scheduler.schedulePropertyActivation(new ToPropertyActivationTask(this))
-    return this.activateLate(scheduler, subscriber, order)
+    return this.multicast(scheduler, subscriber, order)
   }
 }
 

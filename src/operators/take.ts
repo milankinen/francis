@@ -43,7 +43,7 @@ class Take<T> extends Operator<T, T> {
   ): Subscription {
     return this.n === 0
       ? this.abort(scheduler, subscriber, order)
-      : this.activateFirst(scheduler, subscriber, order)
+      : this.activate(scheduler, subscriber, order)
   }
 
   protected handleMulticast(
@@ -53,6 +53,6 @@ class Take<T> extends Operator<T, T> {
   ): Subscription {
     return this.n === 0
       ? this.abort(scheduler, subscriber, order)
-      : this.activateLate(scheduler, subscriber, order)
+      : this.multicast(scheduler, subscriber, order)
   }
 }

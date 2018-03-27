@@ -160,7 +160,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
 
   protected handleReorder(order: number): void {
     this.innerSubs.reorder(order + 1)
-    this.propagateReorder(order)
+    this.reorder(order)
   }
 
   private pushQ(tx: Transaction, qe: QueuedEvent<B>): void {
