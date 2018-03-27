@@ -1,19 +1,30 @@
 import { __DEVBUILD__ } from "./_assert"
+import { isObservable } from "./_obs"
 import { isFunction, isObject } from "./_util"
+import { Observable } from "./Observable"
+import { constant } from "./sources/constant"
 
-export function toFunction<T>(x: T, args: any[]): T {
-  if (isFunction(x)) {
-    return x
-  } else if (typeof x === "string") {
-    if (x.length > 1 && x.substr(0, 1) === ".") {
-      return propertyOrMethodCall(x.substr(1), args)
-    } else {
-      return constantly(x)
-    }
-  } else if (isObject(x) && args.length > 0) {
-    return papplyMethodCall(x, args[0], args.slice(1))
+export function toObservable<T, O extends Observable<T>>(maybeObs: O): O {
+  if (isObservable(maybeObs)) {
+    return maybeObs
   } else {
-    return constantly(x)
+    return constant(maybeObs) as any
+  }
+}
+
+export function toFunction<T>(maybeFn: T, args: any[]): T {
+  if (isFunction(maybeFn)) {
+    return maybeFn
+  } else if (typeof maybeFn === "string") {
+    if (maybeFn.length > 1 && maybeFn.substr(0, 1) === ".") {
+      return propertyOrMethodCall(maybeFn.substr(1), args)
+    } else {
+      return constantly(maybeFn)
+    }
+  } else if (isObject(maybeFn) && args.length > 0) {
+    return papplyMethodCall(maybeFn, args[0], args.slice(1))
+  } else {
+    return constantly(maybeFn)
   }
 }
 

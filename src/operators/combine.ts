@@ -1,5 +1,8 @@
+import { __DEVBUILD__, assert } from "../_assert"
 import { NONE, sendEndSafely, sendErrorSafely, sendEventSafely, sendInitialSafely } from "../_core"
+import { toObservable } from "../_interrop"
 import { Transaction } from "../_tx"
+import { isArray } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { EventType } from "./_base"
@@ -37,8 +40,10 @@ export function combineAsArray<A, B, C, D, E, F>(
 ): Property<[A, B, C, D, E, F]>
 export function combineAsArray(...observables: Array<Observable<any>>): Property<any[]>
 export function combineAsArray<T>(...observables: any[]): Property<T[]> {
-  if (Array.isArray(observables[0])) {
-    // TODO: assert length
+  if (isArray(observables[0])) {
+    if (__DEVBUILD__) {
+      assert(() => observables.length === 1, "Nested arrays are not supported by combine")
+    }
     return _combine<T, T[]>(slice, observables[0])
   } else {
     return _combine<T, T[]>(slice, observables)
@@ -52,8 +57,7 @@ export function _combine<A, B>(
   let n = observables.length
   const sources = Array(n)
   while (n--) {
-    // TODO: ensure that obs is actually an observable
-    const obs = observables[n]
+    const obs = toObservable(observables[n])
     sources[n] = obs.op
   }
   const op = new Combine<A, B>(new IndexedSource(sources), f)
@@ -62,9 +66,9 @@ export function _combine<A, B>(
 
 class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber {
   private vals: A[]
-  private nInitials: number
-  private nVals: number
-  private nEnds: number
+  private nInitialsLeft: number
+  private nValsLeft: number
+  private nEndsLeft: number
   private qNext: EventType.INITIAL | EventType.EVENT | 0 = 0
   private qEnd: EventType.END | 0 = 0
   private qErrors: ErrorQueue = new ErrorQueue()
@@ -74,8 +78,8 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     source.setEndSubscriber(this)
     const n = source.size()
     this.vals = Array(n)
-    this.nVals = this.nEnds = n
-    this.nInitials = source.numSyncItems()
+    this.nValsLeft = this.nEndsLeft = n
+    this.nInitialsLeft = source.numSyncItems()
     this.resetState()
   }
 
@@ -83,17 +87,17 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     const { val, idx } = ival
     const prev = this.vals[idx]
     this.vals[idx] = val
-    --this.nInitials
-    if ((prev === NONE && --this.nVals === 0) || this.nVals === 0) {
+    --this.nInitialsLeft
+    if ((prev === NONE && --this.nValsLeft === 0) || this.nValsLeft === 0) {
       this.qNext = EventType.INITIAL
       this.queueJoin(tx, null)
-    } else if (this.nInitials === 0) {
+    } else if (this.nInitialsLeft === 0) {
       this.next.noinitial(tx)
     }
   }
 
   public noinitial(tx: Transaction): void {
-    if (--this.nInitials === 0) {
+    if (--this.nInitialsLeft === 0) {
       this.next.noinitial(tx)
     }
   }
@@ -102,14 +106,14 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     const { val, idx } = ival
     const prev = this.vals[idx]
     this.vals[idx] = val
-    if ((prev === NONE && --this.nVals === 0) || this.nVals === 0) {
-      this.qNext = EventType.INITIAL
+    if ((prev === NONE && --this.nValsLeft === 0) || this.nValsLeft === 0) {
+      this.qNext = EventType.EVENT
       this.queueJoin(tx, null)
     }
   }
 
   public iend(tx: Transaction, idx: number): void {
-    if (--this.nEnds === 0) {
+    if (--this.nEndsLeft === 0) {
       this.qEnd = EventType.END
       this.queueJoin(tx, null)
     } else {
@@ -148,8 +152,8 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
 
   private resetState(): void {
     let n = this.vals.length
-    this.nInitials = (this.source as IndexedSource<A>).numSyncItems()
-    this.nVals = this.nEnds = n
+    this.nInitialsLeft = (this.source as IndexedSource<A>).numSyncItems()
+    this.nValsLeft = this.nEndsLeft = n
     this.qEnd = this.qNext = 0
     this.qErrors.clear()
     while (n--) {
