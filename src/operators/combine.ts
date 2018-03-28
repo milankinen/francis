@@ -131,6 +131,11 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     }
   }
 
+  public error(tx: Transaction, err: Error): void {
+    this.qErrors.push(err)
+    this.queueJoin(tx, null)
+  }
+
   public iend(tx: Transaction, idx: number): void {
     if (--this.nEndsLeft === 0) {
       this.qEnd = EventType.END
