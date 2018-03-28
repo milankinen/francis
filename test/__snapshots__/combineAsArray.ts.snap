@@ -1,0 +1,284 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.combineAsArray allows mixing observables and non-observable values 1`] = `
+Array [
+  Next {
+    "value": Array [
+      "foo",
+      "bar",
+      123,
+      "!",
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray does not duplicate same error 1`] = `
+Array [
+  Next {
+    "value": Array [
+      "mkay",
+      "mkay",
+    ],
+  },
+  Error {
+    "error": "noes",
+  },
+  Next {
+    "value": Array [
+      "yay!",
+      "yay!",
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray does not generate any glitches (follows transaction semantics) 1`] = `
+Object {
+  "lower-upper": Array [
+    Next {
+      "value": Array [
+        "a",
+        "A",
+      ],
+    },
+    Next {
+      "value": Array [
+        "b",
+        "B",
+      ],
+    },
+    Next {
+      "value": Array [
+        "c",
+        "C",
+      ],
+    },
+    End {},
+  ],
+  "upper-lower": Array [
+    Next {
+      "value": Array [
+        "A",
+        "a",
+      ],
+    },
+    Next {
+      "value": Array [
+        "B",
+        "b",
+      ],
+    },
+    Next {
+      "value": Array [
+        "C",
+        "c",
+      ],
+    },
+    End {},
+  ],
+}
+`;
+
+exports[`F.combineAsArray does not generate any glitches when nested 1`] = `
+Array [
+  Next {
+    "value": Array [
+      Array [
+        "a",
+        "!",
+      ],
+      "a",
+      "A",
+      Array [
+        "A",
+        "?",
+      ],
+    ],
+  },
+  Next {
+    "value": Array [
+      Array [
+        "b",
+        "!",
+      ],
+      "b",
+      "B",
+      Array [
+        "B",
+        "?",
+      ],
+    ],
+  },
+  Next {
+    "value": Array [
+      Array [
+        "c",
+        "!",
+      ],
+      "c",
+      "C",
+      Array [
+        "C",
+        "?",
+      ],
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray does not return initial value if all of the items are EventStreams 1`] = `
+Array [
+  Initial {
+    "value": Array [
+      "REAL INITIAL",
+    ],
+  },
+  Sync {},
+  Next {
+    "value": Array [
+      "tsers",
+      "!",
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray does not return initial value if any of the items is EventStream 1`] = `
+Array [
+  Initial {
+    "value": Array [
+      "REAL INITIAL",
+    ],
+  },
+  Sync {},
+  Next {
+    "value": Array [
+      "lol",
+      "bal",
+      "tsers",
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray emits Initial event synchronously if all combined values are properties with initial value 1`] = `
+Array [
+  Initial {
+    "value": Array [
+      "lol",
+      "bal",
+    ],
+  },
+  End {},
+  Sync {},
+]
+`;
+
+exports[`F.combineAsArray process only events and passthroughs errors 1`] = `
+Array [
+  Next {
+    "value": Array [
+      "mkay",
+      "yeah",
+    ],
+  },
+  Error {
+    "error": "noes",
+  },
+  Next {
+    "value": Array [
+      "mkay",
+      "hurray",
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray works with arrays as values 1`] = `
+Array [
+  Initial {
+    "value": Array [
+      Array [],
+      Array [
+        "a",
+      ],
+    ],
+  },
+  End {},
+  Initial {
+    "value": Array [
+      Array [
+        "b",
+      ],
+      Array [],
+    ],
+  },
+  End {},
+  Initial {
+    "value": Array [
+      Array [
+        "c1",
+      ],
+      Array [
+        "c2",
+      ],
+    ],
+  },
+  End {},
+  Initial {
+    "value": Array [
+      Array [],
+      Array [],
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray works with empty arg list 1`] = `
+Array [
+  Initial {
+    "value": Array [],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray works with empty array 1`] = `
+Array [
+  Initial {
+    "value": Array [],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray works with null values 1`] = `
+Array [
+  Initial {
+    "value": Array [
+      null,
+      null,
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.combineAsArray works with one item 1`] = `
+Array [
+  Initial {
+    "value": Array [
+      "lol",
+    ],
+  },
+  End {},
+]
+`;
