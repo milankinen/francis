@@ -14,11 +14,16 @@ export class Transaction {
     const head = this.cursor
     let n = q.length
     this.has = true
-    while (n > head && q[--n].priority > prio);
-    if (n === q.length) {
+    if (n === head) {
       q.push(op)
     } else {
-      q.splice(n, 0, op)
+      while (n-- > head) {
+        if (q[n].priority <= prio) {
+          n + 1 === q.length ? q.push(op) : q.splice(n + 1, 0, op)
+          return
+        }
+      }
+      n === 0 ? q.unshift(op) : q.splice(n, 0, op)
     }
   }
 
