@@ -21,7 +21,7 @@ import { ErrorQueue, JoinOperator } from "./_join"
 import { _map, map } from "./map"
 import { toProperty } from "./toProperty"
 
-export function combineAsArray<T>(observables: Array<Observable<T> | T>): Property<T[]>
+export function combineAsArray<T>(observables?: Array<Observable<T> | T>): Property<T[]>
 export function combineAsArray<A>(o1: Observable<A> | A): Property<[A]>
 export function combineAsArray<A, B>(o1: Observable<A> | A, o2: Observable<B> | B): Property<[A, B]>
 export function combineAsArray<A, B, C>(
@@ -52,7 +52,9 @@ export function combineAsArray<A, B, C, D, E, F>(
 ): Property<[A, B, C, D, E, F]>
 export function combineAsArray(...observables: Array<Observable<any>>): Property<any[]>
 export function combineAsArray<T>(...observables: any[]): Property<T[]> {
-  if (isArray(observables[0])) {
+  if (observables.length === 0) {
+    return _combine<T, T[]>(slice, [])
+  } else if (isArray(observables[0])) {
     if (__DEVBUILD__) {
       assert(() => observables.length === 1, "Nested arrays are not supported by combine")
     }
