@@ -9,5 +9,17 @@ export default {
     format: "umd",
     file: "dist/francis.js",
   },
-  plugins: [cjs(), buble(), replace({ "process.env.NODE_ENV": JSON.stringify("development") })],
+  plugins: [
+    replace({
+      delimiters: ["", ""],
+      values: {
+        "process.env.NODE_ENV": JSON.stringify("development"),
+        "process.env.FRANCIS_DEVELOPER": JSON.stringify("0"),
+        "(__DEVBUILD__)": "(true)",
+        "(__DEVELOPER__)": "(false)",
+      },
+    }),
+    cjs(),
+    buble(),
+  ],
 }

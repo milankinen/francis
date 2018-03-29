@@ -1,4 +1,4 @@
-import { __DEVELOPER__ } from "../_assert"
+import { __DEVELOPER__, logAndThrow, __DEVBUILD__, assert } from "../_assert"
 import {
   sendRootEnd,
   sendRootError,
@@ -8,7 +8,7 @@ import {
   Subscription,
 } from "../_core"
 import { AnyEvent } from "../_interfaces"
-import { isEnd, isError, isEvent, isNext } from "../Event"
+import { isEnd, isError, isEvent, isNext, isInitial } from "../Event"
 import { Scheduler, Task } from "../scheduler/index"
 
 export abstract class Root<T> implements Source<T> {
@@ -80,8 +80,11 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
       } else if (isEnd(event)) {
         this.sendEnd()
       } else {
+        if (__DEVBUILD__) {
+          assert(!isInitial(event), "Manual initial event sending is not supported")
+        }
         if (__DEVELOPER__) {
-          throw new Error("Tried to send non-enumarated event")
+          logAndThrow("**BUG** event type not known: " + event)
         }
       }
     } else {

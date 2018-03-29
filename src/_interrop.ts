@@ -29,10 +29,7 @@ export function toFunction<T extends Function>(maybeFn: T, extraArgs: any[]): T 
     }
   } else if (isObject(maybeFn) && extraArgs.length > 0) {
     if (__DEVBUILD__) {
-      assert(
-        () => typeof extraArgs[0] === "string",
-        "Object function construct expects a function name",
-      )
+      assert(typeof extraArgs[0] === "string", "Object function construct expects a function name")
     }
     return papplyMethodCall(maybeFn, extraArgs[0], extraArgs.slice(1))
   } else {

@@ -1,3 +1,4 @@
+import { __DEVELOPER__, logAndThrow } from "../_assert"
 import { Subscriber, Subscription } from "../_core"
 import { initPriority } from "../_priority"
 import { Transaction } from "../_tx"
@@ -9,8 +10,25 @@ export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>
   const scheduler = currentScheduler()
   const subs = observable.op.subscribe(scheduler, runner, initPriority(observable.op.weight, 0))
   const anyRunner = runner as any
+  if (__DEVELOPER__) {
+    const initial = anyRunner.initial
+    const noinitial = anyRunner.noinitial
+    anyRunner.initial = (tx: any, val: any) => {
+      anyRunner.__syncReceived = true
+      initial.call(anyRunner, tx, val)
+    }
+    anyRunner.noinitial = (tx: any) => {
+      anyRunner.__syncReceived = true
+      noinitial.call(anyRunner, tx)
+    }
+  }
   anyRunner.__init(subs)
   scheduler.run()
+  if (__DEVELOPER__) {
+    if (observable.op.sync && anyRunner.__syncReceived === false) {
+      logAndThrow("**BUG** Missing initial/noinitial event")
+    }
+  }
 }
 
 export class EffectRunner<T> implements Subscriber<T> {
@@ -18,6 +36,10 @@ export class EffectRunner<T> implements Subscriber<T> {
 
   constructor() {
     false && disableNoUnusedWarning(this.__init)
+    // prettier-ignore
+    if (__DEVELOPER__) {
+      (this as any).__syncReceived = false
+    }
   }
 
   public isActive(): boolean {

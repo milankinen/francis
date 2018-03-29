@@ -56,7 +56,7 @@ export function combineAsArray<T>(...observables: any[]): Property<T[]> {
     return _combine<T, T[]>(slice, [])
   } else if (isArray(observables[0])) {
     if (__DEVBUILD__) {
-      assert(() => observables.length === 1, "Nested arrays are not supported by combine")
+      assert(observables.length === 1, "Nested arrays are not supported by combine")
     }
     return _combine<T, T[]>(slice, observables[0])
   } else {

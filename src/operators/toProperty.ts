@@ -14,7 +14,7 @@ class ToProperty<T> extends Operator<T, T> {
   constructor(source: Source<T>) {
     super(source, true)
     if (__DEVBUILD__) {
-      assert(() => !source.sync, "Can't call toProperty for Property")
+      assert(!source.sync, "Can't call toProperty for Property")
     }
   }
 

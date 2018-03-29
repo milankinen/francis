@@ -7,7 +7,7 @@ export class Property<A> extends Observable<A> {
   constructor(op: Operator<any, A>) {
     super(op)
     if (__DEVBUILD__) {
-      assert(() => op.sync, "Trying to create Property from non-synchronous source")
+      assert(op.sync, "Trying to create Property from non-synchronous source")
     }
     op.setMulticastImplementation(new PropertyMulticast())
   }

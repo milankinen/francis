@@ -7,7 +7,7 @@ export class EventStream<A> extends Observable<A> {
   constructor(op: Operator<any, A>) {
     super(op)
     if (__DEVBUILD__) {
-      assert(() => !op.sync, "Trying to create EventStream from synchronous source")
+      assert(!op.sync, "Trying to create EventStream from synchronous source")
     }
     op.setMulticastImplementation(new StreamMulticast())
   }
