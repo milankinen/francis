@@ -134,7 +134,7 @@ describe("F.combineAsArray", () => {
       .run(done)
   })
 
-  it("does not duplicate same error", done => {
+  it("does not duplicate same error (follows transaction semantics)", done => {
     runner()
       .setup(record => {
         const s = F.sequentially(1, ["mkay", new F.Error("noes" as any), "yay!"])

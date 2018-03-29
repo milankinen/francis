@@ -14,7 +14,7 @@ Array [
 ]
 `;
 
-exports[`F.combineAsArray does not duplicate same error 1`] = `
+exports[`F.combineAsArray does not duplicate same error (follows transaction semantics) 1`] = `
 Array [
   Next {
     "value": Array [
