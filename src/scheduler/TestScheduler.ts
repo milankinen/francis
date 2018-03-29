@@ -3,6 +3,7 @@ import { OnTimeout, Scheduler, Task, Timeout } from "./scheduler"
 export type EndListener = (error?: Error) => void
 
 export class TestScheduler implements Scheduler {
+  private unscheduled: boolean = false
   private running: boolean = false
   private currentTick: number = 0
   private syncTasks: Task[] = []
@@ -21,6 +22,14 @@ export class TestScheduler implements Scheduler {
   public consume(listener: EndListener): void {
     this.listener = listener
     this.run()
+  }
+
+  public unscheduleAll(): void {
+    this.unscheduled = true
+    this.syncTasks = []
+    this.asyncSlots = []
+    this.promise = null
+    this.currentTick = 0
   }
 
   public schedulePropertyActivation(task: Task): void {
@@ -91,7 +100,7 @@ export class TestScheduler implements Scheduler {
   private ensureNextTickConsume(): void {
     if (this.asyncSlots.length > 0 && this.promise === null) {
       this.promise = Promise.resolve()
-        .then(() => this.consumeNextTick())
+        .then(() => !this.unscheduled && this.consumeNextTick())
         .catch(err => this.notifyEnded(err))
     }
   }

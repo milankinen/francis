@@ -33,17 +33,22 @@ export class ObservableRunner {
       const wait = (t: number, op: () => any) => {
         scheduler.scheduleTimeout({ due: op }, t)
       }
-      setupFn(record, wait)
-      scheduler.consume(scheduleErr => {
-        try {
-          afterFn(recording)
-          ready()
-          scheduleErr ? done(scheduleErr) : done()
-        } catch (checkErr) {
-          ready()
-          done(checkErr)
-        }
-      })
+      try {
+        setupFn(record, wait)
+        scheduler.consume(scheduleErr => {
+          try {
+            afterFn(recording)
+            ready()
+            scheduleErr ? done(scheduleErr) : done()
+          } catch (checkErr) {
+            ready()
+            done(checkErr)
+          }
+        })
+      } catch (e) {
+        scheduler.unscheduleAll()
+        throw e
+      }
     })
   }
 }
