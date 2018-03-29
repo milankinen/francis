@@ -29,7 +29,7 @@ declare module "./Observable" {
 
 declare module "./EventStream" {
   interface EventStream<A> {
-    map<B>(project: Projection<A, B>, ...args: any[]): EventStream<B>
+    map<B>(project: Projection<A, B>): EventStream<B>
     filter(predicate: Predicate<A>): EventStream<A>
     take(n: number): EventStream<A>
     first(): EventStream<A>
@@ -41,7 +41,7 @@ declare module "./EventStream" {
 
 declare module "./Property" {
   interface Property<A> {
-    map<B>(project: Projection<A, B>, ...args: any[]): Property<B>
+    map<B>(project: Projection<A, B>): Property<B>
     filter(predicate: Predicate<A>): Property<A>
     take(n: number): Property<A>
     first(): Property<A>
@@ -68,13 +68,13 @@ Observable.prototype.log = function(label?: string): Dispose {
 
 Observable.prototype.map = function<A, B>(
   project: Projection<A, B>,
-  // tslint:disable-next-line:trailing-comma
-  ...args: any[]
+  ...rest: any[]
 ): Observable<B> {
   if (isProperty(project as any)) {
     return Sample._sampleByF(this, (v: any, _: any) => v, project as any)
   } else {
-    return Map._map(toFunction(project, args), this)
+    project = toFunction(project, rest)
+    return Map._map(project, this)
   }
 }
 

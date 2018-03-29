@@ -12,6 +12,7 @@
     "curly": false,
     "no-empty": false,
     "prefer-for-of": false,
-    "no-unused-expression": false
+    "no-unused-expression": false,
+    "trailing-comma": false
   }
 }

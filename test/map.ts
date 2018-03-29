@@ -2,6 +2,11 @@ import * as F from "../bacon"
 import { runner, Sync } from "./_base"
 
 describe("F.map", () => {
+  it("preserves mapped observable kind", () => {
+    expect(F.constant("tsers").map(x => x + "!")).toBeInstanceOf(F.Property)
+    expect(F.once("tsers").map(x => x + "!")).toBeInstanceOf(F.EventStream)
+  })
+
   it("maps Next events with the given function and ignores Error events", done => {
     runner()
       .setup(record =>
@@ -76,12 +81,12 @@ describe("F.map", () => {
   it("allows partially appliable arguments for method calls", done => {
     runner()
       .setup(record =>
-        F.once({
+        (F.once({
           msg: "tsers",
           toS(suffix: string) {
             return this.msg + suffix
           },
-        })
+        }) as any)
           .map(".toS" as any, "??")
           .subscribe(record),
       )
@@ -90,12 +95,10 @@ describe("F.map", () => {
   })
 
   it("works with method call on given object, with partial application", done => {
-    const obj = { greet: (name: string, suffix: string) => "Hello " + name + suffix }
+    const obj = { greet: (suffix: string, name: string) => "Hello " + name + suffix }
     runner()
       .setup(record =>
-        F.fromArray(["Sir", "Francis"])
-          .map(obj as any, "greet", "!!")
-          .subscribe(record),
+        (F.fromArray(["Sir", "Francis"]) as any).map(obj as any, "greet", "!!").subscribe(record),
       )
       .after(rec => expect(rec).toMatchSnapshot())
       .run(done)
