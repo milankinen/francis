@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.fromBinder allows sending batch of events by giving an array to sink 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Error {
+    "error": "fuk",
+  },
+  End {},
+]
+`;
+
+exports[`F.fromBinder allows sending unwrapped next events 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+]
+`;
+
+exports[`F.fromBinder allows sending wrapped events 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Error {
+    "error": "fuk",
+  },
+  End {},
+]
+`;
+
+exports[`F.fromBinder calls subscribe function only for first subscriber 1`] = `
+Array [
+  Initial {
+    "value": "first",
+  },
+  "activated",
+  Initial {
+    "value": "second",
+  },
+]
+`;
+
+exports[`F.fromBinder returns noMore from sink when stream ends 1`] = `
+Array [
+  More {},
+  NoMore {},
+  NoMore {},
+]
+`;
+
+exports[`F.fromBinder returns noMore if F.End is given to sink 1`] = `
+Array [
+  NoMore {},
+]
+`;

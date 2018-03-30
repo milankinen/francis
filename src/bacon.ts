@@ -129,6 +129,7 @@ export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"
 export { later } from "./sources/later"
 export { combineAsArray } from "./operators/combine"
+export { fromBinder } from "./sources/fromBinder"
 
 // classes and interfaces
 

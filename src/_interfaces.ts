@@ -13,3 +13,11 @@ export type AnyEvent<T> = Event.Next<T> | Event.Initial<T> | Event.Error | Event
 export type AnyObs<A> = Property<A> | EventStream<A>
 
 export type Handler<T> = (event: AnyEvent<T>) => typeof Event.noMore | any
+
+export type SinkEvent<T> = T | AnyEvent<T> | Array<T | AnyEvent<T>>
+
+export type SinkResult = typeof Event.noMore | typeof Event.more
+
+export type Sink<T> = (event: SinkEvent<T>) => SinkResult
+
+export type Subscribe<T> = (sink: Sink<T>) => Dispose | any
