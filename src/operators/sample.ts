@@ -1,6 +1,8 @@
 import {
   NONE,
   NOOP_SUBSCRIPTION,
+  sendEndSafely,
+  sendErrorSafely,
   sendEventSafely,
   sendInitialSafely,
   Source,
@@ -13,7 +15,7 @@ import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { Scheduler } from "../scheduler/index"
-import { JoinOperator } from "./_join"
+import { ErrorQueue, JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
 export function sampleByF<S, V, R>(
@@ -49,39 +51,47 @@ export function _sampleByF<S, V, R>(
   return makeObservable(new Sample(cs, project))
 }
 
-class Sample<S, V, R> extends JoinOperator<S, R, boolean> implements PipeDest<V> {
-  private sample: S
-  private val: V
+class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
+  private qErrs = new ErrorQueue()
+  private qEnd: boolean = false
+  private isInitial: boolean = false
+  private sample: S = NONE
+  private val: V = NONE
 
   constructor(source: CompositeSource<S, V>, private p: (value: V, sample: S) => R) {
     super(source, source.sync)
-    this.val = this.sample = NONE
     source.vDest = new Pipe(this)
   }
 
   public initial(tx: Transaction, sample: S): void {
     this.sample = sample
-    this.queueJoin(tx, true)
+    this.isInitial = true
+    this.queueJoin(tx, null)
   }
 
   public event(tx: Transaction, sample: S): void {
     this.sample = sample
-    this.queueJoin(tx, false)
+    this.isInitial = false
+    this.queueJoin(tx, null)
   }
 
-  public continueJoin(tx: Transaction, initial: boolean): void {
-    if (this.val !== NONE) {
-      const project = this.p
-      const result = project(this.val, this.sample)
-      initial ? sendInitialSafely(tx, this.next, result) : sendEventSafely(tx, this.next, result)
-    }
+  public error(tx: Transaction, err: Error): void {
+    this.qErrs.push(err)
+    this.queueJoin(tx, null)
+  }
+
+  public end(tx: Transaction): void {
+    this.qEnd = true
+    this.queueJoin(tx, null)
   }
 
   public pipedInitial(sender: Pipe<V>, tx: Transaction, val: V): void {
     this.val = val
   }
 
-  public pipedNoInitial(sender: Pipe<V>, tx: Transaction): void {}
+  public pipedNoInitial(sender: Pipe<V>, tx: Transaction): void {
+    this.sync && this.next.noinitial(tx)
+  }
 
   public pipedEvent(sender: Pipe<V>, tx: Transaction, val: V): void {
     this.val = val
@@ -94,6 +104,31 @@ class Sample<S, V, R> extends JoinOperator<S, R, boolean> implements PipeDest<V>
   public pipedEnd(sender: Pipe<V>, tx: Transaction): void {
     const cs = this.source as CompositeSource<S, V>
     cs.disposeValue()
+  }
+
+  public continueJoin(tx: Transaction, _: null): void {
+    const { val, sample } = this
+    if (val !== NONE && sample !== NONE) {
+      const project = this.p
+      const result = project(this.val, this.sample)
+      this.sample = NONE
+      this.isActive() &&
+        (this.isInitial
+          ? sendInitialSafely(tx, this.next, result)
+          : sendEventSafely(tx, this.next, result))
+    } else {
+      this.sample = NONE
+    }
+    if (this.qErrs.hasErrors()) {
+      const errs = this.qErrs.popAll()
+      for (let i = 0; this.isActive() && i < errs.length; i++) {
+        sendErrorSafely(tx, this.next, errs[i])
+      }
+    }
+    if (this.qEnd) {
+      this.qEnd = false
+      this.isActive() && sendEndSafely(tx, this.next)
+    }
   }
 }
 

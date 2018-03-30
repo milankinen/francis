@@ -1,0 +1,157 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Property.sampledBy(property) does not emit initial event if sampler is missing initial value 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "lolbal",
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(property) does not emit initial event if value is missing initial value 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "lolbal",
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(property) samples property at sampler changes, resulting to Property 1`] = `
+Array [
+  Initial {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(stream) accepts normal function constructs as well 1`] = `
+Array [
+  Next {
+    "value": Array [
+      0,
+      1,
+    ],
+  },
+  Next {
+    "value": Array [
+      0,
+      2,
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(stream) accepts optional combinator function 1`] = `
+Array [
+  Next {
+    "value": "a1",
+  },
+  Next {
+    "value": "b2",
+  },
+  Next {
+    "value": "c3",
+  },
+  Next {
+    "value": "c4",
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(stream) does not duplicate same error (follows transaction semantics) 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(stream) ends when sampling stream ends 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(stream) includes errors from both Property and EventStream 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "prop error",
+  },
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "stream error",
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(stream) samples property at events, resulting to EventStream 1`] = `
+Array [
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`Property.sampledBy(stream) works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;

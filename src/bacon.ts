@@ -46,10 +46,10 @@ declare module "./Property" {
     take(n: number): Property<A>
     first(): Property<A>
     flatMapLatest<B>(project: Projection<A, Observable<B>>): Property<B>
-    sampleBy<B>(sampler: EventStream<B>): EventStream<A>
-    sampleBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
-    sampleBy<B>(sampler: Property<B>): Property<A>
-    sampleBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
+    sampledBy<B>(sampler: EventStream<B>): EventStream<A>
+    sampledBy<B>(sampler: Property<B>): Property<A>
+    sampledBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
+    sampledBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
     startWith(value: A): Property<A>
   }
 }
@@ -111,11 +111,12 @@ EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
 
 // Property specific operators
 
-Property.prototype.sampleBy = function<A, B, C>(
+Property.prototype.sampledBy = function<A, B, C>(
   sampler: Observable<B>,
   f?: SampleFn<A, B, C>,
+  ...rest: any[]
 ): any {
-  const fn = f === undefined ? (v: A, s: B) => v as any : f
+  const fn = toFunction(f === undefined ? (v: A, s: B) => v as any : f, rest)
   return Sample._sampleByF(sampler, fn, this)
 }
 
