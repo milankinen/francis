@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.later can be called without value 1`] = `
+Array [
+  Next {
+    "value": undefined,
+  },
+  End {},
+]
+`;
+
+exports[`F.later delays the given value and ends 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;

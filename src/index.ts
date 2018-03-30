@@ -11,6 +11,7 @@ export { constant } from "./sources/constant"
 export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"
+export { later } from "./sources/later"
 
 // operators
 export { map } from "./operators/map"
