@@ -1,17 +1,28 @@
+import { __DEVELOPER__, logAndThrow } from "../_assert"
 import { OnTimeout, Scheduler, Task, Timeout } from "./Scheduler"
 
 export class DefaultScheduler implements Scheduler {
+  public static create(): Scheduler {
+    return new DefaultScheduler(null, false)
+  }
+
   private running: boolean = false
   private syncTasks: Task[] = []
   private deferredTasks: Task[] = []
   private promise: Promise<any> | null = null
 
-  public newInstance(): Scheduler {
-    return new DefaultScheduler()
+  private constructor(private root: DefaultScheduler | null, private sync: boolean) {}
+
+  public forkOuter(): Scheduler {
+    return this.running ? new DefaultScheduler(this.root || this, false) : this
   }
 
-  public hasPendingTasks(): boolean {
-    return this.syncTasks.length > 0 || this.deferredTasks.length > 0
+  public forkInner(): Scheduler {
+    if (__DEVELOPER__) {
+      !this.running &&
+        logAndThrow("**BUG** Scheduler must be running in order to fork inner scheduler")
+    }
+    return new DefaultScheduler(this, true)
   }
 
   public schedulePropertyActivation(task: Task): void {
@@ -19,7 +30,13 @@ export class DefaultScheduler implements Scheduler {
   }
 
   public scheduleEventStreamActivation(task: Task): void {
-    this.queueMicroTask(task)
+    if (this.sync) {
+      this.queueSyncTask(task)
+    } else if (this.root !== null) {
+      this.root.scheduleEventStreamActivation(task)
+    } else {
+      this.queueMicroTask(task)
+    }
   }
 
   public scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout {

@@ -1,8 +1,13 @@
+import { logAndThrow } from "../_assert"
 import { OnTimeout, Scheduler, Task, Timeout } from "./scheduler"
 
 export type EndListener = (error?: Error) => void
 
 export class TestScheduler implements Scheduler {
+  public static create(): TestScheduler {
+    return new TestScheduler(null, false)
+  }
+
   private unscheduled: boolean = false
   private running: boolean = false
   private currentTick: number = 0
@@ -11,12 +16,15 @@ export class TestScheduler implements Scheduler {
   private promise: Promise<any> | null = null
   private listener: EndListener | null = null
 
-  public newInstance(): Scheduler {
-    return new TestScheduler()
+  private constructor(private root: TestScheduler | null, private sync: boolean) {}
+
+  public forkOuter(): Scheduler {
+    return new TestScheduler(this.root || this, false)
   }
 
-  public hasPendingTasks(): boolean {
-    return this.syncTasks.length > 0 || this.asyncSlots.length > 0
+  public forkInner(): Scheduler {
+    !this.running && logAndThrow("Can't fork inner scheduler - scheduler is not running")
+    return new TestScheduler(this, true)
   }
 
   public consume(listener: EndListener): void {
@@ -37,11 +45,21 @@ export class TestScheduler implements Scheduler {
   }
 
   public scheduleEventStreamActivation(task: Task): void {
-    this.scheduleMicroTask(task)
+    if (this.sync) {
+      this.scheduleSync(task)
+    } else if (this.root !== null) {
+      this.root.scheduleEventStreamActivation(task)
+    } else {
+      this.scheduleMicroTask(task)
+    }
   }
 
   public scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout {
-    return this.scheduleTimeoutTask(new TimeoutTask(onTimeout), delay)
+    if (this.root !== null) {
+      return this.root.scheduleTimeout(onTimeout, delay)
+    } else {
+      return this.scheduleTimeoutTask(new TimeoutTask(onTimeout), delay)
+    }
   }
 
   public run(): void {
@@ -101,7 +119,10 @@ export class TestScheduler implements Scheduler {
     if (this.asyncSlots.length > 0 && this.promise === null) {
       this.promise = Promise.resolve()
         .then(() => !this.unscheduled && this.consumeNextTick())
-        .catch(err => this.notifyEnded(err))
+        .catch(err => {
+          this.unscheduleAll()
+          this.notifyEnded(err)
+        })
     }
   }
 

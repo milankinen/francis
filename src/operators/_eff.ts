@@ -4,10 +4,10 @@ import { initPriority } from "../_priority"
 import { Transaction } from "../_tx"
 import { disableNoUnusedWarning } from "../_util"
 import { Observable } from "../Observable"
-import { currentScheduler } from "../scheduler/index"
+import { createOuterScheduler } from "../scheduler/index"
 
 export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>): void {
-  const scheduler = currentScheduler()
+  const scheduler = createOuterScheduler()
   const subs = observable.op.subscribe(scheduler, runner, initPriority(observable.op.weight, 0))
   const anyRunner = runner as any
   if (__DEVELOPER__) {

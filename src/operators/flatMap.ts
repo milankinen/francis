@@ -15,7 +15,7 @@ import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
-import { currentScheduler, OnTimeout, Scheduler, Task, Timeout } from "../scheduler/index"
+import { createInnerScheduler } from "../scheduler/index"
 import { EventType } from "./_base"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
@@ -76,7 +76,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
     const innerSource = innerObs.op
 
     // TODO: custom scheduler
-    const scheduler = new InnerSubscriptionScheduler(currentScheduler())
+    const scheduler = createInnerScheduler()
     this.innerSubs = innerSource.subscribe(scheduler, new Pipe(this), this.order + 1)
     this.innerEnded = false
     if (!isProperty(innerObs) && this.sync) {
@@ -184,35 +184,4 @@ interface QueuedEvent<T> {
   val?: T
   err?: Error
   next: QueuedEvent<T> | null
-}
-
-class InnerSubscriptionScheduler implements Scheduler {
-  private impl: Scheduler
-  constructor(private delegate: Scheduler) {
-    this.impl = delegate.newInstance()
-  }
-
-  public newInstance(): Scheduler {
-    return new InnerSubscriptionScheduler(this)
-  }
-
-  public schedulePropertyActivation(task: Task): void {
-    this.impl.schedulePropertyActivation(task)
-  }
-
-  public scheduleEventStreamActivation(task: Task): void {
-    this.impl.schedulePropertyActivation(task)
-  }
-
-  public scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout {
-    return this.delegate.scheduleTimeout(onTimeout, delay)
-  }
-
-  public run(): void {
-    this.impl.run()
-  }
-
-  public hasPendingTasks(): boolean {
-    return this.impl.hasPendingTasks() || this.delegate.hasPendingTasks()
-  }
 }

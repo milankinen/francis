@@ -27,7 +27,7 @@ export class ObservableRunner {
 
   public run(done: jest.DoneCallback): void {
     const { setupFn, afterFn } = this
-    withScheduler(new TestScheduler(), (scheduler: TestScheduler, ready: () => void) => {
+    withScheduler(TestScheduler.create(), (scheduler: TestScheduler, ready: () => void) => {
       const recording = [] as any[]
       const record = (x: any) => recording.push(x)
       const wait = (t: number, op: () => any) => {
