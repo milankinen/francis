@@ -1,4 +1,4 @@
-import { __DEVELOPER__, logAndThrow, __DEVBUILD__, assert } from "../_assert"
+import { __DEVBUILD__, __DEVELOPER__, assert, logAndThrow } from "../_assert"
 import {
   sendRootEnd,
   sendRootError,
@@ -8,7 +8,7 @@ import {
   Subscription,
 } from "../_core"
 import { AnyEvent } from "../_interfaces"
-import { isEnd, isError, isEvent, isNext, isInitial } from "../Event"
+import { isEnd, isError, isEvent, isInitial, isNext } from "../Event"
 import { Scheduler, Task } from "../scheduler/index"
 
 export abstract class Root<T> implements Source<T> {

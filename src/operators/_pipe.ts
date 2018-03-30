@@ -5,7 +5,7 @@ export interface PipeDest<T> {
   isActive(): boolean
   pipedInitial(sender: Pipe<T>, tx: Transaction, val: T): void
   pipedNoInitial(sender: Pipe<T>, tx: Transaction): void
-  pipedEvent(sender: Pipe<T>, tx: Transaction, val: T): void
+  pipedNext(sender: Pipe<T>, tx: Transaction, val: T): void
   pipedError(sender: Pipe<T>, tx: Transaction, err: Error): void
   pipedEnd(sender: Pipe<T>, tx: Transaction): void
 }
@@ -24,8 +24,8 @@ export class Pipe<T> implements Subscriber<T> {
     this.dest.pipedNoInitial(this, tx)
   }
 
-  public event(tx: Transaction, val: T): void {
-    this.dest.pipedEvent(this, tx, val)
+  public next(tx: Transaction, val: T): void {
+    this.dest.pipedNext(this, tx, val)
   }
 
   public error(tx: Transaction, err: Error): void {

@@ -5,8 +5,8 @@ import {
   NOOP_SUBSCRIPTION,
   sendEndSafely,
   sendErrorSafely,
-  sendEventSafely,
   sendInitialSafely,
+  sendNextSafely,
   sendNoInitialSafely,
   sendRootNoInitial,
   Source,
@@ -80,7 +80,7 @@ export abstract class Operator<A, B>
 
   public abstract initial(tx: Transaction, val: A): void
 
-  public abstract event(tx: Transaction, val: A): void
+  public abstract next(tx: Transaction, val: A): void
 
   public noinitial(tx: Transaction): void {
     this.dispatcher.noinitial(tx)
@@ -328,10 +328,10 @@ class MulticastDelegatee<T> implements Subscriber<T> {
     }
   }
 
-  public event(tx: Transaction, val: T): void {
+  public next(tx: Transaction, val: T): void {
     let next = this.head
     while (next !== NIL) {
-      next.a && sendEventSafely(tx, next.s, val)
+      next.a && sendNextSafely(tx, next.s, val)
       next = next.n
     }
   }
@@ -391,7 +391,7 @@ class Identity<T> extends Operator<T, T> {
   public initial(tx: Transaction, val: T): void {
     this.dispatcher.initial(tx, val)
   }
-  public event(tx: Transaction, val: T): void {
-    this.dispatcher.event(tx, val)
+  public next(tx: Transaction, val: T): void {
+    this.dispatcher.next(tx, val)
   }
 }

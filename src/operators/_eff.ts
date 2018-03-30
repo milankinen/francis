@@ -12,6 +12,7 @@ export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>
   if (__DEVELOPER__) {
     const initial = anyRunner.initial
     const noinitial = anyRunner.noinitial
+    const next = anyRunner.next
     anyRunner.initial = (tx: any, val: any) => {
       anyRunner.__syncReceived = true
       initial.call(anyRunner, tx, val)
@@ -19,6 +20,10 @@ export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>
     anyRunner.noinitial = (tx: any) => {
       anyRunner.__syncReceived = true
       noinitial.call(anyRunner, tx)
+    }
+    anyRunner.next = (tx: any, val: any) => {
+      anyRunner.__syncReceived = true
+      next.call(anyRunner, tx, val)
     }
   }
   anyRunner.__init(subs)
@@ -49,7 +54,7 @@ export class EffectRunner<T> implements Subscriber<T> {
 
   public noinitial(tx: Transaction): void {}
 
-  public event(tx: Transaction, val: T): void {}
+  public next(tx: Transaction, val: T): void {}
 
   public error(tx: Transaction, err: Error): void {}
 

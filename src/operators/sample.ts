@@ -3,8 +3,8 @@ import {
   NOOP_SUBSCRIPTION,
   sendEndSafely,
   sendErrorSafely,
-  sendEventSafely,
   sendInitialSafely,
+  sendNextSafely,
   Source,
   Subscriber,
   Subscription,
@@ -69,7 +69,7 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
     this.queueJoin(tx, null)
   }
 
-  public event(tx: Transaction, sample: S): void {
+  public next(tx: Transaction, sample: S): void {
     this.sample = sample
     this.isInitial = false
     this.queueJoin(tx, null)
@@ -93,7 +93,7 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
     this.sync && this.dispatcher.noinitial(tx)
   }
 
-  public pipedEvent(sender: Pipe<V>, tx: Transaction, val: V): void {
+  public pipedNext(sender: Pipe<V>, tx: Transaction, val: V): void {
     this.val = val
   }
 
@@ -115,7 +115,7 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
       this.isActive() &&
         (this.isInitial
           ? sendInitialSafely(tx, this.dispatcher, result)
-          : sendEventSafely(tx, this.dispatcher, result))
+          : sendNextSafely(tx, this.dispatcher, result))
     } else {
       this.sample = NONE
     }

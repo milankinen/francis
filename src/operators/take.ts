@@ -27,8 +27,8 @@ class Take<T> extends Operator<T, T> {
     --this.n === 0 && this.dispatcher.end(tx)
   }
 
-  public event(tx: Transaction, val: T): void {
-    this.dispatcher.event(tx, val)
+  public next(tx: Transaction, val: T): void {
+    this.dispatcher.next(tx, val)
     --this.n === 0 && this.dispatcher.end(tx)
   }
 

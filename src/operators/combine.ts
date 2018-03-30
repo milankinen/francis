@@ -3,8 +3,8 @@ import {
   NONE,
   sendEndSafely,
   sendErrorSafely,
-  sendEventSafely,
   sendInitialSafely,
+  sendNextSafely,
   Subscriber,
   Subscription,
 } from "../_core"
@@ -122,7 +122,7 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     }
   }
 
-  public event(tx: Transaction, ival: Indexed<A>): void {
+  public next(tx: Transaction, ival: Indexed<A>): void {
     const { val, idx } = ival
     const prev = this.vals[idx]
     this.vals[idx] = val
@@ -155,7 +155,7 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
       this.isActive() &&
         (isInitial
           ? sendInitialSafely(tx, this.dispatcher, f(this.vals))
-          : sendEventSafely(tx, this.dispatcher, f(this.vals)))
+          : sendNextSafely(tx, this.dispatcher, f(this.vals)))
     }
     if (this.qErrors.hasErrors()) {
       const errs = this.qErrors.popAll()

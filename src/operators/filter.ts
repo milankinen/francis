@@ -22,9 +22,9 @@ class Filter<T> extends Operator<T, T> {
     super(source, source.sync)
   }
 
-  public event(tx: Transaction, val: T): void {
+  public next(tx: Transaction, val: T): void {
     const predicate = this.p
-    predicate(val) && this.dispatcher.event(tx, val)
+    predicate(val) && this.dispatcher.next(tx, val)
   }
 
   public initial(tx: Transaction, val: T): void {

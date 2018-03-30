@@ -2,8 +2,8 @@ import {
   NOOP_SUBSCRIPTION,
   sendEndSafely,
   sendErrorSafely,
-  sendEventSafely,
   sendInitialSafely,
+  sendNextSafely,
   sendNoInitialSafely,
   Source,
   Subscription,
@@ -58,11 +58,11 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
 
   public initial(tx: Transaction, val: A): void {
     this.initStage = true
-    this.event(tx, val)
+    this.next(tx, val)
     this.initStage = false
   }
 
-  public event(tx: Transaction, val: A): void {
+  public next(tx: Transaction, val: A): void {
     const project = this.proj
     const innerSubscription = this.innerSubs
     // TODO: ensure that innerObs is observable
@@ -107,7 +107,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
     this.initStage && this.pushQ(tx, { type: EventType.NO_INITIAL, next: null })
   }
 
-  public pipedEvent(sender: Pipe<B>, tx: Transaction, val: B): void {
+  public pipedNext(sender: Pipe<B>, tx: Transaction, val: B): void {
     this.pushQ(tx, { type: EventType.EVENT, val, next: null })
   }
 
@@ -131,7 +131,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
           sendNoInitialSafely(tx, this.dispatcher)
           break
         case EventType.EVENT:
-          sendEventSafely(tx, this.dispatcher, (head.val as any) as B)
+          sendNextSafely(tx, this.dispatcher, (head.val as any) as B)
           break
         case EventType.ERROR:
           sendErrorSafely(tx, this.dispatcher, (head.err as any) as Error)

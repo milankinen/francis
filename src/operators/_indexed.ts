@@ -88,28 +88,28 @@ export class IndexedSource<T> implements Source<Indexed<T>>, Subscription {
 class IndexedPipe<T> implements Subscriber<T> {
   constructor(
     private i: number,
-    private next: Subscriber<Indexed<T>>,
+    private dest: Subscriber<Indexed<T>>,
     private ies: IndexedEndSubscriber,
   ) {}
 
   public isActive(): boolean {
-    return this.next.isActive()
+    return this.dest.isActive()
   }
 
   public initial(tx: Transaction, val: T): void {
-    this.next.initial(tx, { val, idx: this.i })
+    this.dest.initial(tx, { val, idx: this.i })
   }
 
   public noinitial(tx: Transaction): void {
-    this.next.noinitial(tx)
+    this.dest.noinitial(tx)
   }
 
-  public event(tx: Transaction, val: T): void {
-    this.next.event(tx, { val, idx: this.i })
+  public next(tx: Transaction, val: T): void {
+    this.dest.next(tx, { val, idx: this.i })
   }
 
   public error(tx: Transaction, err: Error): void {
-    this.next.error(tx, err)
+    this.dest.error(tx, err)
   }
 
   public end(tx: Transaction): void {

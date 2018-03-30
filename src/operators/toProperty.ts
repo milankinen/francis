@@ -23,8 +23,8 @@ class ToProperty<T> extends Operator<T, T> {
     this.dispatcher.initial(tx, val)
   }
 
-  public event(tx: Transaction, val: T): void {
-    this.dispatcher.event(tx, val)
+  public next(tx: Transaction, val: T): void {
+    this.dispatcher.next(tx, val)
   }
 
   protected handleActivation(

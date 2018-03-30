@@ -54,8 +54,8 @@ export class PropertyDispatcher<T> extends Dispatcher<T> implements AbortSubscri
     currentValue === NONE ? this.dest.noinitial(tx) : this.dest.initial(tx, currentValue)
   }
 
-  public event(tx: Transaction, val: T): void {
-    this.dest.event(tx, (this.val = val))
+  public next(tx: Transaction, val: T): void {
+    this.dest.next(tx, (this.val = val))
   }
 
   public end(tx: Transaction): void {

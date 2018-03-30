@@ -8,7 +8,7 @@ export interface Subscriber<T> {
 
   noinitial(tx: Transaction): void
 
-  event(tx: Transaction, val: T): void
+  next(tx: Transaction, val: T): void
 
   error(tx: Transaction, err: Error): void
 
@@ -69,8 +69,8 @@ export abstract class Dispatcher<T> implements Subscriber<T> {
     this.dest.noinitial(tx)
   }
 
-  public event(tx: Transaction, val: T): void {
-    this.dest.event(tx, val)
+  public next(tx: Transaction, val: T): void {
+    this.dest.next(tx, val)
   }
 
   public error(tx: Transaction, err: Error): void {
@@ -90,7 +90,7 @@ export const NOOP_SUBSCRIBER = new class NoopSubscriber implements Subscriber<an
   }
   public initial(tx: Transaction, val: any): void {}
   public noinitial(tx: Transaction): void {}
-  public event(tx: Transaction, val: any): void {}
+  public next(tx: Transaction, val: any): void {}
   public error(tx: Transaction, err: Error): void {}
   public end(tx: Transaction): void {}
 }()
@@ -126,7 +126,7 @@ export function sendRootNoInitial<T>(subscriber: Subscriber<T>): void {
 }
 
 export function sendRootEvent<T>(subscriber: Subscriber<T>, val: T): void {
-  sendEventSafely(txRoot, subscriber, val)
+  sendNextSafely(txRoot, subscriber, val)
   txRoot.executePending()
 }
 
@@ -152,9 +152,9 @@ export function sendNoInitialSafely<T>(tx: Transaction, s: Subscriber<T>): void 
   s.noinitial(tx)
 }
 
-export function sendEventSafely<T>(tx: Transaction, s: Subscriber<T>, val: T): void {
+export function sendNextSafely<T>(tx: Transaction, s: Subscriber<T>, val: T): void {
   try {
-    s.event(tx, val)
+    s.next(tx, val)
   } catch (err) {
     s.error(tx, err)
   }

@@ -21,7 +21,7 @@ class EffHandler<T> extends EffectRunner<T> {
     this.handleEvent(new Event.Initial(val))
   }
 
-  public event(tx: Transaction, val: T): void {
+  public next(tx: Transaction, val: T): void {
     this.handleEvent(new Event.Next(val))
   }
 

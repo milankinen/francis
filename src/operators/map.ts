@@ -22,9 +22,9 @@ class Map<A, B> extends Operator<A, B> {
     super(source, source.sync)
   }
 
-  public event(tx: Transaction, val: A): void {
+  public next(tx: Transaction, val: A): void {
     const project = this.p
-    this.dispatcher.event(tx, project(val))
+    this.dispatcher.next(tx, project(val))
   }
 
   public initial(tx: Transaction, val: A): void {

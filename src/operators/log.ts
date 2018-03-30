@@ -22,7 +22,7 @@ class Logger<T> extends EffectRunner<T> {
     this.log(val)
   }
 
-  public event(tx: Transaction, val: T): void {
+  public next(tx: Transaction, val: T): void {
     this.log(val)
   }
 
