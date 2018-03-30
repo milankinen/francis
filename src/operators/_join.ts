@@ -1,5 +1,5 @@
 import { Source } from "../_core"
-import { initPriority } from "../_priority"
+import { priorityOf } from "../_priority"
 import { Operation, Transaction } from "../_tx"
 import { disableNoUnusedWarning } from "../_util"
 import { Operator } from "./_base"
@@ -16,7 +16,7 @@ export abstract class JoinOperator<A, B, P> extends Operator<A, B> {
 
   protected queueJoin(tx: Transaction, param: P): void {
     this.__join === null &&
-      tx.queue((this.__join = new Join(initPriority(this.weight, this.order), this as any, param)))
+      tx.queue((this.__join = new Join(priorityOf(this.order, this.weight), this as any, param)))
   }
 
   private __handleJoin(tx: Transaction, param: P): void {

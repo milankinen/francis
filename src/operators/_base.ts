@@ -11,7 +11,6 @@ import {
   Subscriber,
   Subscription,
 } from "../_core"
-import { MAX_ORDER } from "../_priority"
 import { Transaction } from "../_tx"
 import { disableNoUnusedWarning } from "../_util"
 import { Scheduler, Task } from "../scheduler/index"
@@ -106,7 +105,7 @@ export abstract class Operator<A, B>
     false && disableNoUnusedWarning(this.__handleDispose, this.__handeReorder)
     this.source = origin
     this.sync = sync
-    this.order = MAX_ORDER + 1
+    this.order = -1
     this.weight = origin.weight
   }
 
@@ -250,7 +249,7 @@ export abstract class Operator<A, B>
           new MulticastDelegatee({ s: next, o: this.order }, { s: subscriber, o: order }),
         )
       }
-      if (order < this.order) {
+      if (order > this.order) {
         this.__updateOrder(order)
         this.handleReorder(order)
       }
@@ -272,13 +271,13 @@ export abstract class Operator<A, B>
       }
     } else {
       this.__updateNext(NOOP_SUBSCRIBER)
-      this.__updateOrder(MAX_ORDER + 1)
+      this.__updateOrder(-1)
       this.handleDispose()
     }
   }
   private __handeReorder(subscriber: Subscriber<B>, order: number): void {
     const next = this.next.next
-    next instanceof MulticastDelegatee && next.updateOrder(subscriber, order)
+    next instanceof MulticastDelegatee && next.handleReorder(subscriber, order)
     if (order < this.order) {
       this.__updateOrder(order)
       this.handleReorder(order)
@@ -309,7 +308,7 @@ export class SendNoInitialTask implements Task {
 const NIL: OrderedSubscriberNode<any> = {
   a: false,
   n: null as any,
-  o: MAX_ORDER + 1,
+  o: -1,
   s: NOOP_SUBSCRIBER,
 }
 
@@ -333,13 +332,13 @@ class MulticastDelegatee<T> implements Subscriber<T> {
   public remove(subscriber: Subscriber<T>): OrderedSubscriber<T> {
     let prev = NIL
     let next = this.head
-    let order = MAX_ORDER + 1
+    let order = -1
     while (next !== NIL) {
       if (next.s === subscriber) {
         next.a = false
         prev !== NIL ? (prev.n = next.n) : (this.head = next.n)
         --this.n
-      } else if (next.o < order) {
+      } else if (next.o > order) {
         order = next.o
       }
       prev = next
@@ -351,7 +350,7 @@ class MulticastDelegatee<T> implements Subscriber<T> {
     }
   }
 
-  public updateOrder(subscriber: Subscriber<T>, order: number): void {
+  public handleReorder(subscriber: Subscriber<T>, order: number): void {
     let next = this.head
     while (next !== NIL) {
       if (next.s === subscriber) {

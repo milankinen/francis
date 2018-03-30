@@ -1,6 +1,5 @@
 import { __DEVELOPER__, logAndThrow } from "../_assert"
 import { Subscriber, Subscription } from "../_core"
-import { initPriority } from "../_priority"
 import { Transaction } from "../_tx"
 import { disableNoUnusedWarning } from "../_util"
 import { Observable } from "../Observable"
@@ -8,7 +7,7 @@ import { createOuterScheduler } from "../scheduler/index"
 
 export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>): void {
   const scheduler = createOuterScheduler()
-  const subs = observable.op.subscribe(scheduler, runner, initPriority(observable.op.weight, 0))
+  const subs = observable.op.subscribe(scheduler, runner, 0)
   const anyRunner = runner as any
   if (__DEVELOPER__) {
     const initial = anyRunner.initial
