@@ -12,4 +12,4 @@ export type AnyEvent<T> = Event.Next<T> | Event.Initial<T> | Event.Error | Event
 
 export type AnyObs<A> = Property<A> | EventStream<A>
 
-export type Handler<T> = (event: AnyEvent<T>) => typeof Event.noMore | undefined
+export type Handler<T> = (event: AnyEvent<T>) => typeof Event.noMore | any
