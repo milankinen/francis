@@ -1,11 +1,12 @@
 import { sendRootEnd, sendRootInitial, Subscriber } from "../_core"
+import { makeProperty } from "../_obs"
 import { identity } from "../operators/_base"
 import { Property } from "../Property"
 import { Scheduler } from "../scheduler/index"
 import { Activation, Root } from "./_base"
 
 export function constant<T>(val: T): Property<T> {
-  return new Property(identity(new Constant(val)))
+  return makeProperty(identity(new Constant(val)))
 }
 
 class Constant<T> extends Root<T> {

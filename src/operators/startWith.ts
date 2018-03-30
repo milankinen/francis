@@ -1,4 +1,5 @@
 import { Source } from "../_core"
+import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
@@ -20,7 +21,7 @@ export function _startWith<T>(value: T, observable: Observable<T>): Observable<T
 }
 
 export function _startWithP<T>(value: T, property: Property<T>): Property<T> {
-  return new Property(new StartWithP(property.op, value))
+  return makeProperty(new StartWithP(property.op, value))
 }
 
 class StartWithP<T> extends Operator<T, T> {
@@ -29,14 +30,14 @@ class StartWithP<T> extends Operator<T, T> {
   }
 
   public event(tx: Transaction, val: T): void {
-    this.next.event(tx, val)
+    this.dispatcher.event(tx, val)
   }
 
   public initial(tx: Transaction, val: T): void {
-    this.next.initial(tx, val)
+    this.dispatcher.initial(tx, val)
   }
 
   public noinitial(tx: Transaction): void {
-    this.next.initial(tx, this.value)
+    this.dispatcher.initial(tx, this.value)
   }
 }

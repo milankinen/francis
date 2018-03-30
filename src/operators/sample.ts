@@ -90,7 +90,7 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
   }
 
   public pipedNoInitial(sender: Pipe<V>, tx: Transaction): void {
-    this.sync && this.next.noinitial(tx)
+    this.sync && this.dispatcher.noinitial(tx)
   }
 
   public pipedEvent(sender: Pipe<V>, tx: Transaction, val: V): void {
@@ -114,20 +114,20 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
       this.sample = NONE
       this.isActive() &&
         (this.isInitial
-          ? sendInitialSafely(tx, this.next, result)
-          : sendEventSafely(tx, this.next, result))
+          ? sendInitialSafely(tx, this.dispatcher, result)
+          : sendEventSafely(tx, this.dispatcher, result))
     } else {
       this.sample = NONE
     }
     if (this.qErrs.hasErrors()) {
       const errs = this.qErrs.popAll()
       for (let i = 0; this.isActive() && i < errs.length; i++) {
-        sendErrorSafely(tx, this.next, errs[i])
+        sendErrorSafely(tx, this.dispatcher, errs[i])
       }
     }
     if (this.qEnd) {
       this.qEnd = false
-      this.isActive() && sendEndSafely(tx, this.next)
+      this.isActive() && sendEndSafely(tx, this.dispatcher)
     }
   }
 }

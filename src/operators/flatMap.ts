@@ -11,6 +11,7 @@ import {
   txPush,
 } from "../_core"
 import { Projection } from "../_interfaces"
+import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
@@ -39,10 +40,7 @@ export function _flatMapLatest<A, B>(
   project: Projection<A, Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  const op = observable.op
-  return isProperty(observable)
-    ? new Property(new FlatMapLatest(op, true, project))
-    : new EventStream(new FlatMapLatest(op, false, project))
+  return makeObservable(new FlatMapLatest(observable.op, project))
 }
 
 class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B> {
@@ -54,12 +52,8 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   private qTail: QueuedEvent<B> | null = null
   private outerTx: Transaction | null = null
 
-  constructor(
-    source: Source<A>,
-    sync: boolean,
-    private readonly proj: Projection<A, Observable<B>>,
-  ) {
-    super(source, sync)
+  constructor(source: Source<A>, private readonly proj: Projection<A, Observable<B>>) {
+    super(source, source.sync)
   }
 
   public initial(tx: Transaction, val: A): void {
@@ -99,7 +93,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   public end(tx: Transaction): void {
     this.outerEnded = true
     if (this.innerEnded) {
-      this.next.end(tx)
+      this.dispatcher.end(tx)
     } else {
       this.dispose()
     }
@@ -131,16 +125,16 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
     while (head !== null && this.isActive()) {
       switch (head.type) {
         case EventType.INITIAL:
-          sendInitialSafely(tx, this.next, (head.val as any) as B)
+          sendInitialSafely(tx, this.dispatcher, (head.val as any) as B)
           break
         case EventType.NO_INITIAL:
-          sendNoInitialSafely(tx, this.next)
+          sendNoInitialSafely(tx, this.dispatcher)
           break
         case EventType.EVENT:
-          sendEventSafely(tx, this.next, (head.val as any) as B)
+          sendEventSafely(tx, this.dispatcher, (head.val as any) as B)
           break
         case EventType.ERROR:
-          sendErrorSafely(tx, this.next, (head.err as any) as Error)
+          sendErrorSafely(tx, this.dispatcher, (head.err as any) as Error)
           break
         case EventType.END:
           this.handleInnerEnd(tx)
@@ -171,7 +165,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   private handleInnerEnd(tx: Transaction): void {
     this.innerEnded = true
     if (this.outerEnded) {
-      sendEndSafely(tx, this.next)
+      sendEndSafely(tx, this.dispatcher)
     } else {
       this.innerSubs.dispose()
       this.innerSubs = NOOP_SUBSCRIPTION

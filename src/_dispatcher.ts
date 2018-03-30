@@ -1,11 +1,30 @@
-import { NONE, sendRootEnd, sendRootInitial, sendRootNoInitial, Subscriber } from "../_core"
-import { Transaction } from "../_tx"
-import { Scheduler } from "../scheduler/index"
-import { Task } from "../scheduler/Scheduler"
-import { AbortSubscriptionListener, AbortSubscriptionTask, MulticastImplementation } from "./_base"
+import { __DEVELOPER__, logAndThrow } from "./_assert"
+import {
+  Dispatcher,
+  NONE,
+  sendRootEnd,
+  sendRootInitial,
+  sendRootNoInitial,
+  Subscriber,
+} from "./_core"
+import { Transaction } from "./_tx"
+import { AbortSubscriptionListener, AbortSubscriptionTask } from "./operators/_base"
+import { Scheduler, Task } from "./scheduler/index"
 
-export class PropertyMulticast<T> extends MulticastImplementation<T>
-  implements AbortSubscriptionListener<T> {
+export class EventStreamDispatcher<T> extends Dispatcher<T> {
+  public initial(tx: Transaction, val: T): void {
+    if (__DEVELOPER__) {
+      logAndThrow("**BUG** EventStream multicast implementation received initial event")
+    }
+  }
+  public noinitial(tx: Transaction): void {
+    if (__DEVELOPER__) {
+      logAndThrow("**BUG** EventStream multicast implementation received noinitial event")
+    }
+  }
+}
+
+export class PropertyDispatcher<T> extends Dispatcher<T> implements AbortSubscriptionListener<T> {
   private val: T = NONE
   private ended: boolean = false
 
@@ -27,21 +46,21 @@ export class PropertyMulticast<T> extends MulticastImplementation<T>
   }
 
   public initial(tx: Transaction, val: T): void {
-    this.next.initial(tx, (this.val = val))
+    this.dest.initial(tx, (this.val = val))
   }
 
   public noinitial(tx: Transaction): void {
     const currentValue = this.val
-    currentValue === NONE ? this.next.noinitial(tx) : this.next.initial(tx, currentValue)
+    currentValue === NONE ? this.dest.noinitial(tx) : this.dest.initial(tx, currentValue)
   }
 
   public event(tx: Transaction, val: T): void {
-    this.next.event(tx, (this.val = val))
+    this.dest.event(tx, (this.val = val))
   }
 
   public end(tx: Transaction): void {
     this.ended = true
-    this.next.end(tx)
+    this.dest.end(tx)
   }
 
   public handleAbort(subsciber: Subscriber<T>): void {
@@ -56,8 +75,8 @@ export class PropertyMulticast<T> extends MulticastImplementation<T>
 }
 
 class ReplayStateTask<T> implements Task {
-  constructor(private pmc: PropertyMulticast<T>, private dest: Subscriber<T>) {}
+  constructor(private dispatcher: PropertyDispatcher<T>, private dest: Subscriber<T>) {}
   public run(): void {
-    this.pmc.handleReplayState(this.dest)
+    this.dispatcher.handleReplayState(this.dest)
   }
 }

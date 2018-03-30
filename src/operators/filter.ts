@@ -24,11 +24,11 @@ class Filter<T> extends Operator<T, T> {
 
   public event(tx: Transaction, val: T): void {
     const predicate = this.p
-    predicate(val) && this.next.event(tx, val)
+    predicate(val) && this.dispatcher.event(tx, val)
   }
 
   public initial(tx: Transaction, val: T): void {
     const predicate = this.p
-    predicate(val) ? this.next.initial(tx, val) : this.next.noinitial(tx)
+    predicate(val) ? this.dispatcher.initial(tx, val) : this.dispatcher.noinitial(tx)
   }
 }

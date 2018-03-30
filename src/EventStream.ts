@@ -1,7 +1,6 @@
 import { __DEVBUILD__, assert } from "./_assert"
 import { Observable } from "./Observable"
 import { Operator } from "./operators/_base"
-import { StreamMulticast } from "./operators/_stream"
 
 export class EventStream<A> extends Observable<A> {
   constructor(op: Operator<any, A>) {
@@ -9,7 +8,6 @@ export class EventStream<A> extends Observable<A> {
     if (__DEVBUILD__) {
       assert(!op.sync, "Trying to create EventStream from synchronous source")
     }
-    op.setMulticastImplementation(new StreamMulticast())
   }
 }
 

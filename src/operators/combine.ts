@@ -9,6 +9,7 @@ import {
   Subscription,
 } from "../_core"
 import { toObservable } from "../_interrop"
+import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { isArray } from "../_util"
 import { Observable } from "../Observable"
@@ -79,7 +80,7 @@ export function _combine<A, B>(
       const obs = toObservable(observables[n])
       sources[n] = obs.op
     }
-    return new Property(new Combine<A, B>(new IndexedSource(sources), f))
+    return makeProperty(new Combine<A, B>(new IndexedSource(sources), f))
   }
 }
 
@@ -111,13 +112,13 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
       this.qNext = EventType.INITIAL
       this.queueJoin(tx, null)
     } else if (this.nInitialsLeft === 0) {
-      this.next.noinitial(tx)
+      this.dispatcher.noinitial(tx)
     }
   }
 
   public noinitial(tx: Transaction): void {
     if (--this.nInitialsLeft === 0) {
-      this.next.noinitial(tx)
+      this.dispatcher.noinitial(tx)
     }
   }
 
@@ -153,19 +154,19 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
       this.qNext = 0
       this.isActive() &&
         (isInitial
-          ? sendInitialSafely(tx, this.next, f(this.vals))
-          : sendEventSafely(tx, this.next, f(this.vals)))
+          ? sendInitialSafely(tx, this.dispatcher, f(this.vals))
+          : sendEventSafely(tx, this.dispatcher, f(this.vals)))
     }
     if (this.qErrors.hasErrors()) {
       const errs = this.qErrors.popAll()
       const n = errs.length
       for (let i = 0; this.isActive() && i < n; i++) {
-        sendErrorSafely(tx, this.next, errs[i])
+        sendErrorSafely(tx, this.dispatcher, errs[i])
       }
     }
     if (this.qEnd !== 0) {
       this.qEnd = 0
-      this.isActive() && sendEndSafely(tx, this.next)
+      this.isActive() && sendEndSafely(tx, this.dispatcher)
     }
   }
 

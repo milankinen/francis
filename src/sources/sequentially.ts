@@ -1,11 +1,12 @@
 import { AnyEvent } from "../_interfaces"
+import { makeEventStream } from "../_obs"
 import { End, isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
 import { identity } from "../operators/_base"
 import { TimerBase } from "./_timer"
 
 export function sequentially<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
-  return new EventStream(identity(new Sequentially(interval, events)))
+  return makeEventStream(identity(new Sequentially(interval, events)))
 }
 
 class Sequentially<T> extends TimerBase<T> {

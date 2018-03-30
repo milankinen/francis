@@ -24,11 +24,11 @@ class Map<A, B> extends Operator<A, B> {
 
   public event(tx: Transaction, val: A): void {
     const project = this.p
-    this.next.event(tx, project(val))
+    this.dispatcher.event(tx, project(val))
   }
 
   public initial(tx: Transaction, val: A): void {
     const project = this.p
-    this.next.initial(tx, project(val))
+    this.dispatcher.initial(tx, project(val))
   }
 }

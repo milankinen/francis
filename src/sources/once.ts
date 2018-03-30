@@ -1,11 +1,12 @@
 import { Subscriber } from "../_core"
+import { makeEventStream } from "../_obs"
 import { EventStream } from "../EventStream"
 import { identity } from "../operators/_base"
 import { Scheduler } from "../scheduler/index"
 import { Activation, Root } from "./_base"
 
 export function once<T>(value: T): EventStream<T> {
-  return new EventStream(identity(new Once(value)))
+  return makeEventStream(identity(new Once(value)))
 }
 
 class Once<T> extends Root<T> {

@@ -1,3 +1,4 @@
+import { makeEventStream } from "../_obs"
 import { AnyEvent } from "../bacon"
 import { isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
@@ -5,7 +6,7 @@ import { identity } from "../operators/_base"
 import { TimerBase } from "./_timer"
 
 export function fromPoll<T>(interval: number, f: () => T | AnyEvent<T>): EventStream<any> {
-  return new EventStream(identity(new FromPoll(interval, f)))
+  return makeEventStream(identity(new FromPoll(interval, f)))
 }
 
 class FromPoll<T> extends TimerBase<T> {

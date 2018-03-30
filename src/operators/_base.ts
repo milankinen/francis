@@ -1,4 +1,6 @@
 import {
+  Dispatcher,
+  NOOP_DISPATCHER,
   NOOP_SUBSCRIBER,
   NOOP_SUBSCRIPTION,
   sendEndSafely,
@@ -33,62 +35,6 @@ export function identity<T>(source: Source<T>): Operator<T, T> {
   return new Identity(source, source.sync)
 }
 
-export abstract class MulticastImplementation<T> implements Subscriber<T> {
-  public readonly next: Subscriber<T> = NOOP_SUBSCRIBER
-
-  /**
-   * This hook is called every time when operator is activated (gets its first
-   * subscriber). If this function returns false, operator aborts the current
-   * subscription process. The impelementation may also queue tasks to the given
-   * scheduler before returning.
-   *
-   * @param scheduler
-   * @param subscriber
-   */
-  public beforeActivation(scheduler: Scheduler, subscriber: Subscriber<T>): boolean {
-    return true
-  }
-
-  /**
-   * This hook is called every time when operator is multicasted (gets a new subscriber
-   * after initial activation). If this function returns false, operator aborts the current
-   * subscription process. The impelementation may also queue tasks to the given
-   * scheduler before returning.
-   *
-   * @param scheduler
-   * @param subscriber
-   */
-  public beforeMulticast(scheduler: Scheduler, subscriber: Subscriber<T>): boolean {
-    return true
-  }
-
-  public isActive(): boolean {
-    return true
-  }
-
-  public initial(tx: Transaction, val: T): void {
-    this.next.initial(tx, val)
-  }
-
-  public noinitial(tx: Transaction): void {
-    this.next.noinitial(tx)
-  }
-
-  public event(tx: Transaction, val: T): void {
-    this.next.event(tx, val)
-  }
-
-  public error(tx: Transaction, err: Error): void {
-    this.next.error(tx, err)
-  }
-
-  public end(tx: Transaction): void {
-    this.next.end(tx)
-  }
-}
-
-const NOOP_MCAST = new class NoopImpl extends MulticastImplementation<any> {}()
-
 export abstract class Operator<A, B>
   implements Subscriber<A>, Source<B>, AbortSubscriptionListener<B> {
   public readonly weight: number
@@ -96,7 +42,7 @@ export abstract class Operator<A, B>
 
   protected readonly order: number
   protected readonly source: Source<A>
-  protected readonly next: MulticastImplementation<B> = NOOP_MCAST
+  protected readonly dispatcher: Dispatcher<B> = NOOP_DISPATCHER
 
   private __subs: Subscription = NOOP_SUBSCRIPTION
   private __active: boolean = false
@@ -113,9 +59,9 @@ export abstract class Operator<A, B>
    * Called only internally from Property and EventStream constructors
    * @param impl Multicast implementation to use for this operator
    */
-  public setMulticastImplementation(impl: MulticastImplementation<B>): void {
+  public setDispatcher(impl: Dispatcher<B>): void {
     // tslint:disable-next-line:semicolon whitespace
-    ;(this.next as MulticastImplementation<B>) = impl
+    ;(this.dispatcher as Dispatcher<B>) = impl
   }
 
   /**
@@ -126,7 +72,7 @@ export abstract class Operator<A, B>
    * @param order
    */
   public subscribe(scheduler: Scheduler, subscriber: Subscriber<B>, order: number): Subscription {
-    const next = this.next.next
+    const next = this.dispatcher.dest
     return next === NOOP_SUBSCRIBER
       ? this.__handleActivation(scheduler, subscriber, order)
       : this.__handleMulticast(scheduler, subscriber, order)
@@ -137,15 +83,15 @@ export abstract class Operator<A, B>
   public abstract event(tx: Transaction, val: A): void
 
   public noinitial(tx: Transaction): void {
-    this.next.noinitial(tx)
+    this.dispatcher.noinitial(tx)
   }
 
   public error(tx: Transaction, err: Error): void {
-    this.next.error(tx, err)
+    this.dispatcher.error(tx, err)
   }
 
   public end(tx: Transaction): void {
-    this.next.end(tx)
+    this.dispatcher.end(tx)
   }
 
   public isActive(): boolean {
@@ -211,9 +157,9 @@ export abstract class Operator<A, B>
     this.dispose()
   }
 
-  private __updateNext(next: Subscriber<B>): void {
+  private __updateDispatcherDest(subscriber: Subscriber<B>): void {
     // tslint:disable-next-line:semicolon whitespace
-    ;(this.next.next as Subscriber<B>) = next
+    ;(this.dispatcher.dest as Subscriber<B>) = subscriber
   }
 
   private __updateOrder(order: number): void {
@@ -226,8 +172,8 @@ export abstract class Operator<A, B>
     subscriber: Subscriber<B>,
     order: number,
   ): Subscription {
-    if (this.next.beforeActivation(scheduler, subscriber)) {
-      this.__updateNext(subscriber)
+    if (this.dispatcher.beforeActivation(scheduler, subscriber)) {
+      this.__updateDispatcherDest(subscriber)
       this.__updateOrder(order)
       return this.handleActivation(scheduler, subscriber, order)
     } else {
@@ -240,12 +186,12 @@ export abstract class Operator<A, B>
     subscriber: Subscriber<B>,
     order: number,
   ): Subscription {
-    if (this.next.beforeMulticast(scheduler, subscriber)) {
-      const next = this.next.next
+    if (this.dispatcher.beforeMulticast(scheduler, subscriber)) {
+      const next = this.dispatcher.dest
       if (next instanceof MulticastDelegatee) {
         next.add(subscriber, order)
       } else {
-        this.__updateNext(
+        this.__updateDispatcherDest(
           new MulticastDelegatee({ s: next, o: this.order }, { s: subscriber, o: order }),
         )
       }
@@ -260,23 +206,23 @@ export abstract class Operator<A, B>
   }
 
   private __handleDispose(subscriber: Subscriber<B>): void {
-    const next = this.next.next
+    const next = this.dispatcher.dest
     if (next instanceof MulticastDelegatee) {
       const { o: order, s: updated } = next.remove(subscriber)
-      this.__updateNext(updated)
+      this.__updateDispatcherDest(updated)
       if (order !== this.order) {
         this.__updateOrder(order)
         this.handleReorder(order)
         this.__subs.reorder(order)
       }
     } else {
-      this.__updateNext(NOOP_SUBSCRIBER)
+      this.__updateDispatcherDest(NOOP_SUBSCRIBER)
       this.__updateOrder(-1)
       this.handleDispose()
     }
   }
   private __handeReorder(subscriber: Subscriber<B>, order: number): void {
-    const next = this.next.next
+    const next = this.dispatcher.dest
     next instanceof MulticastDelegatee && next.handleReorder(subscriber, order)
     if (order < this.order) {
       this.__updateOrder(order)
@@ -443,9 +389,9 @@ interface OrderedSubscriber<T> {
 
 class Identity<T> extends Operator<T, T> {
   public initial(tx: Transaction, val: T): void {
-    this.next.initial(tx, val)
+    this.dispatcher.initial(tx, val)
   }
   public event(tx: Transaction, val: T): void {
-    this.next.event(tx, val)
+    this.dispatcher.event(tx, val)
   }
 }

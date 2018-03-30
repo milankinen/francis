@@ -28,6 +28,60 @@ export interface Source<T> {
   subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription
 }
 
+export abstract class Dispatcher<T> implements Subscriber<T> {
+  public readonly dest: Subscriber<T> = NOOP_SUBSCRIBER
+
+  /**
+   * This hook is called every time when operator is activated (gets its first
+   * subscriber). If this function returns false, operator aborts the current
+   * subscription process. The impelementation may also queue tasks to the given
+   * scheduler before returning.
+   *
+   * @param scheduler
+   * @param subscriber
+   */
+  public beforeActivation(scheduler: Scheduler, subscriber: Subscriber<T>): boolean {
+    return true
+  }
+
+  /**
+   * This hook is called every time when operator is multicasted (gets a new subscriber
+   * after initial activation). If this function returns false, operator aborts the current
+   * subscription process. The impelementation may also queue tasks to the given
+   * scheduler before returning.
+   *
+   * @param scheduler
+   * @param subscriber
+   */
+  public beforeMulticast(scheduler: Scheduler, subscriber: Subscriber<T>): boolean {
+    return true
+  }
+
+  public isActive(): boolean {
+    return true
+  }
+
+  public initial(tx: Transaction, val: T): void {
+    this.dest.initial(tx, val)
+  }
+
+  public noinitial(tx: Transaction): void {
+    this.dest.noinitial(tx)
+  }
+
+  public event(tx: Transaction, val: T): void {
+    this.dest.event(tx, val)
+  }
+
+  public error(tx: Transaction, err: Error): void {
+    this.dest.error(tx, err)
+  }
+
+  public end(tx: Transaction): void {
+    this.dest.end(tx)
+  }
+}
+
 export const NONE = {} as any
 
 export const NOOP_SUBSCRIBER = new class NoopSubscriber implements Subscriber<any> {
@@ -45,6 +99,8 @@ export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscript
   public dispose(): void {}
   public reorder(order: number): void {}
 }()
+
+export const NOOP_DISPATCHER = new class NoopDispatcher extends Dispatcher<any> {}()
 
 const txStack = [new Transaction()]
 let txRoot = txStack[0]

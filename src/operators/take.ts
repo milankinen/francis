@@ -23,13 +23,13 @@ class Take<T> extends Operator<T, T> {
   }
 
   public initial(tx: Transaction, val: T): void {
-    this.next.initial(tx, val)
-    --this.n === 0 && this.next.end(tx)
+    this.dispatcher.initial(tx, val)
+    --this.n === 0 && this.dispatcher.end(tx)
   }
 
   public event(tx: Transaction, val: T): void {
-    this.next.event(tx, val)
-    --this.n === 0 && this.next.end(tx)
+    this.dispatcher.event(tx, val)
+    --this.n === 0 && this.dispatcher.end(tx)
   }
 
   public handleAbort(subscriber: Subscriber<T>): void {
