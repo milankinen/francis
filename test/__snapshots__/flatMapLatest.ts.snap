@@ -1,0 +1,138 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.flatMapLatest does not end if the latest inner stream does not end 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+]
+`;
+
+exports[`EventStream.flatMapLatest does not end if the outer stream does not end 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+]
+`;
+
+exports[`EventStream.flatMapLatest uses the events from the latest inner stream only 1`] = `
+Array [
+  Next {
+    "value": "1",
+  },
+  Next {
+    "value": "2",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "b",
+  },
+  Next {
+    "value": "c",
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapLatest does not emit initial value if inner observable does not emit initial valu 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapLatest emits initial value only once 1`] = `
+Array [
+  Initial {
+    "value": 0,
+  },
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapLatest emits its inner events synchronously 1`] = `
+Array [
+  Initial {
+    "value": "tsers!",
+  },
+  End {},
+  Sync {},
+]
+`;
+
+exports[`Property.flatMapLatest works with derived same origin (follows transaction semantics) 1`] = `
+Array [
+  Next {
+    "value": "Aa",
+  },
+  Next {
+    "value": "Bb",
+  },
+  Next {
+    "value": "Cc",
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapLatest works with nested combines (follows transaction semantics) 1`] = `
+Array [
+  Initial {
+    "value": Array [
+      ">",
+      Array [
+        ">",
+        ">",
+        "_>_",
+      ],
+    ],
+  },
+  Next {
+    "value": Array [
+      "A",
+      Array [
+        "a",
+        "A",
+        "_a_",
+      ],
+    ],
+  },
+  Next {
+    "value": Array [
+      "B",
+      Array [
+        "b",
+        "B",
+        "_b_",
+      ],
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapLatest works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Initial {
+    "value": ">",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "b",
+  },
+  Next {
+    "value": "c",
+  },
+  End {},
+]
+`;

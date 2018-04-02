@@ -7,37 +7,36 @@ import {
   sendNoInitialSafely,
   Source,
   Subscription,
-  txPop,
-  txPush,
 } from "../_core"
 import { Projection } from "../_interfaces"
+import { toObservable } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { isProperty, Property } from "../Property"
-import { createInnerScheduler } from "../scheduler/index"
+import { Property } from "../Property"
+import { getInnerScheduler } from "../scheduler/index"
 import { EventType } from "./_base"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
 export function flatMapLatest<A, B>(
-  project: Projection<A, Observable<B>>,
+  project: Projection<A, B | Observable<B>>,
   stream: EventStream<A>,
 ): EventStream<B>
 export function flatMapLatest<A, B>(
-  project: Projection<A, Observable<B>>,
+  project: Projection<A, B | Observable<B>>,
   property: Property<A>,
 ): Property<B>
 export function flatMapLatest<A, B>(
-  project: Projection<A, Observable<B>>,
+  project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
   return _flatMapLatest(project, observable)
 }
 
 export function _flatMapLatest<A, B>(
-  project: Projection<A, Observable<B>>,
+  project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
   return makeObservable(new FlatMapLatest(observable.op, project))
@@ -52,7 +51,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   private qTail: QueuedEvent<B> | null = null
   private outerTx: Transaction | null = null
 
-  constructor(source: Source<A>, private readonly proj: Projection<A, Observable<B>>) {
+  constructor(source: Source<A>, private readonly proj: Projection<A, B | Observable<B>>) {
     super(source, source.sync)
   }
 
@@ -65,15 +64,12 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   public next(tx: Transaction, val: A): void {
     const project = this.proj
     const innerSubscription = this.innerSubs
-    // TODO: ensure that innerObs is observable
-    const innerObs = project(val)
+    const innerObs = toObservable(project(val))
     const innerSource = innerObs.op
-
-    // TODO: custom scheduler
-    const scheduler = createInnerScheduler()
+    const scheduler = getInnerScheduler()
     this.innerSubs = innerSource.subscribe(scheduler, new Pipe(this), this.order + 1)
     this.innerEnded = false
-    if (!isProperty(innerObs) && this.sync) {
+    if (!innerSource.sync && this.sync) {
       // EventStreams won't provide any initial events so we must fake it
       this.qHead = this.qTail = { type: EventType.NO_INITIAL, next: null }
     } else {
@@ -84,9 +80,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
     innerSubscription.dispose()
     // run activations from new subscriptions
     this.outerTx = tx
-    txPush()
     scheduler.run()
-    txPop()
     this.outerTx = null
   }
 
@@ -100,41 +94,46 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   }
 
   public pipedInitial(sender: Pipe<B>, tx: Transaction, val: B): void {
-    this.pushQ(tx, { type: this.initStage ? EventType.INITIAL : EventType.EVENT, val, next: null })
+    this.pushInnerEvent(tx, {
+      next: null,
+      type: this.initStage ? EventType.INITIAL : EventType.EVENT,
+      val,
+    })
   }
 
   public pipedNoInitial(sender: Pipe<B>, tx: Transaction): void {
-    this.initStage && this.pushQ(tx, { type: EventType.NO_INITIAL, next: null })
+    this.initStage && this.pushInnerEvent(tx, { type: EventType.NO_INITIAL, next: null })
   }
 
   public pipedNext(sender: Pipe<B>, tx: Transaction, val: B): void {
-    this.pushQ(tx, { type: EventType.EVENT, val, next: null })
+    this.pushInnerEvent(tx, { type: EventType.EVENT, val, next: null })
   }
 
   public pipedError(sender: Pipe<B>, tx: Transaction, err: Error): void {
-    this.pushQ(tx, { type: EventType.ERROR, err, next: null })
+    this.pushInnerEvent(tx, { type: EventType.ERROR, err, next: null })
   }
 
   public pipedEnd(sender: Pipe<B>, tx: Transaction): void {
-    this.pushQ(tx, { type: EventType.END, next: null })
+    this.pushInnerEvent(tx, { type: EventType.END, next: null })
   }
 
   public continueJoin(tx: Transaction, param: null): void {
+    const { dispatcher } = this
     let head = this.qHead
     this.qHead = this.qTail = null
-    while (head !== null && this.isActive()) {
+    while (head !== null && dispatcher.isActive()) {
       switch (head.type) {
         case EventType.INITIAL:
-          sendInitialSafely(tx, this.dispatcher, (head.val as any) as B)
+          sendInitialSafely(tx, dispatcher, (head.val as any) as B)
           break
         case EventType.NO_INITIAL:
-          sendNoInitialSafely(tx, this.dispatcher)
+          sendNoInitialSafely(tx, dispatcher)
           break
         case EventType.EVENT:
-          sendNextSafely(tx, this.dispatcher, (head.val as any) as B)
+          sendNextSafely(tx, dispatcher, (head.val as any) as B)
           break
         case EventType.ERROR:
-          sendErrorSafely(tx, this.dispatcher, (head.err as any) as Error)
+          sendErrorSafely(tx, dispatcher, (head.err as any) as Error)
           break
         case EventType.END:
           this.handleInnerEnd(tx)
@@ -145,10 +144,11 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
   }
 
   protected handleDispose(): void {
+    const isubs = this.innerSubs
     this.innerEnded = this.outerEnded = true
     this.qHead = this.qTail = null
-    this.innerSubs.dispose()
     this.innerSubs = NOOP_SUBSCRIPTION
+    isubs.dispose()
     this.dispose()
   }
 
@@ -157,7 +157,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
     this.reorder(order)
   }
 
-  private pushQ(tx: Transaction, qe: QueuedEvent<B>): void {
+  private pushInnerEvent(tx: Transaction, qe: QueuedEvent<B>): void {
     this.qTail === null ? (this.qHead = this.qTail = qe) : (this.qTail = this.qTail.next = qe)
     this.queueJoin(this.outerTx || tx, null)
   }
@@ -167,8 +167,9 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
     if (this.outerEnded) {
       sendEndSafely(tx, this.dispatcher)
     } else {
-      this.innerSubs.dispose()
+      const isubs = this.innerSubs
       this.innerSubs = NOOP_SUBSCRIPTION
+      isubs.dispose()
     }
   }
 }

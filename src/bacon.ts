@@ -4,7 +4,7 @@ import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
-import * as FlatMap from "./operators/flatMap"
+import * as FlatMapLatest from "./operators/flatMapLatest"
 import * as Log from "./operators/log"
 import * as Map from "./operators/map"
 import * as Sample from "./operators/sample"
@@ -22,7 +22,7 @@ declare module "./Observable" {
     filter(predicate: Predicate<A>): Observable<A>
     take(n: number): Observable<A>
     first(): Observable<A>
-    flatMapLatest<B>(project: Projection<A, Observable<B>>): Observable<B>
+    flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     startWith(value: A): Observable<A>
   }
 }
@@ -33,7 +33,7 @@ declare module "./EventStream" {
     filter(predicate: Predicate<A>): EventStream<A>
     take(n: number): EventStream<A>
     first(): EventStream<A>
-    flatMapLatest<B>(project: Projection<A, Observable<B>>): EventStream<B>
+    flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     toProperty(initialValue?: A): Property<A>
     startWith(value: A): EventStream<A>
   }
@@ -45,7 +45,7 @@ declare module "./Property" {
     filter(predicate: Predicate<A>): Property<A>
     take(n: number): Property<A>
     first(): Property<A>
-    flatMapLatest<B>(project: Projection<A, Observable<B>>): Property<B>
+    flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
     sampledBy<B>(sampler: EventStream<B>): EventStream<A>
     sampledBy<B>(sampler: Property<B>): Property<A>
     sampledBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
@@ -91,9 +91,11 @@ Observable.prototype.first = function<A>(): Observable<A> {
 }
 
 Observable.prototype.flatMapLatest = function<A, B>(
-  project: Projection<A, Observable<B>>,
+  project: Projection<A, B | Observable<B>>,
+  ...rest: any[]
 ): Observable<B> {
-  return FlatMap._flatMapLatest(project, this)
+  project = toFunction(project, rest)
+  return FlatMapLatest._flatMapLatest(project, this)
 }
 
 Observable.prototype.startWith = function<A>(value: A): Observable<A> {
