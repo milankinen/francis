@@ -1,8 +1,8 @@
 const Benchmark = require("benchmark")
-const B = require("baconjs")
+const B = require("baconjs/dist/Bacon.min")
 const Rx = require("rxjs")
 const xs = require("xstream")
-const F = require("../dist/francis.bacon")
+const F = require("../dist/francis.bacon.min")
 
 let suite = new Benchmark.Suite()
 suite = initAll(suite, 1000, 10, 40)
