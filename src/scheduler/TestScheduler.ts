@@ -1,5 +1,5 @@
 import { logAndThrow } from "../_assert"
-import { OnTimeout, Scheduler, Task, Timeout } from "./scheduler"
+import { OnTimeout, Scheduler, Task, Timeout } from "./Scheduler"
 
 export type EndListener = (error?: Error) => void
 
