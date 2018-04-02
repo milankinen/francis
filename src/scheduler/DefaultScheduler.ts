@@ -3,37 +3,35 @@ import { OnTimeout, Scheduler, Task, Timeout } from "./Scheduler"
 
 export class DefaultScheduler implements Scheduler {
   public static create(): Scheduler {
-    return new DefaultScheduler(null, false)
+    return new DefaultScheduler(null)
   }
 
-  private running: boolean = false
+  private cursor: number = 0
   private syncTasks: Task[] = []
   private deferredTasks: Task[] = []
   private promise: Promise<any> | null = null
 
-  private constructor(private root: DefaultScheduler | null, private sync: boolean) {}
+  private constructor(private outer: DefaultScheduler | null) {}
 
-  public forkOuter(): Scheduler {
-    return this.running ? new DefaultScheduler(this.root || this, false) : this
-  }
-
-  public forkInner(): Scheduler {
+  public getInner(): Scheduler {
     if (__DEVELOPER__) {
-      !this.running &&
+      this.cursor === 0 &&
         logAndThrow("**BUG** Scheduler must be running in order to fork inner scheduler")
     }
-    return new DefaultScheduler(this, true)
+    return new DefaultScheduler(this)
   }
 
   public schedulePropertyActivation(task: Task): void {
-    this.queueSyncTask(task)
+    if (this.outer !== null) {
+      this.outer.schedulePropertyActivation(task)
+    } else {
+      this.queueSyncTask(task)
+    }
   }
 
   public scheduleEventStreamActivation(task: Task): void {
-    if (this.sync) {
-      this.queueSyncTask(task)
-    } else if (this.root !== null) {
-      this.root.scheduleEventStreamActivation(task)
+    if (this.outer !== null) {
+      this.outer.schedulePropertyActivation(task)
     } else {
       this.queueMicroTask(task)
     }
@@ -44,14 +42,16 @@ export class DefaultScheduler implements Scheduler {
   }
 
   public run(): void {
-    if (!this.running) {
-      this.running = true
+    if (this.outer !== null) {
+      this.outer.run()
+    } else {
       const tasks = this.syncTasks
-      for (let i = 0; i < tasks.length; i++) {
-        tasks[i].run()
+      while (this.cursor < tasks.length) {
+        const task = tasks[this.cursor++]
+        task.run()
       }
       this.syncTasks = []
-      this.running = false
+      this.cursor = 0
     }
   }
 

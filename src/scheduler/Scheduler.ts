@@ -11,10 +11,6 @@ export interface OnTimeout {
 }
 
 export interface Scheduler {
-  forkOuter(): Scheduler
-
-  forkInner(): Scheduler
-
   schedulePropertyActivation(task: Task): void
 
   scheduleEventStreamActivation(task: Task): void
@@ -22,4 +18,6 @@ export interface Scheduler {
   scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout
 
   run(): void
+
+  getInner(): Scheduler
 }

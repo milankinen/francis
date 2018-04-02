@@ -3,10 +3,10 @@ import { Subscriber, Subscription } from "../_core"
 import { Transaction } from "../_tx"
 import { disableNoUnusedWarning } from "../_util"
 import { Observable } from "../Observable"
-import { createOuterScheduler } from "../scheduler/index"
+import { getOuterScheduler } from "../scheduler/index"
 
 export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>): void {
-  const scheduler = createOuterScheduler()
+  const scheduler = getOuterScheduler()
   const subs = observable.op.subscribe(scheduler, runner, 0)
   const anyRunner = runner as any
   if (__DEVELOPER__) {

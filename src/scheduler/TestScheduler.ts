@@ -5,26 +5,23 @@ export type EndListener = (error?: Error) => void
 
 export class TestScheduler implements Scheduler {
   public static create(): TestScheduler {
-    return new TestScheduler(null, false)
+    return new TestScheduler(null)
   }
 
+  private runStack: number = 0
   private unscheduled: boolean = false
-  private running: boolean = false
+  private cursor: number = 0
   private currentTick: number = 0
   private syncTasks: Task[] = []
   private asyncSlots: TimeSlot[] = []
   private promise: Promise<any> | null = null
   private listener: EndListener | null = null
 
-  private constructor(private root: TestScheduler | null, private sync: boolean) {}
+  private constructor(private outer: TestScheduler | null) {}
 
-  public forkOuter(): Scheduler {
-    return new TestScheduler(this.root || this, false)
-  }
-
-  public forkInner(): Scheduler {
-    !this.running && logAndThrow("Can't fork inner scheduler - scheduler is not running")
-    return new TestScheduler(this, true)
+  public getInner(): Scheduler {
+    this.cursor === 0 && logAndThrow("Can't fork inner scheduler - scheduler is not running")
+    return new TestScheduler(this)
   }
 
   public consume(listener: EndListener): void {
@@ -41,37 +38,42 @@ export class TestScheduler implements Scheduler {
   }
 
   public schedulePropertyActivation(task: Task): void {
-    this.scheduleSync(task)
+    if (this.outer !== null) {
+      this.outer.schedulePropertyActivation(task)
+    } else {
+      this.scheduleSync(task)
+    }
   }
 
   public scheduleEventStreamActivation(task: Task): void {
-    if (this.sync) {
-      this.scheduleSync(task)
-    } else if (this.root !== null) {
-      this.root.scheduleEventStreamActivation(task)
+    if (this.outer !== null) {
+      this.outer.schedulePropertyActivation(task)
     } else {
       this.scheduleMicroTask(task)
     }
   }
 
   public scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout {
-    if (this.root !== null) {
-      return this.root.scheduleTimeout(onTimeout, delay)
+    if (this.outer !== null) {
+      return this.outer.scheduleTimeout(onTimeout, delay)
     } else {
       return this.scheduleTimeoutTask(new TimeoutTask(onTimeout), delay)
     }
   }
 
   public run(): void {
-    if (!this.running) {
-      const tasks = this.syncTasks
-      this.running = true
-      for (let i = 0; i < tasks.length; i++) {
-        tasks[i].run()
+    if (this.outer !== null) {
+      this.outer.run()
+    } else {
+      this.runStack++
+      while (this.cursor < this.syncTasks.length) {
+        const task = this.syncTasks[this.cursor++]
+        task.run()
       }
       this.syncTasks = []
-      this.running = false
-      if (this.asyncSlots.length === 0) {
+      this.cursor = 0
+      this.runStack--
+      if (this.runStack === 0 && this.asyncSlots.length === 0) {
         this.notifyEnded()
       }
     }

@@ -3,15 +3,15 @@ import { Scheduler } from "./Scheduler"
 
 export { Scheduler, Task, Timeout, OnTimeout } from "./Scheduler"
 
-let root: Scheduler = DefaultScheduler.create()
+let scheduler: Scheduler = DefaultScheduler.create()
 let isOverride = false
 
-export function createInnerScheduler(): Scheduler {
-  return root.forkInner()
+export function getInnerScheduler(): Scheduler {
+  return scheduler.getInner()
 }
 
-export function createOuterScheduler(): Scheduler {
-  return root.forkOuter()
+export function getOuterScheduler(): Scheduler {
+  return scheduler
 }
 
 export function withScheduler<S extends Scheduler>(
@@ -21,11 +21,11 @@ export function withScheduler<S extends Scheduler>(
   if (isOverride) {
     throw new Error("Nested withScheduler not supported")
   }
-  const prev = root
-  root = impl
+  const prev = scheduler
+  scheduler = impl
   isOverride = true
   block(impl, () => {
     isOverride = false
-    root = prev
+    scheduler = prev
   })
 }
