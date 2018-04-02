@@ -51,7 +51,7 @@ export function _sampleByF<S, V, R>(
   return makeObservable(new Sample(cs, project))
 }
 
-class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
+class Sample<S, V, R> extends JoinOperator<S, R> implements PipeDest<V> {
   private qErrs = new ErrorQueue()
   private qEnd: boolean = false
   private isInitial: boolean = false
@@ -66,23 +66,23 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
   public initial(tx: Transaction, sample: S): void {
     this.sample = sample
     this.isInitial = true
-    this.queueJoin(tx, null)
+    this.queueJoin(tx)
   }
 
   public next(tx: Transaction, sample: S): void {
     this.sample = sample
     this.isInitial = false
-    this.queueJoin(tx, null)
+    this.queueJoin(tx)
   }
 
   public error(tx: Transaction, err: Error): void {
     this.qErrs.push(err)
-    this.queueJoin(tx, null)
+    this.queueJoin(tx)
   }
 
   public end(tx: Transaction): void {
     this.qEnd = true
-    this.queueJoin(tx, null)
+    this.queueJoin(tx)
   }
 
   public pipedInitial(sender: Pipe<V>, tx: Transaction, val: V): void {
@@ -106,7 +106,7 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
     cs.disposeValue()
   }
 
-  public continueJoin(tx: Transaction, _: null): void {
+  public continueJoin(tx: Transaction): void {
     const { val, sample } = this
     if (val !== NONE && sample !== NONE) {
       const project = this.p

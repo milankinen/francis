@@ -4,24 +4,24 @@ import { Operation, Transaction } from "../_tx"
 import { disableNoUnusedWarning } from "../_util"
 import { Operator } from "./_base"
 
-export abstract class JoinOperator<A, B, P> extends Operator<A, B> {
-  private __join: Join<P> | null = null
+export abstract class JoinOperator<A, B> extends Operator<A, B> {
+  private __join: Join | null = null
 
   constructor(origin: Source<A>, sync: boolean) {
     super(origin, sync)
     false && disableNoUnusedWarning(this.__handleJoin)
   }
 
-  public abstract continueJoin(tx: Transaction, param: P): void
+  public abstract continueJoin(tx: Transaction): void
 
-  protected queueJoin(tx: Transaction, param: P): void {
+  protected queueJoin(tx: Transaction): void {
     this.__join === null &&
-      tx.queue((this.__join = new Join(priorityOf(this.order, this.weight), this as any, param)))
+      tx.queue((this.__join = new Join(priorityOf(this.order, this.weight), this as any)))
   }
 
-  private __handleJoin(tx: Transaction, param: P): void {
+  private __handleJoin(tx: Transaction): void {
     this.__join = null
-    this.continueJoin(tx, param)
+    this.continueJoin(tx)
   }
 }
 
@@ -58,14 +58,14 @@ export class ErrorQueue {
   }
 }
 
-class Join<T> implements Operation {
-  constructor(public priority: number, private target: Continuation<T>, private param: T) {}
+class Join implements Operation {
+  constructor(public priority: number, private target: Continuation) {}
 
   public exec(tx: Transaction): void {
-    this.target.__handleJoin(tx, this.param)
+    this.target.__handleJoin(tx)
   }
 }
 
-interface Continuation<T> {
-  __handleJoin(tx: Transaction, val: T): void
+interface Continuation {
+  __handleJoin(tx: Transaction): void
 }

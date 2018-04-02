@@ -42,7 +42,7 @@ export function _flatMapLatest<A, B>(
   return makeObservable(new FlatMapLatest(observable.op, project))
 }
 
-class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B> {
+class FlatMapLatest<A, B> extends JoinOperator<A, B> implements PipeDest<B> {
   private initStage: boolean = false
   private innerSubs: Subscription = NOOP_SUBSCRIPTION
   private innerEnded: boolean = false
@@ -117,7 +117,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
     this.pushInnerEvent(tx, { type: EventType.END, next: null })
   }
 
-  public continueJoin(tx: Transaction, param: null): void {
+  public continueJoin(tx: Transaction): void {
     const { dispatcher } = this
     let head = this.qHead
     this.qHead = this.qTail = null
@@ -159,7 +159,7 @@ class FlatMapLatest<A, B> extends JoinOperator<A, B, null> implements PipeDest<B
 
   private pushInnerEvent(tx: Transaction, qe: QueuedEvent<B>): void {
     this.qTail === null ? (this.qHead = this.qTail = qe) : (this.qTail = this.qTail.next = qe)
-    this.queueJoin(this.outerTx || tx, null)
+    this.queueJoin(this.outerTx || tx)
   }
 
   private handleInnerEnd(tx: Transaction): void {

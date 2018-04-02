@@ -84,7 +84,7 @@ export function _combine<A, B>(
   }
 }
 
-class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber {
+class Combine<A, B> extends JoinOperator<Indexed<A>, B> implements IndexedEndSubscriber {
   private vals: A[]
   private nInitialsLeft: number
   private nValsLeft: number
@@ -110,7 +110,7 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     --this.nInitialsLeft
     if ((prev === NONE && --this.nValsLeft === 0) || this.nValsLeft === 0) {
       this.qNext = EventType.INITIAL
-      this.queueJoin(tx, null)
+      this.queueJoin(tx)
     } else if (this.nInitialsLeft === 0) {
       this.dispatcher.noinitial(tx)
     }
@@ -128,26 +128,26 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     this.vals[idx] = val
     if ((prev === NONE && --this.nValsLeft === 0) || this.nValsLeft === 0) {
       this.qNext = EventType.EVENT
-      this.queueJoin(tx, null)
+      this.queueJoin(tx)
     }
   }
 
   public error(tx: Transaction, err: Error): void {
     this.qErrors.push(err)
-    this.queueJoin(tx, null)
+    this.queueJoin(tx)
   }
 
   public iend(tx: Transaction, idx: number): void {
     if (--this.nEndsLeft === 0) {
       this.qEnd = EventType.END
-      this.queueJoin(tx, null)
+      this.queueJoin(tx)
     } else {
       const isrc = this.source as IndexedSource<A>
       isrc.disposeIdx(idx)
     }
   }
 
-  public continueJoin(tx: Transaction, ignore: null): void {
+  public continueJoin(tx: Transaction): void {
     if (this.qNext !== 0) {
       const isInitial = this.qNext === EventType.INITIAL
       const { f } = this
