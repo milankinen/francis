@@ -72,8 +72,9 @@ class ToProperty<T> extends Operator<T, T> {
     // might be called from the inner activation context (= flatMap***) which means that it might get events
     // synchronously - that's why we need to keep track that no events have been emitted before we can
     // safely emit no-initial to the downstram
+    const subscription = this.activate(scheduler, subscriber, order)
     scheduler.schedulePropertyActivation(new EnsureSyncEmitTask(this, subscriber))
-    return this.activate(scheduler, subscriber, order)
+    return subscription
   }
 }
 

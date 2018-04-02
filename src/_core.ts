@@ -102,42 +102,34 @@ export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscript
 
 export const NOOP_DISPATCHER = new class NoopDispatcher extends Dispatcher<any> {}()
 
-const txStack = [new Transaction()]
-let txRoot = txStack[0]
-
-export function txPush(): void {
-  txStack.push(new Transaction())
-  txRoot = txStack[txStack.length - 1]
-}
-
-export function txPop(): void {
-  txStack.pop()
-  txRoot = txStack[txStack.length - 1]
-}
-
 export function sendRootInitial<T>(subscriber: Subscriber<T>, val: T): void {
-  sendInitialSafely(txRoot, subscriber, val)
-  txRoot.executePending()
+  const tx = new Transaction()
+  sendInitialSafely(tx, subscriber, val)
+  tx.executePending()
 }
 
 export function sendRootNoInitial<T>(subscriber: Subscriber<T>): void {
-  sendNoInitialSafely(txRoot, subscriber)
-  txRoot.executePending()
+  const tx = new Transaction()
+  sendNoInitialSafely(tx, subscriber)
+  tx.executePending()
 }
 
 export function sendRootEvent<T>(subscriber: Subscriber<T>, val: T): void {
-  sendNextSafely(txRoot, subscriber, val)
-  txRoot.executePending()
+  const tx = new Transaction()
+  sendNextSafely(tx, subscriber, val)
+  tx.executePending()
 }
 
 export function sendRootEnd(subscriber: Subscriber<any>): void {
-  sendEndSafely(txRoot, subscriber)
-  txRoot.executePending()
+  const tx = new Transaction()
+  sendEndSafely(tx, subscriber)
+  tx.executePending()
 }
 
 export function sendRootError(subscriber: Subscriber<any>, err: Error): void {
-  sendErrorSafely(txRoot, subscriber, err)
-  txRoot.executePending()
+  const tx = new Transaction()
+  sendErrorSafely(tx, subscriber, err)
+  tx.executePending()
 }
 
 export function sendInitialSafely<T>(tx: Transaction, s: Subscriber<T>, val: T): void {

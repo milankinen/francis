@@ -29,18 +29,11 @@ export class Transaction {
 
   public executePending(): void {
     if (this.has === true) {
-      // TODO: while or recursion?
-      this._exec(this.q[this.cursor++])
-      this.cursor = 0
-      this.q = []
-      this.has = false
-    }
-  }
-
-  private _exec(op: Operation | undefined): void {
-    if (op !== undefined) {
-      op.exec(this)
-      this._exec(this.q[this.cursor++])
+      const { q } = this
+      let op: Operation | undefined
+      while ((op = q[this.cursor++]) !== undefined) {
+        op.exec(this)
+      }
     }
   }
 }
