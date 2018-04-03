@@ -1,0 +1,100 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.take is stateful 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 2,
+    },
+    End {},
+  ],
+  "second": Array [
+    End {},
+  ],
+}
+`;
+
+exports[`EventStream.take passthroughs errors 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "fuk",
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.take takes first N elements 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.take works with N=0 1`] = `
+Array [
+  Sync {},
+  End {},
+]
+`;
+
+exports[`Property.take can take initial event 1`] = `
+Array [
+  Initial {
+    "value": 0,
+  },
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
+
+exports[`Property.take is stateful but returns latest taken value to late subscribers 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 2,
+    },
+    End {},
+  ],
+  "second": Array [
+    Initial {
+      "value": 2,
+    },
+    End {},
+  ],
+}
+`;
+
+exports[`Property.take takes N next events if inital event is not present 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
