@@ -4,7 +4,7 @@ import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
-import * as FlatMapLatest from "./operators/flatMapLatest"
+import * as FlatMap from "./operators/flatMap"
 import * as Log from "./operators/log"
 import * as Map from "./operators/map"
 import * as Sample from "./operators/sample"
@@ -92,7 +92,7 @@ Observable.prototype.flatMapLatest = function<A, B>(
   project: Projection<A, B | Observable<B>>,
   ...rest: any[]
 ): Observable<B> {
-  return FlatMapLatest.flatMapLatest(toFunction(project, rest), this)
+  return FlatMap.flatMapLatest(toFunction(project, rest), this)
 }
 
 Observable.prototype.startWith = function<A>(value: A): Observable<A> {
