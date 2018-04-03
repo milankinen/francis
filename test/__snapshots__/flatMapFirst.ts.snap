@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.flatMapFirst spawns new streams and ignores source events until current spawned stream has ended 1`] = `
+Object {
+  "activations": Array [
+    "activated: 1",
+    "disposed: 1",
+    "activated: 3",
+    "disposed: 3",
+    "activated: 5",
+    "disposed: 5",
+  ],
+  "events": Array [
+    Next {
+      "value": "inner: 1",
+    },
+    Next {
+      "value": "inner: 3",
+    },
+    Next {
+      "value": "inner: 5",
+    },
+    End {},
+  ],
+}
+`;
+
+exports[`Property.flatMapFirst emit initial event synchronously if both inner and outer are sync 1`] = `
+Array [
+  Initial {
+    "value": "tsers!",
+  },
+  End {},
+  Sync {},
+]
+`;
+
+exports[`Property.flatMapFirst works with derived same origin (follows transaction semantics) 1`] = `
+Array [
+  Next {
+    "value": "Aa",
+  },
+  Next {
+    "value": "Ba",
+  },
+  Next {
+    "value": "Ca",
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapFirst works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Initial {
+    "value": ">",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "b",
+  },
+  Next {
+    "value": "c",
+  },
+  End {},
+]
+`;

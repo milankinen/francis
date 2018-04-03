@@ -23,6 +23,7 @@ declare module "./Observable" {
     take(n: number): Observable<A>
     first(): Observable<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
+    flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     startWith(value: A): Observable<A>
   }
 }
@@ -34,6 +35,7 @@ declare module "./EventStream" {
     take(n: number): EventStream<A>
     first(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
+    flatMapFirst<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     toProperty(initialValue?: A): Property<A>
     startWith(value: A): EventStream<A>
   }
@@ -46,6 +48,7 @@ declare module "./Property" {
     take(n: number): Property<A>
     first(): Property<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
+    flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Property<B>
     sampledBy<B>(sampler: EventStream<B>): EventStream<A>
     sampledBy<B>(sampler: Property<B>): Property<A>
     sampledBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
@@ -93,6 +96,13 @@ Observable.prototype.flatMapLatest = function<A, B>(
   ...rest: any[]
 ): Observable<B> {
   return FlatMap.flatMapLatest(toFunction(project, rest), this)
+}
+
+Observable.prototype.flatMapFirst = function<A, B>(
+  project: Projection<A, B | Observable<B>>,
+  ...rest: any[]
+): Observable<B> {
+  return FlatMap.flatMapFirst(toFunction(project, rest), this)
 }
 
 Observable.prototype.startWith = function<A>(value: A): Observable<A> {

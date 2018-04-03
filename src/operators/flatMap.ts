@@ -39,6 +39,25 @@ export function flatMapLatest<A, B>(
   return makeObservable(new FlatMapLatest(observable.op, project))
 }
 
+export function flatMapFirst<A, B>(
+  project: Projection<A, B | Observable<B>>,
+  stream: EventStream<A>,
+): EventStream<B>
+export function flatMapFirst<A, B>(
+  project: Projection<A, B | Observable<B>>,
+  property: Property<A>,
+): Property<B>
+export function flatMapFirst<A, B>(
+  project: Projection<A, B | Observable<B>>,
+  observable: Observable<A>,
+): Observable<B>
+export function flatMapFirst<A, B>(
+  project: Projection<A, B | Observable<B>>,
+  observable: Observable<A>,
+): Observable<B> {
+  return makeObservable(new FlatMapFirst(observable.op, project))
+}
+
 abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeDest<B> {
   protected readonly outerEnded: boolean = false
   private initStage: boolean = false
@@ -210,6 +229,47 @@ class FlatMapLatest<A, B> extends FlatMapBase<A, B> {
     } else {
       const isubs = this.isubs
       this.isubs = NOOP_SUBSCRIPTION
+      isubs.dispose()
+    }
+  }
+}
+
+class FlatMapFirst<A, B> extends FlatMapBase<A, B> {
+  private isubs: Subscription = NOOP_SUBSCRIPTION
+  private iend: boolean = true
+
+  protected isInnerEnded(): boolean {
+    return this.iend
+  }
+
+  protected handleOuterNext(tx: Transaction, val: A): HandleOuterNextResult | null {
+    if (this.iend) {
+      const project = this.proj
+      const innerObs = toObservable<B, Observable<B>>(project(val))
+      const innerSource = innerObs.op
+      const scheduler = getInnerScheduler()
+      this.isubs = innerSource.subscribe(scheduler, new Pipe(this), this.order + 1)
+      this.iend = false
+      return { scheduler, innerSync: innerSource.sync }
+    } else {
+      return null
+    }
+  }
+
+  protected handleInnerReorder(order: number): void {
+    this.isubs.reorder(order + 1)
+  }
+
+  protected handleInnerEnd(sender: Pipe<B>): boolean {
+    this.handleInnerDispose()
+    return true
+  }
+
+  protected handleInnerDispose(): void {
+    if (!this.iend) {
+      const isubs = this.isubs
+      this.isubs = NOOP_SUBSCRIPTION
+      this.iend = true
       isubs.dispose()
     }
   }
