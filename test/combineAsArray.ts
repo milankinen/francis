@@ -1,6 +1,5 @@
-import * as R from "ramda"
 import * as F from "../bacon"
-import { runner, Sync } from "./_base"
+import { byLabel, labeled, runner, Sync } from "./_base"
 
 describe("F.combineAsArray", () => {
   const lol = F.constant("lol")
@@ -108,13 +107,10 @@ describe("F.combineAsArray", () => {
         const upper = lower.map(l => l.toUpperCase())
         upper.subscribe(() => undefined)
         // both cases to ensure that order of items won't affect the transaction semantincs
-        F.combineAsArray(lower, upper).subscribe(x => record({ name: "lower-upper", x }))
-        F.combineAsArray(upper, lower).subscribe(x => record({ name: "upper-lower", x }))
+        F.combineAsArray(lower, upper).subscribe(labeled(record, "lower-upper"))
+        F.combineAsArray(upper, lower).subscribe(labeled(record, "upper-lower"))
       })
-      .after(rec => {
-        const result = R.map(R.map(R.prop("x")), R.groupBy(R.prop("name") as any, rec))
-        expect(result).toMatchSnapshot()
-      })
+      .after(rec => expect(byLabel(rec)).toMatchSnapshot())
       .run(done)
   })
 

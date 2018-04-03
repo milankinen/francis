@@ -1,3 +1,4 @@
+import * as R from "ramda"
 import { withScheduler } from "../src/scheduler/index"
 import { TestScheduler } from "../src/scheduler/TestScheduler"
 
@@ -13,6 +14,14 @@ export function runner(): ObservableRunner {
 
 // tslint:disable-next-line:no-shadowed-variable
 export const Sync = new class Sync {}()
+
+export function labeled(record: any, label: string) {
+  return (value: any) => record({ label, value })
+}
+
+export function byLabel(recording: any[]): any {
+  return R.map(R.map(R.prop("value")), R.groupBy(R.prop("label") as any, recording))
+}
 
 export class ObservableRunner {
   constructor(private setupFn: RunnerSetupFn, private afterFn: RunnerAfterFn) {}
