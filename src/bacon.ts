@@ -19,7 +19,7 @@ declare module "./Observable" {
     subscribe(handler: Handler<A>): Dispose
     log(label?: string): Dispose
     map<B>(project: Projection<A, B>): Observable<B>
-    filter(predicate: Predicate<A>): Observable<A>
+    filter(predicate: Predicate<A> | Property<any>): Observable<A>
     take(n: number): Observable<A>
     first(): Observable<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
@@ -30,7 +30,7 @@ declare module "./Observable" {
 declare module "./EventStream" {
   interface EventStream<A> {
     map<B>(project: Projection<A, B>): EventStream<B>
-    filter(predicate: Predicate<A>): EventStream<A>
+    filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
     first(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
@@ -42,7 +42,7 @@ declare module "./EventStream" {
 declare module "./Property" {
   interface Property<A> {
     map<B>(project: Projection<A, B>): Property<B>
-    filter(predicate: Predicate<A>): Property<A>
+    filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
     first(): Property<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
@@ -73,8 +73,11 @@ Observable.prototype.map = function<A, B>(
   return Map.map(toFunctionsPropAsIs(project, rest), this)
 }
 
-Observable.prototype.filter = function<A>(predicate: Predicate<A>): Observable<A> {
-  return Filter.filter(predicate, this)
+Observable.prototype.filter = function<A>(
+  predicate: Predicate<A> | Property<any>,
+  ...rest: any[]
+): Observable<A> {
+  return Filter.filter(toFunctionsPropAsIs(predicate, rest), this)
 }
 
 Observable.prototype.take = function<A>(n: number): Observable<A> {

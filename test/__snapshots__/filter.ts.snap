@@ -1,0 +1,81 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.filter accepts property extractor string (follows function construction rules) 1`] = `
+Array [
+  Next {
+    "value": Array [
+      1,
+    ],
+  },
+  Next {
+    "value": Array [
+      2,
+      3,
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.filter can filter by property value 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.filter filters values based on given predicate's return value truthiness 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": true,
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.filter passthroughs errors 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "",
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.filter filters values based on given predicate's return value truthiness 1`] = `
+Array [
+  Initial {
+    "value": Object {},
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": true,
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;

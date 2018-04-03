@@ -4,14 +4,31 @@ import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
+import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
+import { sampleWith } from "./sample"
 
-export function filter<T>(predicate: Predicate<T>, stream: EventStream<T>): EventStream<T>
-export function filter<T>(predicate: Predicate<T>, property: Property<T>): Property<T>
-export function filter<T>(predicate: Predicate<T>, observable: Observable<T>): Observable<T>
-export function filter<T>(predicate: Predicate<T>, observable: Observable<T>): Observable<T> {
-  return makeObservable(new Filter(observable.op, predicate))
+export function filter<T>(
+  predicate: Predicate<T> | Property<any>,
+  stream: EventStream<T>,
+): EventStream<T>
+export function filter<T>(
+  predicate: Predicate<T> | Property<any>,
+  property: Property<T>,
+): Property<T>
+export function filter<T>(
+  predicate: Predicate<T> | Property<any>,
+  observable: Observable<T>,
+): Observable<T>
+export function filter<T>(
+  predicate: Predicate<T> | Property<any>,
+  observable: Observable<T>,
+): Observable<T> {
+  if (isProperty<any>(predicate)) {
+    return makeObservable(new FilterSampled(sampleWith(observable, (v, s) => [v, s], predicate).op))
+  } else {
+    return makeObservable(new Filter(observable.op, predicate))
+  }
 }
 
 class Filter<T> extends Operator<T, T> {
@@ -27,5 +44,21 @@ class Filter<T> extends Operator<T, T> {
   public initial(tx: Transaction, val: T): void {
     const predicate = this.p
     predicate(val) ? this.dispatcher.initial(tx, val) : this.dispatcher.noinitial(tx)
+  }
+}
+
+class FilterSampled<T> extends Operator<[any, T], T> {
+  constructor(source: Source<[any, T]>) {
+    super(source, source.sync)
+  }
+
+  public next(tx: Transaction, sampledVal: [any, T]): void {
+    const [tested, val] = sampledVal
+    tested && this.dispatcher.next(tx, val)
+  }
+
+  public initial(tx: Transaction, sampledVal: [any, T]): void {
+    const [tested, val] = sampledVal
+    tested ? this.dispatcher.initial(tx, val) : this.dispatcher.noinitial(tx)
   }
 }
