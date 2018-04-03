@@ -1,5 +1,7 @@
 export type JSError = Error
 
+export const MAX_SAFE_INTEGER = 9007199254740991
+
 export function noop(): void {
   /* no-op */
 }

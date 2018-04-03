@@ -1,4 +1,3 @@
-import { __DEVELOPER__, logAndThrow } from "../_assert"
 import { OnTimeout, Scheduler, Task, Timeout } from "./Scheduler"
 
 export class DefaultScheduler implements Scheduler {
@@ -14,11 +13,7 @@ export class DefaultScheduler implements Scheduler {
   private constructor(private outer: DefaultScheduler | null) {}
 
   public getInner(): Scheduler {
-    if (__DEVELOPER__) {
-      this.cursor === 0 &&
-        logAndThrow("**BUG** Scheduler must be running in order to fork inner scheduler")
-    }
-    return new DefaultScheduler(this)
+    return this.outer !== null ? this.outer.getInner() : new DefaultScheduler(this)
   }
 
   public schedulePropertyActivation(task: Task): void {

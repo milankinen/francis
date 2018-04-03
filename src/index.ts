@@ -20,7 +20,13 @@ export { filter } from "./operators/filter"
 export { take } from "./operators/take"
 export { first } from "./operators/first"
 export { combineAsArray } from "./operators/combine"
-export { flatMapFirst, flatMapLatest } from "./operators/flatMap"
+export {
+  flatMap,
+  flatMapConcat,
+  flatMapFirst,
+  flatMapLatest,
+  flatMapWithConcurrencyLimit,
+} from "./operators/flatMap"
 export { toProperty } from "./operators/toProperty"
 export { sampleBy, sampleWith } from "./operators/sample"
 export { startWith } from "./operators/startWith"

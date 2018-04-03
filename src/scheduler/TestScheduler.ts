@@ -1,4 +1,3 @@
-import { logAndThrow } from "../_assert"
 import { OnTimeout, Scheduler, Task, Timeout } from "./Scheduler"
 
 export type EndListener = (error?: Error) => void
@@ -20,8 +19,7 @@ export class TestScheduler implements Scheduler {
   private constructor(private outer: TestScheduler | null) {}
 
   public getInner(): Scheduler {
-    this.cursor === 0 && logAndThrow("Can't fork inner scheduler - scheduler is not running")
-    return new TestScheduler(this)
+    return this.outer !== null ? this.outer.getInner() : new TestScheduler(this)
   }
 
   public consume(listener: EndListener): void {

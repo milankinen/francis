@@ -1,0 +1,132 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.flatMapConcat spawns new stream for each value and concatenate results into a single stream 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatMapConcat works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapConcat spawns new stream for all events including Init 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapConcat waits until the previous inner source is ended before starting a new one 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapConcat works also if inner source is Property 1`] = `
+Array [
+  Initial {
+    "value": 1,
+  },
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapConcat works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Initial {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;

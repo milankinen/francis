@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.flatMapWithConcurrencyLimit spawns new stream for each value and concatenate results into a single stream 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatMapWithConcurrencyLimit works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+]
+`;
+
+exports[`Property.flatMapWithConcurrencyLimit spawns new stream for all events including Init 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapWithConcurrencyLimit works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Initial {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;

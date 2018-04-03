@@ -1,0 +1,173 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.flatMap passes source errors through to the result 1`] = `
+Array [
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatMap respects function construction rules 1`] = `
+Array [
+  Next {
+    "value": "Sir Francis Bacon",
+  },
+  End {},
+  Next {
+    "value": "Sir Bacon",
+  },
+  End {},
+  Next {
+    "value": "Sir Francis",
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatMap spawns new stream for each value and collect results into a single stream 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Error {
+    "error": "oops",
+  },
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatMap works also if inner source is Property 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "LOL",
+  },
+  Next {
+    "value": "BAL",
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatMap works also if inner source is constant 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "LOL",
+  },
+  Next {
+    "value": "BAL",
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatMap works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMap spawns new stream for all events including Init 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMap works also if inner source is Property 1`] = `
+Array [
+  Initial {
+    "value": 1,
+  },
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMap works with same origin (follows transaction semantics) 1`] = `
+Array [
+  Initial {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;

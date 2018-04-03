@@ -24,6 +24,12 @@ declare module "./Observable" {
     first(): Observable<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Observable<B>
+    flatMap<B>(project: Projection<A, B | Observable<B>>): Observable<B>
+    flatMapConcat<B>(project: Projection<A, B | Observable<B>>): Observable<B>
+    flatMapWithConcurrencyLimit<B>(
+      limit: number,
+      project: Projection<A, B | Observable<B>>,
+    ): Observable<B>
     startWith(value: A): Observable<A>
   }
 }
@@ -36,6 +42,12 @@ declare module "./EventStream" {
     first(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
+    flatMap<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
+    flatMapConcat<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
+    flatMapWithConcurrencyLimit<B>(
+      limit: number,
+      project: Projection<A, B | Observable<B>>,
+    ): EventStream<B>
     toProperty(initialValue?: A): Property<A>
     startWith(value: A): EventStream<A>
   }
@@ -49,6 +61,12 @@ declare module "./Property" {
     first(): Property<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Property<B>
+    flatMap<B>(project: Projection<A, B | Observable<B>>): Property<B>
+    flatMapConcat<B>(project: Projection<A, B | Observable<B>>): Property<B>
+    flatMapWithConcurrencyLimit<B>(
+      limit: number,
+      project: Projection<A, B | Observable<B>>,
+    ): Property<B>
     sampledBy<B>(sampler: EventStream<B>): EventStream<A>
     sampledBy<B>(sampler: Property<B>): Property<A>
     sampledBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
@@ -103,6 +121,28 @@ Observable.prototype.flatMapFirst = function<A, B>(
   ...rest: any[]
 ): Observable<B> {
   return FlatMap.flatMapFirst(toFunction(project, rest), this)
+}
+
+Observable.prototype.flatMap = function<A, B>(
+  project: Projection<A, B | Observable<B>>,
+  ...rest: any[]
+): Observable<B> {
+  return FlatMap.flatMap(toFunction(project, rest), this)
+}
+
+Observable.prototype.flatMapConcat = function<A, B>(
+  project: Projection<A, B | Observable<B>>,
+  ...rest: any[]
+): Observable<B> {
+  return FlatMap.flatMapConcat(toFunction(project, rest), this)
+}
+
+Observable.prototype.flatMapWithConcurrencyLimit = function<A, B>(
+  limit: number,
+  project: Projection<A, B | Observable<B>>,
+  ...rest: any[]
+): Observable<B> {
+  return FlatMap.flatMapWithConcurrencyLimit(limit, toFunction(project, rest), this)
 }
 
 Observable.prototype.startWith = function<A>(value: A): Observable<A> {
