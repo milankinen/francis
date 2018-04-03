@@ -4,7 +4,6 @@ import { byLabel, labeled, runner, Sync } from "./_base"
 describe("EventStream.take", () => {
   it("results in EventStream", () => {
     expect(F.once(1).take(1)).toBeInstanceOf(F.EventStream)
-    expect(F.once(1).take(1)).toBeInstanceOf(F.EventStream)
   })
 
   it("takes first N elements", done => {
@@ -56,7 +55,6 @@ describe("EventStream.take", () => {
 
 describe("Property.take", () => {
   it("results in Property", () => {
-    expect(F.constant(1).take(1)).toBeInstanceOf(F.Property)
     expect(F.constant(1).take(1)).toBeInstanceOf(F.Property)
   })
 
