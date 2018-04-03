@@ -2,6 +2,7 @@ import { __DEVBUILD__, assert } from "./_assert"
 import { isObservable } from "./_obs"
 import { isFunction, isObject } from "./_util"
 import { Observable } from "./Observable"
+import { isProperty } from "./Property"
 import { constant } from "./sources/constant"
 
 export function toObservable<T, O extends Observable<T>>(maybeObs: O | T): O {
@@ -13,7 +14,7 @@ export function toObservable<T, O extends Observable<T>>(maybeObs: O | T): O {
 }
 
 // tslint:disable-next-line:ban-types
-export function toFunction<T extends Function>(maybeFn: T, extraArgs: any[]): T {
+export function toFunction<T>(maybeFn: T, extraArgs: any[]): T {
   if (isFunction(maybeFn)) {
     if (extraArgs.length === 0) {
       return maybeFn
@@ -35,6 +36,12 @@ export function toFunction<T extends Function>(maybeFn: T, extraArgs: any[]): T 
   } else {
     return constantly(maybeFn)
   }
+}
+
+export function toFunctionsPropAsIs<T>(propertyOrMaybeFn: T, extraArgs: any[]): T {
+  return isProperty(propertyOrMaybeFn)
+    ? propertyOrMaybeFn
+    : toFunction(propertyOrMaybeFn, extraArgs)
 }
 
 function constantly(x: any): any {

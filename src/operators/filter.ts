@@ -9,11 +9,8 @@ import { Operator } from "./_base"
 
 export function filter<T>(predicate: Predicate<T>, stream: EventStream<T>): EventStream<T>
 export function filter<T>(predicate: Predicate<T>, property: Property<T>): Property<T>
+export function filter<T>(predicate: Predicate<T>, observable: Observable<T>): Observable<T>
 export function filter<T>(predicate: Predicate<T>, observable: Observable<T>): Observable<T> {
-  return _filter(predicate, observable)
-}
-
-export function _filter<T>(predicate: Predicate<T>, observable: Observable<T>): Observable<T> {
   return makeObservable(new Filter(observable.op, predicate))
 }
 

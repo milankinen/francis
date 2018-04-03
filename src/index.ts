@@ -22,7 +22,7 @@ export { first } from "./operators/first"
 export { combineAsArray } from "./operators/combine"
 export { flatMapLatest } from "./operators/flatMapLatest"
 export { toProperty } from "./operators/toProperty"
-export { sampleBy, sampleByF } from "./operators/sample"
+export { sampleBy, sampleWith } from "./operators/sample"
 export { startWith } from "./operators/startWith"
 
 // subscribers / side-effects

@@ -19,7 +19,7 @@ import { constant } from "../sources/constant"
 import { EventType, SendNoInitialTask } from "./_base"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { ErrorQueue, JoinOperator } from "./_join"
-import { _map, map } from "./map"
+import { map } from "./map"
 import { toProperty } from "./toProperty"
 
 export function combineAsArray<T>(observables?: Array<Observable<T> | T>): Property<T[]>
@@ -73,7 +73,7 @@ export function _combine<A, B>(
   if (n === 0) {
     return map(f, constant([] as A[]))
   } else if (n === 1) {
-    return toProperty(_map(val => f([val]), toObservable<A, Observable<A>>(observables[0])))
+    return toProperty(map(val => f([val]), toObservable<A, Observable<A>>(observables[0])))
   } else {
     const sources = Array(n)
     while (n--) {

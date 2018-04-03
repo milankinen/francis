@@ -9,11 +9,8 @@ import { Operator } from "./_base"
 
 export function take<T>(n: number, stream: EventStream<T>): EventStream<T>
 export function take<T>(n: number, property: Property<T>): Property<T>
+export function take<T>(n: number, observable: Observable<T>): Observable<T>
 export function take<T>(n: number, observable: Observable<T>): Observable<T> {
-  return _take(n, observable)
-}
-
-export function _take<T>(n: number, observable: Observable<T>): Observable<T> {
   return makeObservable(new Take(observable.op, n))
 }
 

@@ -1,5 +1,5 @@
 import { Dispose, Handler, Predicate, Projection } from "./_interfaces"
-import { toFunction } from "./_interrop"
+import { toFunction, toFunctionsPropAsIs } from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Filter from "./operators/filter"
@@ -12,7 +12,7 @@ import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as ToProperty from "./operators/toProperty"
-import { isProperty, Property } from "./Property"
+import { Property } from "./Property"
 
 declare module "./Observable" {
   interface Observable<A> {
@@ -67,48 +67,40 @@ Observable.prototype.log = function(label?: string): Dispose {
 }
 
 Observable.prototype.map = function<A, B>(
-  project: Projection<A, B>,
+  project: Projection<A, B> | Property<B>,
   ...rest: any[]
 ): Observable<B> {
-  if (isProperty(project as any)) {
-    return Sample._sampleByF(this, (v: any, _: any) => v, project as any)
-  } else {
-    project = toFunction(project, rest)
-    return Map._map(project, this)
-  }
+  return Map.map(toFunctionsPropAsIs(project, rest), this)
 }
 
 Observable.prototype.filter = function<A>(predicate: Predicate<A>): Observable<A> {
-  return Filter._filter(predicate, this)
+  return Filter.filter(predicate, this)
 }
 
 Observable.prototype.take = function<A>(n: number): Observable<A> {
-  return Take._take(n, this)
+  return Take.take(n, this)
 }
 
 Observable.prototype.first = function<A>(): Observable<A> {
-  return First._first(this)
+  return First.first(this)
 }
 
 Observable.prototype.flatMapLatest = function<A, B>(
   project: Projection<A, B | Observable<B>>,
   ...rest: any[]
 ): Observable<B> {
-  project = toFunction(project, rest)
-  return FlatMapLatest._flatMapLatest(project, this)
+  return FlatMapLatest.flatMapLatest(toFunction(project, rest), this)
 }
 
 Observable.prototype.startWith = function<A>(value: A): Observable<A> {
-  return StartWith._startWith(value, this)
+  return StartWith.startWith(value, this)
 }
 // EventStream specific operators
 
 EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
-  if (arguments.length === 0) {
-    return ToProperty.toProperty(this)
-  } else {
-    return StartWith._startWithP(initialValue, ToProperty.toProperty(this))
-  }
+  return arguments.length === 0
+    ? ToProperty.toProperty(this)
+    : StartWith._startWithP(initialValue, ToProperty.toProperty(this))
 }
 
 // Property specific operators
@@ -119,7 +111,7 @@ Property.prototype.sampledBy = function<A, B, C>(
   ...rest: any[]
 ): any {
   const fn = toFunction(f === undefined ? (v: A, s: B) => v as any : f, rest)
-  return Sample._sampleByF(sampler, fn, this)
+  return Sample.sampleWith(sampler, fn, this)
 }
 
 // factory functions

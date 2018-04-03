@@ -18,31 +18,37 @@ import { Scheduler } from "../scheduler/index"
 import { ErrorQueue, JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
-export function sampleByF<S, V, R>(
+export function sampleWith<S, V, R>(
   sampler: Property<S>,
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): Property<R>
-export function sampleByF<S, V, R>(
+export function sampleWith<S, V, R>(
   sampler: EventStream<S>,
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): EventStream<R>
-export function sampleByF<S, V, R>(
+export function sampleWith<S, V, R>(
+  sampler: Observable<S>,
+  project: (value: V, sample: S) => R,
+  value: Property<V>,
+): Observable<R>
+export function sampleWith<S, V, R>(
   sampler: Observable<S>,
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): Observable<R> {
-  return _sampleByF(sampler, project, value)
+  return _sampleF(sampler, project, value)
 }
 
 export function sampleBy<S, V>(sampler: Property<S>, value: Property<V>): Property<V>
 export function sampleBy<S, V>(sampler: EventStream<S>, value: Property<V>): EventStream<V>
+export function sampleBy<S, V>(sampler: Observable<S>, value: Property<V>): Observable<V>
 export function sampleBy<S, V>(sampler: Observable<S>, value: Property<V>): Observable<V> {
-  return _sampleByF(sampler, (v: V, s: S) => v, value)
+  return _sampleF(sampler, (v: V, s: S) => v, value)
 }
 
-export function _sampleByF<S, V, R>(
+function _sampleF<S, V, R>(
   sampler: Observable<S>,
   project: (value: V, sample: S) => R,
   value: Property<V>,

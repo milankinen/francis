@@ -31,11 +31,8 @@ export function flatMapLatest<A, B>(
 export function flatMapLatest<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
-): Observable<B> {
-  return _flatMapLatest(project, observable)
-}
-
-export function _flatMapLatest<A, B>(
+): Observable<B>
+export function flatMapLatest<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {

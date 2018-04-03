@@ -8,11 +8,8 @@ import { Operator } from "./_base"
 
 export function startWith<T>(value: T, stream: EventStream<T>): EventStream<T>
 export function startWith<T>(value: T, property: Property<T>): Property<T>
+export function startWith<T>(value: T, observable: Observable<T>): Observable<T>
 export function startWith<T>(value: T, observable: Observable<T>): Observable<T> {
-  return _startWith(value, observable)
-}
-
-export function _startWith<T>(value: T, observable: Observable<T>): Observable<T> {
   if (isProperty<T>(observable)) {
     return _startWithP(value, observable)
   } else {
