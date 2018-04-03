@@ -1,5 +1,5 @@
 import * as F from "../bacon"
-import { runner, Sync } from "./_base"
+import { runner } from "./_base"
 
 describe("EventStream.filter", () => {
   it("results in EventStream", () => {
