@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.first takes first event and ends 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
+
+exports[`Property.first takes first event and ends 1`] = `
+Array [
+  Initial {
+    "value": 0,
+  },
+  End {},
+  Sync {},
+]
+`;
