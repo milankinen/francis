@@ -17,7 +17,7 @@
     "package:oo": "rollup -c rollup.bacon.config.js && rollup -c rollup.bacon.min.config.js",
     "compile:ts": "tsc -p ./tsconfig.build.json",
     "build": "npm run compile:ts && npm run package:default && npm run package:oo",
-    "postbuild": "package-size ./dist/francis.min.js",
+    "pkgsize": "package-size ./dist/francis.min.js",
     "lint": "tslint 'src/**/*.ts' 'test/**/*.ts'",
     "prettify": "prettier --write 'src/**/*.ts'",
     "linterfixes": "tslint --fix --project .",
