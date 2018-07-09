@@ -14,7 +14,6 @@ export default {
       delimiters: ["", ""],
       values: {
         "process.env.NODE_ENV": JSON.stringify("development"),
-        "process.env.FRANCIS_DEVELOPER": JSON.stringify("0"),
         "(__DEVBUILD__)": "(true)",
         "(__DEVELOPER__)": "(false)",
       },

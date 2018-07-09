@@ -48,6 +48,9 @@
     "typescript-snapshots-plugin": "^1.1.1"
   },
   "jest": {
+    "globals": {
+      "__FRANCIS_DEV__": 1
+    },
     "transform": {
       "^.+\\.ts$": "ts-jest"
     },

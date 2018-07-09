@@ -1,6 +1,6 @@
 export const __DEVBUILD__: boolean = process.env.NODE_ENV !== "production"
 
-export const __DEVELOPER__: boolean = process.env.FRANCIS_DEVELOPER === "1"
+export const __DEVELOPER__: boolean = (global as any).__FRANCIS_DEV__ === 1
 
 export function assert(invariant: boolean, message: string): void {
   if (!invariant) {
