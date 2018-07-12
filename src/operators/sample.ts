@@ -15,7 +15,8 @@ import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { Scheduler } from "../scheduler/index"
-import { ErrorQueue, JoinOperator } from "./_join"
+import { EventType } from "./_base"
+import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
 export function sampleWith<S, V, R>(
@@ -53,42 +54,38 @@ function _sampleF<S, V, R>(
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): Observable<R> {
-  const cs = new CompositeSource(value.op, sampler.op, new Pipe(null as any))
+  const cs = new SVSource(value.op, sampler.op, new Pipe(null as any))
   return makeObservable(new Sample(cs, project))
 }
 
-class Sample<S, V, R> extends JoinOperator<S, R> implements PipeDest<V> {
-  private qErrs = new ErrorQueue()
-  private qEnd: boolean = false
-  private isInitial: boolean = false
+class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
+  private type: EventType.INITIAL | EventType.NEXT = EventType.NEXT
   private sample: S = NONE
   private val: V = NONE
 
-  constructor(source: CompositeSource<S, V>, private p: (value: V, sample: S) => R) {
+  constructor(source: SVSource<S, V>, private p: (value: V, sample: S) => R) {
     super(source, source.sync)
     source.vDest = new Pipe(this)
   }
 
   public initial(tx: Transaction, sample: S): void {
     this.sample = sample
-    this.isInitial = true
-    this.queueJoin(tx)
+    this.type = EventType.INITIAL
+    this.fork(tx)
   }
 
   public next(tx: Transaction, sample: S): void {
     this.sample = sample
-    this.isInitial = false
-    this.queueJoin(tx)
+    this.type = EventType.NEXT
+    this.fork(tx)
   }
 
   public error(tx: Transaction, err: Error): void {
-    this.qErrs.push(err)
-    this.queueJoin(tx)
+    this.forkError(tx, err)
   }
 
   public end(tx: Transaction): void {
-    this.qEnd = true
-    this.queueJoin(tx)
+    this.forkEnd(tx)
   }
 
   public pipedInitial(sender: Pipe<V>, tx: Transaction, val: V): void {
@@ -104,41 +101,38 @@ class Sample<S, V, R> extends JoinOperator<S, R> implements PipeDest<V> {
   }
 
   public pipedError(sender: Pipe<V>, tx: Transaction, err: Error): void {
-    this.error(tx, err)
+    this.forkError(tx, err)
   }
 
   public pipedEnd(sender: Pipe<V>, tx: Transaction): void {
-    const cs = this.source as CompositeSource<S, V>
-    cs.disposeValue()
+    const svs = this.source as SVSource<S, V>
+    svs.disposeValue()
   }
 
-  public continueJoin(tx: Transaction): void {
+  public join(tx: Transaction): void {
     const { val, sample } = this
     if (val !== NONE && sample !== NONE) {
       const project = this.p
       const result = project(this.val, this.sample)
+      const send = this.type === EventType.INITIAL ? sendInitialSafely : sendNextSafely
       this.sample = NONE
-      this.isActive() &&
-        (this.isInitial
-          ? sendInitialSafely(tx, this.dispatcher, result)
-          : sendNextSafely(tx, this.dispatcher, result))
+      send(tx, this.dispatcher, result)
     } else {
       this.sample = NONE
     }
-    if (this.qErrs.hasErrors()) {
-      const errs = this.qErrs.popAll()
-      for (let i = 0; this.isActive() && i < errs.length; i++) {
-        sendErrorSafely(tx, this.dispatcher, errs[i])
-      }
-    }
-    if (this.qEnd) {
-      this.qEnd = false
-      this.isActive() && sendEndSafely(tx, this.dispatcher)
-    }
+    super.join(tx)
+  }
+
+  public joinError(tx: Transaction, err: Error): void {
+    sendErrorSafely(tx, this.dispatcher, err)
+  }
+
+  public joinEnd(tx: Transaction): void {
+    sendEndSafely(tx, this.dispatcher)
   }
 }
 
-class CompositeSource<S, V> implements Source<S>, Subscription {
+class SVSource<S, V> implements Source<S>, Subscription {
   public readonly weight: number
   public readonly sync: boolean
   private vSubs: Subscription

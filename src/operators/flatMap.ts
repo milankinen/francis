@@ -18,7 +18,6 @@ import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { getInnerScheduler, Scheduler } from "../scheduler/index"
-import { EventType } from "./_base"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
@@ -127,11 +126,9 @@ export function flatMapWithConcurrencyLimit<A, B>(
   return makeObservable(new FlatMapConcurrent(observable.op, project, limit))
 }
 
-abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeDest<B> {
-  protected readonly outerEnded: boolean = false
-  private initStage: boolean = false
-  private qHead: QueuedEvent<B> | null = null
-  private qTail: QueuedEvent<B> | null = null
+abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDest<B> {
+  protected outerEnded: boolean = false
+  private inInit: boolean = false
   private outerTx: Transaction | null = null
 
   constructor(source: Source<A>, protected readonly proj: Projection<A, B | Observable<B>>) {
@@ -143,30 +140,30 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeDest<
   }
 
   public initial(tx: Transaction, val: A): void {
-    this.initStage = true
+    this.inInit = true
     this.next(tx, val)
-    this.initStage = false
+    this.inInit = false
   }
 
   public next(tx: Transaction, val: A): void {
     const result = this.handleOuterNext(tx, val)
     if (result !== null) {
-      result.clear && this.__clear()
+      result.purge && this.abortJoin()
       // run activations from new subscriptions
       const latest = this.outerTx
       this.outerTx = tx
       result.scheduler.run()
-      if (this.initStage === true && this.sync === true && this.qHead === null) {
+      if (this.inInit === true && this.sync === true && !this.isForked()) {
         // Case: Inner source is asynchronous EventStream (e.g. later), we must fake
         // no-initial event in order to satisfy Property contract
-        this.__push(tx, { type: EventType.NO_INITIAL, next: null })
+        this.forkNoInitial(tx)
       }
       this.outerTx = latest
     }
   }
 
   public end(tx: Transaction): void {
-    this.__resetOuterEnded(true)
+    this.outerEnded = true
     if (this.isInnerEnded()) {
       this.dispatcher.end(tx)
     } else {
@@ -175,53 +172,61 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeDest<
   }
 
   public pipedInitial(sender: Pipe<B>, tx: Transaction, val: B): void {
-    this.__push(tx, {
-      next: null,
-      type: this.initStage ? EventType.INITIAL : EventType.EVENT,
-      val,
-    })
+    const txx = this.outerTx || tx
+    if (this.inInit) {
+      this.forkInitial(txx, val)
+    } else {
+      this.forkNext(txx, val)
+    }
   }
 
   public pipedNoInitial(sender: Pipe<B>, tx: Transaction): void {
-    this.initStage && this.__push(tx, { type: EventType.NO_INITIAL, next: null })
+    this.inInit && this.forkNoInitial(this.outerTx || tx)
   }
 
   public pipedNext(sender: Pipe<B>, tx: Transaction, val: B): void {
-    this.__push(tx, { type: EventType.EVENT, val, next: null })
+    this.forkNext(this.outerTx || tx, val)
   }
 
   public pipedError(sender: Pipe<B>, tx: Transaction, err: Error): void {
-    this.__push(tx, { type: EventType.ERROR, err, next: null })
+    this.forkError(this.outerTx || tx, err)
   }
 
   public pipedEnd(sender: Pipe<B>, tx: Transaction): void {
-    this.__push(tx, { type: EventType.END, next: null, pipe: sender })
+    // we need sender later so queue end as custom event
+    this.forkCustom(this.outerTx || tx, sender)
   }
 
-  public continueJoin(tx: Transaction): void {
-    const { dispatcher } = this
-    let head = this.qHead
-    this.qHead = this.qTail = null
-    while (head !== null && dispatcher.isActive()) {
-      switch (head.type) {
-        case EventType.INITIAL:
-          sendInitialSafely(tx, dispatcher, (head.val as any) as B)
-          break
-        case EventType.NO_INITIAL:
-          sendNoInitialSafely(tx, dispatcher)
-          break
-        case EventType.EVENT:
-          sendNextSafely(tx, dispatcher, (head.val as any) as B)
-          break
-        case EventType.ERROR:
-          sendErrorSafely(tx, dispatcher, (head.err as any) as Error)
-          break
-        case EventType.END:
-          this.__handleEnd(tx, head.pipe as any)
-          break
-      }
-      head = head.next
-    }
+  protected joinNoInitial(tx: Transaction): void {
+    sendNoInitialSafely(tx, this.dispatcher)
+  }
+
+  protected joinInitial(tx: Transaction, val: B): void {
+    sendInitialSafely(tx, this.dispatcher, val)
+  }
+
+  protected joinNext(tx: Transaction, val: B): void {
+    sendNextSafely(tx, this.dispatcher, val)
+  }
+
+  protected joinError(tx: Transaction, err: Error): void {
+    sendErrorSafely(tx, this.dispatcher, err)
+  }
+
+  protected joinCustom(tx: Transaction, sender: any): void {
+    this.endInner(tx, sender)
+  }
+
+  protected handleDispose(): void {
+    this.outerEnded = false
+    this.abortJoin()
+    this.handleInnerDispose()
+    this.dispose()
+  }
+
+  protected handleReorder(order: number): void {
+    this.handleInnerReorder(order)
+    this.reorder(order)
   }
 
   protected abstract isInnerEnded(): boolean
@@ -234,39 +239,13 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeDest<
 
   protected abstract handleInnerDispose(): void
 
-  protected handleDispose(): void {
-    this.__resetOuterEnded(false)
-    this.__clear()
-    this.handleInnerDispose()
-    this.dispose()
-  }
-
-  protected handleReorder(order: number): void {
-    this.handleInnerReorder(order)
-    this.reorder(order)
-  }
-
-  private __push(tx: Transaction, qe: QueuedEvent<B>): void {
-    this.qTail === null ? (this.qHead = this.qTail = qe) : (this.qTail = this.qTail.next = qe)
-    this.queueJoin(this.outerTx || tx)
-  }
-
-  private __clear(): void {
-    this.qHead = this.qTail = null
-  }
-
-  private __handleEnd(tx: Transaction, sender: Pipe<B>): void {
+  private endInner(tx: Transaction, sender: Pipe<B>): void {
     const { ended, scheduler } = this.handleInnerEnd(sender)
     if (ended && this.outerEnded) {
       sendEndSafely(tx, this.dispatcher)
     } else if (scheduler !== null) {
       scheduler.run()
     }
-  }
-
-  private __resetOuterEnded(ended: boolean): void {
-    // tslint:disable-next-line:semicolon whitespace
-    ;(this.outerEnded as boolean) = ended
   }
 }
 
@@ -316,7 +295,7 @@ class FlatMapLatest<A, B> extends FlatMapBase<A, B> {
     this.isubs = innerSource.subscribe(scheduler, new Pipe(this), this.order + 1)
     this.istat = IStatus.RUNNING
     prevSubs.dispose()
-    return { scheduler, clear: true }
+    return { scheduler, purge: true }
   }
 }
 
@@ -359,7 +338,7 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     const inner = new InnerPipe(this, innerSource)
     if (this.insert(inner) <= this.limit) {
       const scheduler = this.scheduleHead()
-      return { scheduler, clear: false }
+      return { scheduler, purge: false }
     } else {
       return null
     }
@@ -426,18 +405,10 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
 
 interface HandleOuterNextResult {
   scheduler: Scheduler
-  clear: boolean
+  purge: boolean
 }
 
 interface HandleInnerEndResult {
   ended: boolean
   scheduler: Scheduler | null
-}
-
-interface QueuedEvent<T> {
-  type: EventType
-  val?: T
-  err?: Error
-  pipe?: Pipe<T>
-  next: QueuedEvent<T> | null
 }

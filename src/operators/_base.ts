@@ -20,7 +20,7 @@ import { Scheduler, Task } from "../scheduler/index"
 export enum EventType {
   INITIAL = 1,
   NO_INITIAL,
-  EVENT,
+  NEXT,
   ERROR,
   END,
 }

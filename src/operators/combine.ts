@@ -1,13 +1,5 @@
 import { __DEVBUILD__, assert } from "../_assert"
-import {
-  NONE,
-  sendEndSafely,
-  sendErrorSafely,
-  sendInitialSafely,
-  sendNextSafely,
-  Subscriber,
-  Subscription,
-} from "../_core"
+import { NONE, sendInitialSafely, sendNextSafely, Subscriber, Subscription } from "../_core"
 import { toObservable } from "../_interrop"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
@@ -18,7 +10,7 @@ import { Scheduler } from "../scheduler/index"
 import { constant } from "../sources/constant"
 import { EventType, SendNoInitialTask } from "./_base"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
-import { ErrorQueue, JoinOperator } from "./_join"
+import { JoinOperator } from "./_join"
 import { map } from "./map"
 import { toProperty } from "./toProperty"
 
@@ -77,105 +69,91 @@ export function _combine<A, B>(
   } else {
     const sources = Array(n)
     while (n--) {
-      const obs = toObservable(observables[n])
-      sources[n] = obs.op
+      sources[n] = toObservable(observables[n]).op
     }
     return makeProperty(new Combine<A, B>(new IndexedSource(sources), f))
   }
 }
 
-class Combine<A, B> extends JoinOperator<Indexed<A>, B> implements IndexedEndSubscriber {
+class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber {
+  private has: EventType.INITIAL | EventType.NEXT | 0 = 0
   private vals: A[]
-  private nInitialsLeft: number
-  private nValsLeft: number
-  private nEndsLeft: number
-  private qNext: EventType.INITIAL | EventType.EVENT | 0 = 0
-  private qEnd: EventType.END | 0 = 0
-  private qErrors: ErrorQueue = new ErrorQueue()
+  private nValWait!: number
+  private nInitWait!: number
+  private nEndWait!: number
 
   constructor(source: IndexedSource<A>, private f: (vals: A[]) => B) {
     super(source, true)
     source.setEndSubscriber(this)
-    const n = source.size()
-    this.vals = Array(n)
-    this.nValsLeft = this.nEndsLeft = n
-    this.nInitialsLeft = source.numSyncItems()
+    this.vals = Array(source.size())
     this.resetState()
   }
 
   public initial(tx: Transaction, ival: Indexed<A>): void {
-    const { val, idx } = ival
-    const prev = this.vals[idx]
-    this.vals[idx] = val
-    --this.nInitialsLeft
-    if ((prev === NONE && --this.nValsLeft === 0) || this.nValsLeft === 0) {
-      this.qNext = EventType.INITIAL
-      this.queueJoin(tx)
-    } else if (this.nInitialsLeft === 0) {
+    const prev = this.vals[ival.idx]
+    this.vals[ival.idx] = ival.val
+    --this.nInitWait
+    if ((prev === NONE && --this.nValWait === 0) || this.nValWait === 0) {
+      this.has = EventType.INITIAL
+      this.fork(tx)
+    } else if (this.nInitWait === 0) {
       this.dispatcher.noinitial(tx)
     }
   }
 
   public noinitial(tx: Transaction): void {
-    if (--this.nInitialsLeft === 0) {
+    if (--this.nInitWait === 0) {
       this.dispatcher.noinitial(tx)
     }
   }
 
   public next(tx: Transaction, ival: Indexed<A>): void {
-    const { val, idx } = ival
-    const prev = this.vals[idx]
-    this.vals[idx] = val
-    if ((prev === NONE && --this.nValsLeft === 0) || this.nValsLeft === 0) {
-      this.qNext = EventType.EVENT
-      this.queueJoin(tx)
+    const prev = this.vals[ival.idx]
+    this.vals[ival.idx] = ival.val
+    if ((prev === NONE && --this.nValWait === 0) || this.nValWait === 0) {
+      this.has = EventType.NEXT
+      this.fork(tx)
     }
   }
 
   public error(tx: Transaction, err: Error): void {
-    this.qErrors.push(err)
-    this.queueJoin(tx)
+    this.forkError(tx, err)
   }
 
   public iend(tx: Transaction, idx: number): void {
-    if (--this.nEndsLeft === 0) {
-      this.qEnd = EventType.END
-      this.queueJoin(tx)
-    } else {
-      const isrc = this.source as IndexedSource<A>
-      isrc.disposeIdx(idx)
+    const isrc = this.source as IndexedSource<A>
+    isrc.disposeIdx(idx)
+    if (--this.nEndWait === 0) {
+      this.forkEnd(tx)
     }
   }
 
-  public continueJoin(tx: Transaction): void {
-    if (this.qNext !== 0) {
-      const isInitial = this.qNext === EventType.INITIAL
-      const { f } = this
-      this.qNext = 0
-      this.isActive() &&
-        (isInitial
-          ? sendInitialSafely(tx, this.dispatcher, f(this.vals))
-          : sendNextSafely(tx, this.dispatcher, f(this.vals)))
+  public join(tx: Transaction): void {
+    if (this.has !== 0) {
+      const project = this.f
+      const send = this.has === EventType.INITIAL ? sendInitialSafely : sendNextSafely
+      this.has = 0
+      send(tx, this.dispatcher, project(this.vals))
     }
-    if (this.qErrors.hasErrors()) {
-      const errs = this.qErrors.popAll()
-      const n = errs.length
-      for (let i = 0; this.isActive() && i < n; i++) {
-        sendErrorSafely(tx, this.dispatcher, errs[i])
-      }
-    }
-    if (this.qEnd !== 0) {
-      this.qEnd = 0
-      this.isActive() && sendEndSafely(tx, this.dispatcher)
-    }
+    super.join(tx)
   }
 
+  public joinError(tx: Transaction, err: Error) {
+    this.dispatcher.error(tx, err)
+  }
+
+  public joinEnd(tx: Transaction) {
+    this.dispatcher.end(tx)
+  }
+
+  // PropertyMulticast will send no-initial event for late subscribers
+  // hence only sending no-initial during first activation
   protected handleActivation(
     scheduler: Scheduler,
     subscriber: Subscriber<B>,
     order: number,
   ): Subscription {
-    if (this.nInitialsLeft === 0) {
+    if (this.nInitWait === 0) {
       // PropertyMulticast will send no-initial event for late subscribers
       scheduler.schedulePropertyActivation(new SendNoInitialTask(subscriber))
     }
@@ -189,13 +167,11 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B> implements IndexedEndSub
 
   private resetState(): void {
     let n = this.vals.length
-    this.nInitialsLeft = (this.source as IndexedSource<A>).numSyncItems()
-    this.nValsLeft = this.nEndsLeft = n
-    this.qEnd = this.qNext = 0
-    this.qErrors.clear()
-    while (n--) {
-      this.vals[n] = NONE
-    }
+    while (n--) this.vals[n] = NONE
+    this.nInitWait = (this.source as IndexedSource<A>).numSyncItems()
+    this.nValWait = this.nEndWait = this.vals.length
+    this.has = 0
+    this.abortJoin()
   }
 }
 
