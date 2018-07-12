@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.when considers the join patterns from top to bottom 1`] = `
+Array [
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "a",
+  },
+  End {},
+]
+`;
+
+exports[`F.when doesn't synchronize if property is missing value 1`] = `
+Array [
+  End {},
+]
+`;
+
+exports[`F.when doesn't synchronize on properties 1`] = `
+Array [
+  Next {
+    "value": "p1",
+  },
+  Next {
+    "value": "p2",
+  },
+  Next {
+    "value": "p3",
+  },
+  End {},
+]
+`;
+
+exports[`F.when handles any number of join patterns 1`] = `
+Array [
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "ab",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "abc",
+  },
+  Next {
+    "value": "abc",
+  },
+  Next {
+    "value": "ab",
+  },
+  End {},
+]
+`;
+
+exports[`F.when synchronizes on join patterns 1`] = `
+Array [
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "ab",
+  },
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "ab",
+  },
+  Next {
+    "value": "ab",
+  },
+  Next {
+    "value": "ab",
+  },
+  End {},
+]
+`;
