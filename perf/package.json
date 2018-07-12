@@ -11,5 +11,8 @@
     "benchmark": "^2.1.4",
     "rxjs": "^6.2.1",
     "xstream": "^11.7.0"
+  },
+  "dependencies": {
+    "rxjs-compat": "^6.2.1"
   }
 }

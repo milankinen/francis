@@ -1,6 +1,6 @@
 const Benchmark = require("benchmark")
 const B = require("baconjs/dist/Bacon.min")
-const Rx = require("rxjs")
+const Rx = require("rxjs-compat")
 const xs = require("xstream")
 const F = require("../dist/francis.bacon.min")
 
