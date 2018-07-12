@@ -82,7 +82,8 @@ export abstract class Dispatcher<T> implements Subscriber<T> {
   }
 }
 
-export const NONE = {} as any
+// tslint:disable-next-line:no-shadowed-variable
+export const NONE = new class NONE {}() as any
 
 export const NOOP_SUBSCRIBER = new class NoopSubscriber implements Subscriber<any> {
   public isActive(): boolean {
