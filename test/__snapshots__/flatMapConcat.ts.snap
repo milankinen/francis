@@ -89,7 +89,7 @@ Array [
 
 exports[`Property.flatMapConcat works also if inner source is Property 1`] = `
 Array [
-  Initial {
+  Next {
     "value": 1,
   },
   Sync {},
@@ -105,7 +105,7 @@ Array [
 
 exports[`Property.flatMapConcat works with same origin (follows transaction semantics) 1`] = `
 Array [
-  Initial {
+  Next {
     "value": 0,
   },
   Sync {},

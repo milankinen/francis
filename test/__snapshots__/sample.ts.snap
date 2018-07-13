@@ -22,7 +22,7 @@ Array [
 
 exports[`Property.sampledBy(property) samples property at sampler changes, resulting to Property 1`] = `
 Array [
-  Initial {
+  Next {
     "value": 0,
   },
   Sync {},

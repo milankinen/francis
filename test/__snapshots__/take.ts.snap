@@ -57,7 +57,7 @@ Array [
 
 exports[`Property.take can take initial event 1`] = `
 Array [
-  Initial {
+  Next {
     "value": 0,
   },
   Next {
@@ -79,7 +79,7 @@ Object {
     End {},
   ],
   "second": Array [
-    Initial {
+    Next {
       "value": 2,
     },
     End {},

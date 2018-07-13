@@ -64,7 +64,7 @@ Array [
 
 exports[`Property.filter filters values based on given predicate's return value truthiness 1`] = `
 Array [
-  Initial {
+  Next {
     "value": Object {},
   },
   Next {

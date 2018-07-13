@@ -48,7 +48,7 @@ Array [
 
 exports[`Property.flatMapLatest emits initial value only once 1`] = `
 Array [
-  Initial {
+  Next {
     "value": 0,
   },
   Next {
@@ -60,7 +60,7 @@ Array [
 
 exports[`Property.flatMapLatest emits its inner events synchronously 1`] = `
 Array [
-  Initial {
+  Next {
     "value": "tsers!",
   },
   End {},
@@ -85,7 +85,7 @@ Array [
 
 exports[`Property.flatMapLatest works with nested combines (follows transaction semantics) 1`] = `
 Array [
-  Initial {
+  Next {
     "value": Array [
       ">",
       Array [
@@ -121,7 +121,7 @@ Array [
 
 exports[`Property.flatMapLatest works with same origin (follows transaction semantics) 1`] = `
 Array [
-  Initial {
+  Next {
     "value": ">",
   },
   Next {

@@ -2,7 +2,7 @@
 
 exports[`F.constant is activated synchronously 1`] = `
 Array [
-  Initial {
+  Next {
     "value": "tsers",
   },
   End {},
@@ -14,7 +14,7 @@ exports[`F.constant sends its value to every subscriber 1`] = `
 Array [
   Object {
     "s": "a",
-    "x": Initial {
+    "x": Next {
       "value": "tsers",
     },
   },
@@ -24,7 +24,7 @@ Array [
   },
   Object {
     "s": "b",
-    "x": Initial {
+    "x": Next {
       "value": "tsers",
     },
   },
@@ -37,7 +37,7 @@ Array [
 
 exports[`F.constant sends single event and ends 1`] = `
 Array [
-  Initial {
+  Next {
     "value": "tsers",
   },
   End {},

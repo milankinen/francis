@@ -27,7 +27,7 @@ Object {
 
 exports[`Property.flatMapFirst emit initial event synchronously if both inner and outer are sync 1`] = `
 Array [
-  Initial {
+  Next {
     "value": "tsers!",
   },
   End {},
@@ -52,7 +52,7 @@ Array [
 
 exports[`Property.flatMapFirst works with same origin (follows transaction semantics) 1`] = `
 Array [
-  Initial {
+  Next {
     "value": ">",
   },
   Next {

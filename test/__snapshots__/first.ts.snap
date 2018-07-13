@@ -12,7 +12,7 @@ Array [
 
 exports[`Property.first takes first event and ends 1`] = `
 Array [
-  Initial {
+  Next {
     "value": 0,
   },
   End {},

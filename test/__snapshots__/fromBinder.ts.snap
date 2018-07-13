@@ -34,11 +34,11 @@ Array [
 
 exports[`F.fromBinder calls subscribe function only for first subscriber 1`] = `
 Array [
-  Initial {
+  Next {
     "value": "first",
   },
   "activated",
-  Initial {
+  Next {
     "value": "second",
   },
 ]

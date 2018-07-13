@@ -66,7 +66,7 @@ Array [
 
 exports[`Property.flatMapWithConcurrencyLimit works with same origin (follows transaction semantics) 1`] = `
 Array [
-  Initial {
+  Next {
     "value": 0,
   },
   Sync {},
