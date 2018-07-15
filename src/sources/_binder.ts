@@ -2,7 +2,6 @@ import { Subscriber } from "../_core"
 import { Dispose, Sink, SinkEvent, SinkResult, Subscribe } from "../_interfaces"
 import { isArray, isFunction } from "../_util"
 import * as Event from "../Event"
-import { Scheduler } from "../scheduler/index"
 import { Activation, Root } from "./_base"
 
 export class FromBinder<T> extends Root<T> {
@@ -10,10 +9,7 @@ export class FromBinder<T> extends Root<T> {
     super(false)
   }
 
-  protected activate(
-    scheduler: Scheduler,
-    subscriber: Subscriber<T>,
-  ): Activation<T, FromBinder<T>> {
+  protected create(subscriber: Subscriber<T>): Activation<T, FromBinder<T>> {
     return new FromBinderActivation(this, subscriber)
   }
 }

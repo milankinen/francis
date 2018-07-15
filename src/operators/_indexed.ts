@@ -1,6 +1,5 @@
 import { NOOP_SUBSCRIPTION, Source, Subscriber, Subscription } from "../_core"
 import { Transaction } from "../_tx"
-import { Scheduler } from "../scheduler/index"
 
 export interface Indexed<T> {
   idx: number
@@ -34,6 +33,14 @@ export class IndexedSource<T> implements Source<Indexed<T>>, Subscription {
     this.ies = NOOP_IES
   }
 
+  public activate(): void {
+    const { subs } = this
+    let n = subs.length
+    while (n--) {
+      subs[n].activate()
+    }
+  }
+
   public size(): number {
     return this.sources.length
   }
@@ -42,16 +49,12 @@ export class IndexedSource<T> implements Source<Indexed<T>>, Subscription {
     this.ies = ies
   }
 
-  public subscribe(
-    scheduler: Scheduler,
-    subscriber: Subscriber<Indexed<T>>,
-    order: number,
-  ): Subscription {
+  public subscribe(subscriber: Subscriber<Indexed<T>>, order: number): Subscription {
     let n = this.sources.length
     const srcs = this.sources
     const subs = this.subs
     while (n--) {
-      subs[n] = srcs[n].subscribe(scheduler, new IndexedPipe(n, this, subscriber, this.ies), order)
+      subs[n] = srcs[n].subscribe(new IndexedPipe(n, this, subscriber, this.ies), order)
     }
     return this
   }

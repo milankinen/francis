@@ -1,50 +1,59 @@
-import { DefaultScheduler } from "./DefaultScheduler"
-import { OnTimeout, Scheduler, Task, Timeout } from "./Scheduler"
+import { SchedulingContext } from "./SchedulingContext"
 
-export { Scheduler, Task, Timeout, OnTimeout } from "./Scheduler"
+export { SchedulingContext } from "./SchedulingContext"
 
-let _scheduler: Scheduler = DefaultScheduler.create()
+export interface Task {
+  run(): void
+}
+
+export interface Timeout {
+  cancel(): void
+}
+
+export interface OnTimeout {
+  due(): void
+}
+
+let _ctx: SchedulingContext = new SchedulingContext()
 let _isOverride = false
 
-export function getInnerScheduler(): Scheduler {
-  return _scheduler.getInner()
+// use these wrapper functions instead so that bundlers can optimize
+// bundle size more effeciently
+
+export function stepIn(): void {
+  _ctx.stepIn()
 }
 
-export function getOuterScheduler(): Scheduler {
-  return _scheduler
+export function stepOut(): void {
+  _ctx.stepOut()
 }
 
-export function withScheduler<S extends Scheduler>(
+export function handleActivations(): void {
+  _ctx.handleActivations()
+}
+
+export function scheduleActivationTask(task: Task): void {
+  _ctx.scheduleActivation(task)
+}
+
+export function scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout {
+  return _ctx.scheduleTimeout(onTimeout, delay)
+}
+
+// Mainly intended for testing, do not try to override
+// default context in real use case
+export function withContext<S extends SchedulingContext>(
   impl: S,
   block: (scheduler: S, done: () => void) => void,
 ): void {
   if (_isOverride) {
-    throw new Error("Nested withScheduler not supported")
+    throw new Error("Nested scheduling context override not supported")
   }
-  const prev = _scheduler
-  _scheduler = impl
+  const prev = _ctx
+  _ctx = impl
   _isOverride = true
   block(impl, () => {
     _isOverride = false
-    _scheduler = prev
+    _ctx = prev
   })
-}
-
-// use this wrapper functions instead so that bundlers can optimize
-// bundle size more effeciently
-
-export function schedulePropertyActivation(scheduler: Scheduler, task: Task): void {
-  scheduler.schedulePropertyActivation(task)
-}
-
-export function scheduleStreamActivation(scheduler: Scheduler, task: Task): void {
-  scheduler.scheduleEventStreamActivation(task)
-}
-
-export function scheduleTimeout(
-  scheduler: Scheduler,
-  onTimeout: OnTimeout,
-  delay: number,
-): Timeout {
-  return scheduler.scheduleTimeout(onTimeout, delay)
 }

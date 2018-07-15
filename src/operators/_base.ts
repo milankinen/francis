@@ -1,12 +1,10 @@
 import { NOOP_SUBSCRIBER, NOOP_SUBSCRIPTION, Source, Subscriber, Subscription } from "../_core"
 import { Transaction } from "../_tx"
-import { Scheduler } from "../scheduler/index"
 
 export enum EventType {
-  EMPTY = 1,
-  NEXT,
-  ERROR,
-  END,
+  NEXT = 1,
+  ERROR = 2,
+  END = 3,
 }
 
 /**
@@ -31,9 +29,13 @@ export abstract class Operator<A, B> implements Subscriber<A>, Source<B>, Subscr
     this.weight = source.weight
   }
 
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<B>, order: number): Subscription {
-    this.init(subscriber, order, this.source.subscribe(scheduler, this, order))
+  public subscribe(subscriber: Subscriber<B>, order: number): Subscription {
+    this.init(subscriber, order, this.source.subscribe(this, order))
     return this
+  }
+
+  public activate(): void {
+    this.subs.activate()
   }
 
   public reorder(order: number): void {

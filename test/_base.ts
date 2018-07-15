@@ -1,6 +1,6 @@
 import * as R from "ramda"
-import { withScheduler } from "../src/scheduler/index"
-import { TestScheduler } from "../src/scheduler/TestScheduler"
+import { withContext } from "../src/scheduler/index"
+import { TestSchedulingContext } from "../src/scheduler/TestSchedulingContext"
 
 export type RunnerSetupFn = (
   record: (x: any) => any,
@@ -36,15 +36,15 @@ export class ObservableRunner {
 
   public run(done: jest.DoneCallback): void {
     const { setupFn, afterFn } = this
-    withScheduler(TestScheduler.create(), (scheduler: TestScheduler, ready: () => void) => {
+    withContext(new TestSchedulingContext(), (ctx: TestSchedulingContext, ready: () => void) => {
       const recording = [] as any[]
       const record = (x: any) => recording.push(x)
       const wait = (t: number, op: () => any) => {
-        scheduler.scheduleTimeout({ due: op }, t)
+        ctx.scheduleTimeout({ due: op }, t)
       }
       try {
         setupFn(record, wait)
-        scheduler.consume(scheduleErr => {
+        ctx.runTest(scheduleErr => {
           try {
             afterFn(recording)
             ready()
@@ -55,8 +55,8 @@ export class ObservableRunner {
           }
         })
       } catch (e) {
-        scheduler.unscheduleAll()
-        throw e
+        ctx.abort()
+        done(e)
       }
     })
   }

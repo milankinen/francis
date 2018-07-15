@@ -1,16 +1,7 @@
-import {
-  Invokeable,
-  invokeWith,
-  NONE,
-  sendRootEnd,
-  sendRootNext,
-  Subscriber,
-  Subscription,
-} from "./_core"
+import { NONE, sendRootEnd, sendRootNext, Subscriber } from "./_core"
 import { Dispatcher } from "./_dispatcher"
 import { Transaction } from "./_tx"
 import { Observable } from "./Observable"
-import { schedulePropertyActivation, Scheduler } from "./scheduler/index"
 
 export class Property<A> extends Observable<A> {
   constructor(src: PropertyDispatcher<A>) {
@@ -22,9 +13,14 @@ export function isProperty<T>(x: any): x is Property<T> {
   return x && x instanceof Property
 }
 
-export class PropertyDispatcher<T> extends Dispatcher<T> implements Invokeable<Subscriber<T>> {
+export class PropertyDispatcher<T> extends Dispatcher<T> {
   private val: T = NONE
   private ended: boolean = false
+
+  public activate(subscriber: Subscriber<T>): void {
+    this.replayState(subscriber)
+    super.activate(subscriber)
+  }
 
   public begin(): boolean {
     return !this.ended && this.sink.begin()
@@ -40,31 +36,12 @@ export class PropertyDispatcher<T> extends Dispatcher<T> implements Invokeable<S
   }
 
   // invoked when state must be replayed
-  public invoke(subscriber: Subscriber<T>): void {
-    const { val, ended, sink } = this
-    if (this.sink.begin()) {
-      val !== NONE && sendRootNext(subscriber, val)
-      ended === true && sendRootEnd(sink)
-    }
-  }
-
-  protected activate(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription {
+  private replayState(subscriber: Subscriber<T>): void {
     const { val, ended } = this
-    if (val !== NONE || ended === true) {
-      schedulePropertyActivation(scheduler, invokeWith(this, subscriber))
+    const hasVal = val !== NONE
+    if ((hasVal || ended) && this.sink.begin()) {
+      hasVal && sendRootNext(subscriber, val)
+      ended === true && sendRootEnd(subscriber)
     }
-    return super.activate(scheduler, subscriber, order)
-  }
-
-  protected multicast(
-    scheduler: Scheduler,
-    subscriber: Subscriber<T>,
-    order: number,
-  ): Subscription {
-    const { val, ended } = this
-    if (val !== NONE || ended === true) {
-      schedulePropertyActivation(scheduler, invokeWith(this, subscriber))
-    }
-    return super.multicast(scheduler, subscriber, order)
   }
 }

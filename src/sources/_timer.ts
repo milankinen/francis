@@ -1,6 +1,6 @@
 import { Subscriber } from "../_core"
 import { AnyEvent } from "../_interfaces"
-import { OnTimeout, Scheduler, Timeout } from "../scheduler/index"
+import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { Activation, Root } from "./_base"
 
 export abstract class TimerBase<T> extends Root<T> {
@@ -10,14 +10,14 @@ export abstract class TimerBase<T> extends Root<T> {
 
   public abstract tick(): Array<AnyEvent<T>>
 
-  protected activate(scheduler: Scheduler, subscriber: Subscriber<T>): Activation<T, TimerBase<T>> {
-    return new Tick(this, subscriber, scheduler)
+  protected create(subscriber: Subscriber<T>): Activation<T, TimerBase<T>> {
+    return new Tick(this, subscriber)
   }
 }
 
 class Tick<T> extends Activation<T, TimerBase<T>> implements OnTimeout {
   private timeout: Timeout | null = null
-  constructor(owner: TimerBase<T>, subscriber: Subscriber<T>, private scheduler: Scheduler) {
+  constructor(owner: TimerBase<T>, subscriber: Subscriber<T>) {
     super(owner, subscriber)
   }
 
@@ -33,12 +33,12 @@ class Tick<T> extends Activation<T, TimerBase<T>> implements OnTimeout {
       }
     }
     if (this.active) {
-      this.timeout = this.scheduler.scheduleTimeout(this, this.owner.interval)
+      this.timeout = scheduleTimeout(this, this.owner.interval)
     }
   }
 
   protected start(): void {
-    this.timeout = this.scheduler.scheduleTimeout(this, this.owner.interval)
+    this.timeout = scheduleTimeout(this, this.owner.interval)
   }
 
   protected stop(): void {

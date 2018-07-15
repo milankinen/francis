@@ -3,7 +3,6 @@ import { makeEventStream, makeProperty } from "../_obs"
 import { EventStream } from "../EventStream"
 import { identity } from "../operators/_base"
 import { Property } from "../Property"
-import { Scheduler } from "../scheduler/index"
 import { Activation, Root } from "./_base"
 
 export function constant<T>(val: T): Property<T> {
@@ -19,7 +18,7 @@ class Single<T> extends Root<T> {
     super(sync)
   }
 
-  protected activate(scheduler: Scheduler, subscriber: Subscriber<T>): Activation<T, Single<T>> {
+  protected create(subscriber: Subscriber<T>): Activation<T, Single<T>> {
     return new SingleActivation(this, subscriber)
   }
 }

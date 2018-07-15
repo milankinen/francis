@@ -54,31 +54,26 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
     this.n = 0
   }
 
-  protected forkEmpty(tx: Transaction): void {
-    this.fe(tx, { t: EventType.EMPTY, n: null })
-  }
-
   protected forkNext(tx: Transaction, val: Q): void {
-    this.fe(tx, { t: EventType.NEXT, v: val, n: null })
+    this.fe(tx, { t: EventType.NEXT, v: val, n: null, e: null as any })
   }
 
   protected forkError(tx: Transaction, err: Error): void {
     if (!this.errs.has(err)) {
       this.hasErr = true
       this.errs.add(err)
-      this.fe(tx, { t: EventType.ERROR, e: err, n: null })
+      this.fe(tx, { t: EventType.ERROR, e: err, n: null, v: null as any })
     }
   }
 
   protected forkEnd(tx: Transaction): void {
-    this.fe(tx, { t: EventType.END, n: null })
+    this.fe(tx, { t: EventType.END, n: null, e: null as any, v: null as any })
   }
 
   protected forkCustom(tx: Transaction, val: any): void {
-    this.fe(tx, { t: -1 as any, v: val, n: null })
+    this.fe(tx, { t: -1 as any, v: val, n: null, e: null as any })
   }
 
-  protected joinEmpty(tx: Transaction): void {}
   protected joinNext(tx: Transaction, val: Q): void {}
   protected joinError(tx: Transaction, err: Error): void {}
   protected joinEnd(tx: Transaction): void {}
@@ -88,9 +83,6 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
     switch (fe.t) {
       case EventType.NEXT:
         this.joinNext(tx, (fe.v as any) as Q)
-        break
-      case EventType.EMPTY:
-        this.joinEmpty(tx)
         break
       case EventType.ERROR:
         this.joinError(tx, (fe.e as any) as Error)

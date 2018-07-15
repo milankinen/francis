@@ -1,10 +1,9 @@
-import { invoke, Invokeable, sendRootNext, Source, Subscriber, Subscription } from "../_core"
+import { Invokeable, sendRootNext, Source } from "../_core"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
-import { schedulePropertyActivation, Scheduler } from "../scheduler/index"
 import { Operator } from "./_base"
 
 export function startWith<T>(value: T, stream: EventStream<T>): EventStream<T>
@@ -27,21 +26,17 @@ class StartWithP<T> extends Operator<T, T> implements Invokeable<undefined> {
   // if this flag is set to true, there is no point running this operator anymore
   private has: boolean = false
 
-  constructor(source: Source<T>, private value: T) {
+  constructor(source: Source<T>, private readonly value: T) {
     super(source)
   }
 
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription {
-    // schedule any "inner" property activations first so that we can receive any
-    // initial values before we send the startWith value
-    const subs = super.subscribe(scheduler, subscriber, order)
-    // we know that this opetator results in property so if we have received a value
-    // at any point before we know that the PropertyDispatcher is going to replay it
-    // so in that case we don't need to ensure initial value anymore
-    if (!this.has) {
-      schedulePropertyActivation(scheduler, invoke(this))
+  public activate(): void {
+    super.activate()
+    const { has, sink } = this
+    if (!has && sink.begin()) {
+      this.has = true
+      sendRootNext(sink, this.value)
     }
-    return subs
   }
 
   public invoke(): void {

@@ -1,5 +1,5 @@
 import { Transaction } from "./_tx"
-import { Scheduler, Task } from "./scheduler/index"
+import { Task } from "./scheduler/index"
 
 export interface Subscriber<T> {
   begin(): boolean
@@ -12,6 +12,8 @@ export interface Subscriber<T> {
 }
 
 export interface Subscription {
+  activate(): void
+
   dispose(): void
 
   reorder(order: number): void
@@ -19,7 +21,7 @@ export interface Subscription {
 
 export interface Source<T> {
   readonly weight: number
-  subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription
+  subscribe(subscriber: Subscriber<T>, order: number): Subscription
 }
 
 // tslint:disable-next-line:no-shadowed-variable
@@ -35,6 +37,7 @@ export const NOOP_SUBSCRIBER = new class NoopSubscriber implements Subscriber<an
 }()
 
 export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscription {
+  public activate(): void {}
   public dispose(): void {}
   public reorder(order: number): void {}
 }()

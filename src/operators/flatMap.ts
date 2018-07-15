@@ -15,7 +15,7 @@ import { MAX_SAFE_INTEGER } from "../_util"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
-import { getInnerScheduler, Scheduler } from "../scheduler/index"
+import { stepIn, stepOut } from "../scheduler/index"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
@@ -126,7 +126,7 @@ export function flatMapWithConcurrencyLimit<A, B>(
 
 abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDest<B> {
   protected outerEnded: boolean = false
-  private outerTx: Transaction | null = null
+  private otx: Transaction | null = null
 
   constructor(source: Source<A>, protected readonly proj: Projection<A, B | Observable<B>>) {
     super(source)
@@ -148,12 +148,14 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
   public next(tx: Transaction, val: A): void {
     const result = this.outerNext(tx, val)
     if (result !== null) {
-      result.purge && this.abortJoin()
-      // run activations from new subscriptions
-      const stacked = this.outerTx
-      this.outerTx = tx
-      result.scheduler.run()
-      this.outerTx = stacked
+      const { purge, subscription } = result
+      purge && this.abortJoin()
+      // using outer tx as primary tx allows us to "break out" from inner transactions
+      // and wait for join => we can achieve transaction semantics from inner+outer emissions
+      const otx = this.otx
+      this.otx = tx
+      activateInnerSubscription(subscription)
+      this.otx = otx
     }
   }
 
@@ -171,16 +173,16 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
   }
 
   public pipedNext(sender: Pipe<B>, tx: Transaction, val: B): void {
-    this.forkNext(this.outerTx || tx, val)
+    this.forkNext(this.otx || tx, val)
   }
 
   public pipedError(sender: Pipe<B>, tx: Transaction, err: Error): void {
-    this.forkError(this.outerTx || tx, err)
+    this.forkError(this.otx || tx, err)
   }
 
   public pipedEnd(sender: Pipe<B>, tx: Transaction): void {
     // we need sender later so queue end as custom event
-    this.forkCustom(this.outerTx || tx, sender)
+    this.forkCustom(this.otx || tx, sender)
   }
 
   protected joinNext(tx: Transaction, val: B): void {
@@ -206,11 +208,11 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
   protected abstract outerNext(tx: Transaction, val: A): HandleOuterNextResult | null
 
   private joinInnerEnd(tx: Transaction, sender: Pipe<B>): void {
-    const { ended, scheduler } = this.innerEnd(sender)
+    const { ended, subscription } = this.innerEnd(sender)
     if (ended && this.outerEnded) {
       sendEndSafely(tx, this.sink)
-    } else if (scheduler !== null) {
-      scheduler.run()
+    } else if (subscription !== null) {
+      activateInnerSubscription(subscription)
     }
   }
 
@@ -219,6 +221,12 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
     this.subs = NOOP_SUBSCRIPTION
     subs.dispose()
   }
+}
+
+function activateInnerSubscription(subscription: Subscription) {
+  stepIn()
+  subscription.activate()
+  stepOut()
 }
 
 enum IStatus {
@@ -237,11 +245,10 @@ abstract class FlatMapSwitchable<A, B> extends FlatMapBase<A, B> {
     const { isubs, proj } = this
     const inner = toObservable<B, Observable<B>>(proj(val))
     const innerSource = inner.src
-    const scheduler = getInnerScheduler()
-    this.isubs = innerSource.subscribe(scheduler, new Pipe(this), this.ord + 1)
+    const subscription = (this.isubs = innerSource.subscribe(new Pipe(this), this.ord + 1))
     this.istat = RUNNING
     isubs.dispose()
-    return { scheduler, purge: true }
+    return { subscription, purge: true }
   }
 
   protected isInnerEnded(): boolean {
@@ -255,7 +262,7 @@ abstract class FlatMapSwitchable<A, B> extends FlatMapBase<A, B> {
   protected innerEnd(sender: Pipe<B>): HandleInnerEndResult {
     this.disposeInner()
     this.istat = ENDED
-    return { ended: true, scheduler: null }
+    return { ended: true, subscription: null }
   }
 
   protected disposeInner(): void {
@@ -286,16 +293,16 @@ class FlatMapFirst<A, B> extends FlatMapSwitchable<A, B> {
 }
 
 class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
-  private nInner: number = 0
   private itail: InnerPipe<B> | null = null
   private ihead: InnerPipe<B> | null = null
+  private ni: number = 0
 
   constructor(source: Source<A>, proj: Projection<A, B | Observable<B>>, private limit: number) {
     super(source, proj)
   }
 
   protected isInnerEnded(): boolean {
-    return this.nInner === 0
+    return this.ni === 0
   }
 
   protected outerNext(tx: Transaction, val: A): HandleOuterNextResult | null {
@@ -303,77 +310,69 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     const innerObs = toObservable<B, Observable<B>>(project(val))
     const innerSource = innerObs.src
     const inner = new InnerPipe(this, innerSource)
-    if (this.appendInner(inner) <= this.limit) {
-      const scheduler = this.scheduleHead()
-      return { scheduler, purge: false }
+    if (this.append(inner) <= this.limit) {
+      const subscription = this.subscribeHead()
+      return { subscription, purge: false }
     } else {
       return null
     }
   }
 
   protected innerReorder(order: number): void {
-    let inner = this.itail
+    let inner = this.ihead
     while (inner !== null) {
       inner.subs.reorder(order)
-      inner = inner.p
+      inner = inner.t
     }
   }
 
   protected innerEnd(pipe: Pipe<B>): HandleInnerEndResult {
     const inner = pipe as InnerPipe<B>
-    // fix linking from the inner linked list
-    inner.p !== null && (inner.p.n = inner.n)
-    inner.n !== null && (inner.n.p = inner.p)
-    inner === this.itail && (this.itail = inner.p)
+    const n = --this.ni
     const subs = inner.subs
     inner.subs = NOOP_SUBSCRIPTION
-    inner.n = null
+    inner.t = null
     subs.dispose()
-    const n = --this.nInner
     if (this.ihead !== null) {
-      const scheduler = this.scheduleHead()
-      return { ended: false, scheduler }
+      const subscription = this.subscribeHead()
+      return { ended: false, subscription }
     } else {
-      return { ended: n === 0, scheduler: null }
+      return { ended: n === 0, subscription: null }
     }
   }
 
   protected disposeInner(): void {
     let inner = this.itail
     this.itail = this.ihead = null
-    this.nInner = 0
+    this.ni = 0
     while (inner !== null) {
       const subs = inner.subs
       inner.subs = NOOP_SUBSCRIPTION
-      inner.n = null
       subs.dispose()
-      inner = inner.p
+      inner = inner.t
     }
   }
 
-  private appendInner(inner: InnerPipe<B>): number {
+  private append(inner: InnerPipe<B>): number {
     if (this.itail === null) {
       this.itail = inner
     } else {
-      inner.p = this.itail
-      this.itail = this.itail.n = inner
+      this.itail = this.itail.t = inner
     }
     this.ihead === null && (this.ihead = this.itail)
-    return ++this.nInner
+    return ++this.ni
   }
 
-  private scheduleHead(): Scheduler {
-    const scheduler = getInnerScheduler()
+  private subscribeHead(): Subscription {
     const inner = this.ihead as InnerPipe<B>
-    this.ihead = inner.n
-    inner.subs = inner.src.subscribe(scheduler, inner, this.ord + 1)
-    return scheduler
+    this.ihead = inner.t
+    inner.subs = inner.src.subscribe(inner, this.ord + 1)
+    return inner.subs
   }
 }
 
 class InnerPipe<T> extends Pipe<T> {
-  public n: InnerPipe<T> | null = null
-  public p: InnerPipe<T> | null = null
+  public t: InnerPipe<T> | null = null
   public subs: Subscription = NOOP_SUBSCRIPTION
   constructor(dest: PipeDest<T>, public src: Source<T>) {
     super(dest)
@@ -381,11 +380,11 @@ class InnerPipe<T> extends Pipe<T> {
 }
 
 interface HandleOuterNextResult {
-  scheduler: Scheduler
+  subscription: Subscription
   purge: boolean
 }
 
 interface HandleInnerEndResult {
   ended: boolean
-  scheduler: Scheduler | null
+  subscription: Subscription | null
 }

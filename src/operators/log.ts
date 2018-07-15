@@ -3,7 +3,6 @@ import { Transaction } from "../_tx"
 import { Observable } from "../Observable"
 import { EffectRunner, runEffects } from "./_eff"
 
-/* tslint:disable:no-console */
 export function log<T>(label: string | undefined, observable: Observable<T>): Dispose {
   const logger = new Logger(label)
   runEffects(logger, observable)
@@ -11,7 +10,6 @@ export function log<T>(label: string | undefined, observable: Observable<T>): Di
     logger.dispose()
   }
 }
-/* tslint:enable:no-console */
 
 class Logger<T> extends EffectRunner<T> {
   constructor(private label: string | undefined) {

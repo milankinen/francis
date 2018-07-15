@@ -12,5 +12,6 @@ export function isEventStream<T>(x: any): x is EventStream<T> {
 }
 
 export class EventStreamDispatcher<T> extends Dispatcher<T> {
-  // nothing special
+  // EventStream does not have any special dispatching requirements
+  // in addition to multicasting
 }

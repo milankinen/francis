@@ -1,4 +1,5 @@
 import {
+  NONE,
   NOOP_SUBSCRIBER,
   NOOP_SUBSCRIPTION,
   sendEndSafely,
@@ -10,23 +11,57 @@ import {
 } from "./_core"
 import { Transaction } from "./_tx"
 import { Operator } from "./operators/_base"
-import { Scheduler } from "./scheduler/index"
 
 export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
   public readonly weight: number
   protected sink: Subscriber<T> = NOOP_SUBSCRIBER
   protected subs: Subscription = NOOP_SUBSCRIPTION
   protected ord: number = -1
+  protected active: boolean = false
+  protected msc: MulticastSubscriber<T> = NONE
 
   constructor(protected source: Operator<any, T>) {
     this.weight = source.weight
   }
 
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription {
-    if (this.sink === NOOP_SUBSCRIBER) {
-      return this.activate(scheduler, subscriber, order)
+  public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
+    if (this.msc === NONE) {
+      return this.firstSubscribe(subscriber, order)
     } else {
-      return this.multicast(scheduler, subscriber, order)
+      // a.k.a "multicast"
+      return this.lateSubscribe(subscriber, order)
+    }
+  }
+
+  public activate(subscriber: Subscriber<T>): void {
+    if (!this.active) {
+      this.active = true
+      this.subs.activate()
+    }
+  }
+
+  public dispose(node: MCSNode<T>): void {
+    const { sink, msc } = this
+    if (sink === msc) {
+      const { order, next } = msc.remove(node)
+      this.sink = next
+      if (order !== this.ord) {
+        this.subs.reorder((this.ord = order))
+      }
+    } else {
+      const { subs } = this
+      this.sink = NOOP_SUBSCRIBER
+      this.subs = NOOP_SUBSCRIPTION
+      this.msc = NONE
+      this.ord = -1
+      this.active = false
+      subs.dispose()
+    }
+  }
+
+  public reorder(order: number): void {
+    if (order > this.ord) {
+      this.subs.reorder((this.ord = order))
     }
   }
 
@@ -46,178 +81,138 @@ export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
     this.sink.end(tx)
   }
 
-  public dispose(subscriber: Subscriber<T>): void {
-    const { sink } = this
-    if (sink instanceof MulticastSubscriber) {
-      const { o: order, s: next } = sink.remove(subscriber)
-      this.sink = next
-      if (order !== this.ord) {
-        this.subs.reorder((this.ord = order))
-      }
-    } else {
-      const { subs } = this
-      this.sink = NOOP_SUBSCRIBER
-      this.subs = NOOP_SUBSCRIPTION
-      this.ord = -1
-      subs.dispose()
-    }
-  }
-
-  public reorder(subscriber: Subscriber<T>, order: number): void {
-    const { sink } = this
-    if (sink instanceof MulticastSubscriber) {
-      sink.handleReorder(subscriber, order)
-    }
-    if (order < this.ord) {
-      this.subs.reorder((this.ord = order))
-    }
-  }
-
-  protected activate(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription {
+  protected firstSubscribe(subscriber: Subscriber<T>, order: number): Subscription {
+    const node = mcsNode(subscriber, order)
+    this.msc = new MulticastSubscriber<T>(node)
     this.ord = order
     this.sink = subscriber
-    this.subs = this.source.subscribe(scheduler, this, order)
-    return this.makeSubs(subscriber)
+    this.subs = this.source.subscribe(this, order)
+    return this.makeSubs(node)
   }
 
-  protected multicast(
-    scheduler: Scheduler,
-    subscriber: Subscriber<T>,
-    order: number,
-  ): Subscription {
-    const { sink } = this
-    if (sink instanceof MulticastSubscriber) {
-      sink.add(subscriber, order)
-    } else {
-      this.sink = new MulticastSubscriber({ s: sink, o: this.ord }, { s: subscriber, o: order })
+  protected lateSubscribe(subscriber: Subscriber<T>, order: number): Subscription {
+    const { sink, msc } = this
+    const node = mcsNode(subscriber, order)
+    msc.add(node)
+    if (sink !== msc) {
+      this.sink = this.msc
     }
-    if (order > this.ord) {
-      this.subs.reorder((this.ord = order))
-    }
-    return this.makeSubs(subscriber)
+    this.reorder(order)
+    return this.makeSubs(node)
   }
 
-  private makeSubs(subscriber: Subscriber<T>): Subscription {
-    return new MulticastSubscription(subscriber, this)
+  private makeSubs(mcs: MCSNode<T>): Subscription {
+    return new MulticastSubscription(mcs, this)
   }
-}
-
-const NIL: MCSNode<any> = {
-  a: false,
-  n: null as any,
-  o: -1,
-  s: NOOP_SUBSCRIBER,
 }
 
 class MulticastSubscriber<T> implements Subscriber<T> {
-  private n: number
-  private head: MCSNode<T>
-  private tail: MCSNode<T>
+  private h: MCSNode<T> | null
+  private t: MCSNode<T> | null
 
-  constructor(a: OrderedSubscriber<T>, b: OrderedSubscriber<T>) {
-    this.head = this.tail = NIL
-    this.head = { ...a, a: true, n: this.head }
-    this.head = { ...b, a: true, n: this.head }
-    this.n = 2
+  constructor(head: MCSNode<T>) {
+    this.h = this.t = head
   }
 
-  public add(subscriber: Subscriber<T>, order: number): void {
-    this.head = { o: order, s: subscriber, a: true, n: this.head }
-    ++this.n
+  public add(node: MCSNode<T>): void {
+    const { h } = this
+    node.t = h
+    h !== null && (h.h = node)
+    this.h = node
   }
 
-  public remove(subscriber: Subscriber<T>): OrderedSubscriber<T> {
-    let prev = NIL
-    let next = this.head
+  public remove(node: MCSNode<T>): { order: number; next: Subscriber<T> } {
+    node.h !== null ? (node.h.t = node.t) : (this.h = node.t)
+    node.t !== null ? (node.t.h = node.h) : (this.t = node.h)
+    let head = this.h
     let order = -1
-    while (next !== NIL) {
-      if (next.s === subscriber) {
-        next.a = false
-        prev !== NIL ? (prev.n = next.n) : (this.head = next.n)
-        --this.n
-      } else if (next.o > order) {
-        order = next.o
+    while (head !== null) {
+      if (head.o > order) {
+        order = head.o
       }
-      prev = next
-      next = next.n
+      head = head.t
     }
+    head = this.h as MCSNode<T>
     return {
-      o: order,
-      s: this.n > 1 ? this : this.head.s,
-    }
-  }
-
-  public handleReorder(subscriber: Subscriber<T>, order: number): void {
-    let next = this.head
-    while (next !== NIL) {
-      if (next.s === subscriber) {
-        next.o = order
-        return
-      } else {
-        next = next.n
-      }
+      next: head.t !== null ? this : head.s,
+      order,
     }
   }
 
   public begin(): boolean {
-    let res = true
-    let next = this.head
-    while (next !== NIL) {
-      next.a && (res = next.s.begin() && res)
-      next = next.n
+    let head = this.h
+    while (head !== null) {
+      if (head.a && head.s.begin()) {
+        return true
+      }
+      head = head.t
     }
-    return res
+    return false
   }
 
   public next(tx: Transaction, val: T): void {
-    let next = this.head
-    while (next !== NIL) {
-      next.a && sendNextSafely(tx, next.s, val)
-      next = next.n
+    let head = this.h
+    while (head !== null) {
+      head.a && sendNextSafely(tx, head.s, val)
+      head = head.t
     }
   }
 
   public error(tx: Transaction, err: Error): void {
-    let next = this.head
-    while (next !== NIL) {
-      next.a && sendErrorSafely(tx, next.s, err)
-      next = next.n
+    let head = this.h
+    while (head !== null) {
+      head.a && sendErrorSafely(tx, head.s, err)
+      head = head.t
     }
   }
 
   public end(tx: Transaction): void {
-    let next = this.head
-    while (next !== NIL) {
-      next.a && sendEndSafely(tx, next.s)
-      next = next.n
+    let head = this.h
+    while (head !== null) {
+      head.a && sendEndSafely(tx, head.s)
+      head = head.t
     }
   }
 }
 
-interface MCSNode<T> extends OrderedSubscriber<T> {
-  n: MCSNode<T>
-  a: boolean
+function mcsNode<T>(subscriber: Subscriber<T>, order: number): MCSNode<T> {
+  return {
+    a: false,
+    h: null,
+    o: order,
+    s: subscriber,
+    t: null,
+  }
+}
+
+interface MCSNode<T> {
+  s: Subscriber<T> // subscriber
+  o: number // order
+  a: boolean // active/inactive
+  h: MCSNode<T> | null // head
+  t: MCSNode<T> | null // tail
 }
 
 class MulticastSubscription<T> implements Subscription {
-  private s: Subscriber<T>
+  private n: MCSNode<T>
   private d: Dispatcher<T>
 
-  constructor(subscriber: Subscriber<T>, dispatcher: Dispatcher<T>) {
-    this.s = subscriber
+  constructor(mcs: MCSNode<T>, dispatcher: Dispatcher<T>) {
+    this.n = mcs
     this.d = dispatcher
   }
 
+  public activate(): void {
+    this.n.a = true
+    this.d.activate(this.n.s)
+  }
+
   public dispose(): void {
-    this.d.dispose(this.s)
+    this.n.a = false
+    this.d.dispose(this.n)
   }
 
   public reorder(order: number): void {
-    this.d.reorder(this.s, order)
+    this.d.reorder((this.n.o = order))
   }
-}
-
-interface OrderedSubscriber<T> {
-  s: Subscriber<T>
-  o: number
 }

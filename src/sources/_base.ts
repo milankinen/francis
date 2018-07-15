@@ -10,26 +10,18 @@ import {
 } from "../_core"
 import { AnyEvent } from "../_interfaces"
 import { isEnd, isError, isEvent, isNext } from "../Event"
-import {
-  schedulePropertyActivation,
-  Scheduler,
-  scheduleStreamActivation,
-  Task,
-} from "../scheduler/index"
+import { scheduleActivationTask, Task } from "../scheduler/index"
 
 export abstract class Root<T> implements Source<T> {
   public readonly weight: number = 1
   public ended: boolean = false
   constructor(public readonly sync: boolean) {}
 
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription {
-    const activation = this.activate(scheduler, subscriber)
-    const schedule = this.sync ? schedulePropertyActivation : scheduleStreamActivation
-    schedule(scheduler, activation)
-    return activation
+  public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
+    return this.create(subscriber)
   }
 
-  protected abstract activate(scheduler: Scheduler, subscriber: Subscriber<T>): Activation<T, any>
+  protected abstract create(subscriber: Subscriber<T>): Activation<T, any>
 }
 
 export abstract class Activation<T, R extends Root<T>> implements Task, Subscription {
@@ -56,6 +48,14 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
     }
   }
 
+  public activate(): void {
+    if (this.owner.sync) {
+      this.run()
+    } else {
+      scheduleActivationTask(this)
+    }
+  }
+
   public dispose(): void {
     this.active = false
     this.subscriber = NOOP_SUBSCRIBER
@@ -63,7 +63,7 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
   }
 
   public reorder(order: number): void {
-    /* no-op */
+    // no-op
   }
 
   protected abstract start(): void

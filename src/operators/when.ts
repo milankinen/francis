@@ -12,7 +12,6 @@ import { Transaction } from "../_tx"
 import { isArray, isFunction } from "../_util"
 import { EventStream, isEventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { Scheduler } from "../scheduler/index"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { JoinOperator } from "./_join"
 
@@ -131,14 +130,14 @@ class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
     this.weight = src.weight
   }
 
-  public subscribe(
-    scheduler: Scheduler,
-    subscriber: Subscriber<Buffer>,
-    order: number,
-  ): Subscription {
+  public subscribe(subscriber: Subscriber<Buffer>, order: number): Subscription {
     this.sink = subscriber
-    this.sub = this.src.subscribe(scheduler, this, order)
+    this.sub = this.src.subscribe(this, order)
     return this
+  }
+
+  public activate(): void {
+    return this.sub.activate()
   }
 
   public dispose(): void {

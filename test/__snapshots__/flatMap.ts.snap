@@ -15,7 +15,7 @@ Array [
 exports[`EventStream.flatMap respects function construction rules 1`] = `
 Array [
   Next {
-    "value": "Sir Francis Bacon",
+    "value": "Sir Francis",
   },
   End {},
   Next {
@@ -23,7 +23,7 @@ Array [
   },
   End {},
   Next {
-    "value": "Sir Francis",
+    "value": "Sir Francis Bacon",
   },
   End {},
 ]

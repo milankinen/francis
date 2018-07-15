@@ -2,7 +2,6 @@ import { Subscriber } from "../_core"
 import { makeEventStream } from "../_obs"
 import { EventStream } from "../EventStream"
 import { identity } from "../operators/_base"
-import { Scheduler } from "../scheduler/index"
 import { Activation, Root } from "./_base"
 
 export function once<T>(value: T): EventStream<T> {
@@ -14,7 +13,7 @@ class Never<T> extends Root<T> {
     super(false)
   }
 
-  protected activate(scheduler: Scheduler, subscriber: Subscriber<T>): Activation<T, Never<T>> {
+  protected create(subscriber: Subscriber<T>): Activation<T, Never<T>> {
     return new NeverActivation(this, subscriber)
   }
 }

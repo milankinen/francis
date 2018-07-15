@@ -12,7 +12,7 @@ import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
-import { schedulePropertyActivation, Scheduler, scheduleStreamActivation } from "../scheduler/index"
+import { scheduleActivationTask } from "../scheduler/index"
 import { Operator } from "./_base"
 
 export function take<T>(n: number, stream: EventStream<T>): EventStream<T>
@@ -23,30 +23,42 @@ export function take<T>(n: number, observable: Observable<T>): Observable<T> {
 }
 
 class Take<T> extends Operator<T, T> implements Invokeable<undefined> {
-  constructor(source: Source<T>, private n: number, private isProp: boolean) {
+  constructor(source: Source<T>, private n: number, private readonly isProp: boolean) {
     super(source)
   }
 
-  public next(tx: Transaction, val: T): void {
-    const n = --this.n
-    this.sink.next(tx, val)
-    n === 0 && this.sink.end(tx)
+  public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
+    if (this.n === 0) {
+      this.init(subscriber, order, NOOP_SUBSCRIPTION)
+      return this
+    } else {
+      return super.subscribe(subscriber, order)
+    }
   }
 
+  public activate(): void {
+    if (this.n === 0) {
+      if (this.isProp) {
+        this.invoke()
+      } else {
+        scheduleActivationTask(invoke(this))
+      }
+    } else {
+      super.activate()
+    }
+  }
+
+  // called if someone trying to activate EventStream/Property that has already
+  // taken N events
   public invoke(): void {
     if (this.sink.begin()) {
       sendRootEnd(this.sink)
     }
   }
 
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription {
-    if (this.n === 0) {
-      const schedule = this.isProp ? schedulePropertyActivation : scheduleStreamActivation
-      schedule(scheduler, invoke(this))
-      this.init(subscriber, order, NOOP_SUBSCRIPTION)
-      return this
-    } else {
-      return super.subscribe(scheduler, subscriber, order)
-    }
+  public next(tx: Transaction, val: T): void {
+    const n = --this.n
+    this.sink.next(tx, val)
+    n === 0 && this.sink.end(tx)
   }
 }

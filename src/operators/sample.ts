@@ -13,7 +13,6 @@ import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
-import { Scheduler } from "../scheduler/index"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
@@ -127,10 +126,15 @@ class SVSource<S, V> implements Source<S>, Subscription {
     this.vSubs = this.sSubs = NOOP_SUBSCRIPTION
   }
 
-  public subscribe(scheduler: Scheduler, subscriber: Subscriber<S>, order: number): Subscription {
-    this.vSubs = this.vSrc.subscribe(scheduler, this.vDest, order)
-    this.sSubs = this.sSrc.subscribe(scheduler, subscriber, order)
+  public subscribe(subscriber: Subscriber<S>, order: number): Subscription {
+    this.vSubs = this.vSrc.subscribe(this.vDest, order)
+    this.sSubs = this.sSrc.subscribe(subscriber, order)
     return this
+  }
+
+  public activate(): void {
+    this.vSubs.activate()
+    this.sSubs.activate()
   }
 
   public reorder(order: number): void {
