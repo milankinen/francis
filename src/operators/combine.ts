@@ -1,14 +1,12 @@
 import { __DEVBUILD__, assert } from "../_assert"
-import { NONE, sendInitialSafely, sendNextSafely, Subscriber, Subscription } from "../_core"
+import { NONE, sendNextSafely } from "../_core"
 import { toObservable } from "../_interrop"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { isArray } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
-import { Scheduler } from "../scheduler/index"
-import { constant } from "../sources/constant"
-import { EventType, SendNoInitialTask } from "./_base"
+import { constant } from "../sources/single"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { JoinOperator } from "./_join"
 import { map } from "./map"
@@ -69,49 +67,35 @@ export function _combine<A, B>(
   } else {
     const sources = Array(n)
     while (n--) {
-      sources[n] = toObservable(observables[n]).op
+      sources[n] = toObservable(observables[n]).src
     }
     return makeProperty(new Combine<A, B>(new IndexedSource(sources), f))
   }
 }
 
-class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber {
-  private has: EventType.INITIAL | EventType.NEXT | 0 = 0
+class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber<A> {
   private vals: A[]
-  private nValWait!: number
-  private nInitWait!: number
-  private nEndWait!: number
+  private has!: boolean
+  private nWaitV!: number
+  private nWaitE!: number
 
   constructor(source: IndexedSource<A>, private f: (vals: A[]) => B) {
-    super(source, true)
+    super(source)
     source.setEndSubscriber(this)
     this.vals = Array(source.size())
     this.resetState()
   }
 
-  public initial(tx: Transaction, ival: Indexed<A>): void {
-    const prev = this.vals[ival.idx]
-    this.vals[ival.idx] = ival.val
-    --this.nInitWait
-    if ((prev === NONE && --this.nValWait === 0) || this.nValWait === 0) {
-      this.has = EventType.INITIAL
-      this.fork(tx)
-    } else if (this.nInitWait === 0) {
-      this.dispatcher.noinitial(tx)
-    }
-  }
-
-  public noinitial(tx: Transaction): void {
-    if (--this.nInitWait === 0) {
-      this.dispatcher.noinitial(tx)
-    }
+  public dispose(): void {
+    this.resetState()
+    super.dispose()
   }
 
   public next(tx: Transaction, ival: Indexed<A>): void {
     const prev = this.vals[ival.idx]
     this.vals[ival.idx] = ival.val
-    if ((prev === NONE && --this.nValWait === 0) || this.nValWait === 0) {
-      this.has = EventType.NEXT
+    if ((prev === NONE && --this.nWaitV === 0) || this.nWaitV === 0) {
+      this.has = true
       this.fork(tx)
     }
   }
@@ -120,57 +104,34 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     this.forkError(tx, err)
   }
 
-  public iend(tx: Transaction, idx: number): void {
-    const isrc = this.source as IndexedSource<A>
-    isrc.disposeIdx(idx)
-    if (--this.nEndWait === 0) {
+  public iend(tx: Transaction, idx: number, source: IndexedSource<A>): void {
+    source.disposeIdx(idx)
+    if (--this.nWaitE === 0) {
       this.forkEnd(tx)
     }
   }
 
   public join(tx: Transaction): void {
-    if (this.has !== 0) {
-      const project = this.f
-      const send = this.has === EventType.INITIAL ? sendInitialSafely : sendNextSafely
-      this.has = 0
-      send(tx, this.dispatcher, project(this.vals))
+    if (this.has === true) {
+      const { f } = this
+      this.has = false
+      sendNextSafely(tx, this.sink, f(this.vals))
     }
     super.join(tx)
   }
 
   public joinError(tx: Transaction, err: Error) {
-    this.dispatcher.error(tx, err)
+    this.sink.error(tx, err)
   }
 
   public joinEnd(tx: Transaction) {
-    this.dispatcher.end(tx)
-  }
-
-  // PropertyMulticast will send no-initial event for late subscribers
-  // hence only sending no-initial during first activation
-  protected handleActivation(
-    scheduler: Scheduler,
-    subscriber: Subscriber<B>,
-    order: number,
-  ): Subscription {
-    if (this.nInitWait === 0) {
-      // PropertyMulticast will send no-initial event for late subscribers
-      scheduler.schedulePropertyActivation(new SendNoInitialTask(subscriber))
-    }
-    return this.activate(scheduler, subscriber, order)
-  }
-
-  protected handleDispose(): void {
-    this.resetState()
-    this.dispose()
+    this.sink.end(tx)
   }
 
   private resetState(): void {
-    let n = this.vals.length
+    let n = (this.nWaitE = this.nWaitV = this.vals.length)
+    this.has = false
     while (n--) this.vals[n] = NONE
-    this.nInitWait = (this.source as IndexedSource<A>).numSyncItems()
-    this.nValWait = this.nEndWait = this.vals.length
-    this.has = 0
     this.abortJoin()
   }
 }

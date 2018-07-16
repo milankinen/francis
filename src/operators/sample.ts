@@ -3,7 +3,6 @@ import {
   NOOP_SUBSCRIPTION,
   sendEndSafely,
   sendErrorSafely,
-  sendInitialSafely,
   sendNextSafely,
   Source,
   Subscriber,
@@ -15,7 +14,6 @@ import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { Scheduler } from "../scheduler/index"
-import { EventType } from "./_base"
 import { JoinOperator } from "./_join"
 import { Pipe, PipeDest } from "./_pipe"
 
@@ -54,29 +52,21 @@ function _sampleF<S, V, R>(
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): Observable<R> {
-  const cs = new SVSource(value.op, sampler.op, new Pipe(null as any))
-  return makeObservable(new Sample(cs, project))
+  const cs = new SVSource(value.src, sampler.src, new Pipe(null as any))
+  return makeObservable(sampler, new Sample(cs, project))
 }
 
 class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
-  private type: EventType.INITIAL | EventType.NEXT = EventType.NEXT
   private sample: S = NONE
   private val: V = NONE
 
   constructor(source: SVSource<S, V>, private p: (value: V, sample: S) => R) {
-    super(source, source.sync)
+    super(source)
     source.vDest = new Pipe(this)
-  }
-
-  public initial(tx: Transaction, sample: S): void {
-    this.sample = sample
-    this.type = EventType.INITIAL
-    this.fork(tx)
   }
 
   public next(tx: Transaction, sample: S): void {
     this.sample = sample
-    this.type = EventType.NEXT
     this.fork(tx)
   }
 
@@ -88,12 +78,8 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
     this.forkEnd(tx)
   }
 
-  public pipedInitial(sender: Pipe<V>, tx: Transaction, val: V): void {
-    this.val = val
-  }
-
-  public pipedNoInitial(sender: Pipe<V>, tx: Transaction): void {
-    this.sync && this.dispatcher.noinitial(tx)
+  public pipedBegin(sender: Pipe<V>): boolean {
+    return this.sink.begin()
   }
 
   public pipedNext(sender: Pipe<V>, tx: Transaction, val: V): void {
@@ -114,9 +100,8 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
     if (val !== NONE && sample !== NONE) {
       const project = this.p
       const result = project(this.val, this.sample)
-      const send = this.type === EventType.INITIAL ? sendInitialSafely : sendNextSafely
       this.sample = NONE
-      send(tx, this.dispatcher, result)
+      sendNextSafely(tx, this.sink, result)
     } else {
       this.sample = NONE
     }
@@ -124,21 +109,20 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
   }
 
   public joinError(tx: Transaction, err: Error): void {
-    sendErrorSafely(tx, this.dispatcher, err)
+    sendErrorSafely(tx, this.sink, err)
   }
 
   public joinEnd(tx: Transaction): void {
-    sendEndSafely(tx, this.dispatcher)
+    sendEndSafely(tx, this.sink)
   }
 }
 
 class SVSource<S, V> implements Source<S>, Subscription {
   public readonly weight: number
-  public readonly sync: boolean
   private vSubs: Subscription
   private sSubs: Subscription
+
   constructor(public vSrc: Source<V>, public sSrc: Source<S>, public vDest: Subscriber<V>) {
-    this.sync = this.sSrc.sync
     this.weight = vSrc.weight + sSrc.weight
     this.vSubs = this.sSubs = NOOP_SUBSCRIPTION
   }
@@ -155,13 +139,15 @@ class SVSource<S, V> implements Source<S>, Subscription {
   }
 
   public dispose(): void {
-    this.sSubs.dispose()
-    this.vSubs.dispose()
+    const { sSubs, vSubs } = this
     this.vSubs = this.sSubs = NOOP_SUBSCRIPTION
+    sSubs.dispose()
+    vSubs.dispose()
   }
 
   public disposeValue(): void {
-    this.vSubs.dispose()
+    const { vSubs } = this
     this.vSubs = NOOP_SUBSCRIPTION
+    vSubs.dispose()
   }
 }

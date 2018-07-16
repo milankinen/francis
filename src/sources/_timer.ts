@@ -24,6 +24,7 @@ class Tick<T> extends Activation<T, TimerBase<T>> implements OnTimeout {
   public due(): void {
     const events = this.owner.tick()
     const n = events.length
+    // perf optimization for common case n = 1
     if (n === 1) {
       this.send(events[0])
     } else {
@@ -31,7 +32,9 @@ class Tick<T> extends Activation<T, TimerBase<T>> implements OnTimeout {
         this.send(events[i])
       }
     }
-    this.active && (this.timeout = this.scheduler.scheduleTimeout(this, this.owner.interval))
+    if (this.active) {
+      this.timeout = this.scheduler.scheduleTimeout(this, this.owner.interval)
+    }
   }
 
   protected start(): void {

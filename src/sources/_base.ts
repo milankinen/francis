@@ -1,65 +1,64 @@
-import { __DEVBUILD__, __DEVELOPER__, assert, logAndThrow } from "../_assert"
+import { __DEVELOPER__, logAndThrow } from "../_assert"
 import {
+  NOOP_SUBSCRIBER,
   sendRootEnd,
   sendRootError,
-  sendRootEvent,
+  sendRootNext,
   Source,
   Subscriber,
   Subscription,
 } from "../_core"
 import { AnyEvent } from "../_interfaces"
-import { isEnd, isError, isEvent, isInitial, isNext } from "../Event"
-import { Scheduler, Task } from "../scheduler/index"
+import { isEnd, isError, isEvent, isNext } from "../Event"
+import {
+  schedulePropertyActivation,
+  Scheduler,
+  scheduleStreamActivation,
+  Task,
+} from "../scheduler/index"
 
 export abstract class Root<T> implements Source<T> {
   public readonly weight: number = 1
-  private __ended: boolean = false
+  public ended: boolean = false
   constructor(public readonly sync: boolean) {}
 
   public subscribe(scheduler: Scheduler, subscriber: Subscriber<T>, order: number): Subscription {
     const activation = this.activate(scheduler, subscriber)
-    this.sync
-      ? scheduler.schedulePropertyActivation(activation)
-      : scheduler.scheduleEventStreamActivation(activation)
+    const schedule = this.sync ? schedulePropertyActivation : scheduleStreamActivation
+    schedule(scheduler, activation)
     return activation
-  }
-
-  public markEnded(): void {
-    this.__ended = true
-  }
-
-  public isEnded(): boolean {
-    return this.__ended
   }
 
   protected abstract activate(scheduler: Scheduler, subscriber: Subscriber<T>): Activation<T, any>
 }
 
 export abstract class Activation<T, R extends Root<T>> implements Task, Subscription {
+  // the real subscriber
+  protected readonly real: Subscriber<T>
   protected readonly owner: R
-  protected readonly active: boolean = true
-  protected readonly subscriber: Subscriber<T>
-  protected readonly ended: boolean = false
+  protected active: boolean = true
+  protected subscriber: Subscriber<T>
 
   constructor(owner: R, subscriber: Subscriber<T>) {
-    this.subscriber = subscriber
+    this.real = this.subscriber = subscriber
     this.owner = owner
   }
 
   public run(): void {
     if (this.active) {
-      if (this.owner.isEnded()) {
+      if (this.owner.ended) {
         sendRootEnd(this.subscriber)
       } else {
-        this.start()
+        if (this.subscriber.begin()) {
+          this.start()
+        }
       }
     }
   }
 
   public dispose(): void {
-    // tslint:disable-next-line:semicolon whitespace
-    ;(this.active as boolean) = false
-    // tslint:disable-next-line:align
+    this.active = false
+    this.subscriber = NOOP_SUBSCRIBER
     this.stop()
   }
 
@@ -80,20 +79,17 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
       } else if (isEnd(event)) {
         this.sendEnd()
       } else {
-        if (__DEVBUILD__) {
-          assert(!isInitial(event), "Manual initial event sending is not supported")
-        }
         if (__DEVELOPER__) {
           logAndThrow("**BUG** event type not known: " + event)
         }
       }
     } else {
-      sendRootEvent(this.subscriber, event)
+      sendRootNext(this.subscriber, event)
     }
   }
 
   protected sendNext(val: T): void {
-    sendRootEvent(this.subscriber, val)
+    sendRootNext(this.subscriber, val)
   }
 
   protected sendError(err: Error): void {
@@ -101,7 +97,7 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
   }
 
   protected sendEnd(): void {
-    this.owner.markEnded()
+    this.owner.ended = true
     sendRootEnd(this.subscriber)
   }
 }

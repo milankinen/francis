@@ -169,8 +169,7 @@ Property.prototype.sampledBy = function<A, B, C>(
 
 // factory functions
 
-export { once } from "./sources/once"
-export { constant } from "./sources/constant"
+export { once, constant } from "./sources/single"
 export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"
@@ -182,7 +181,7 @@ export { fromBinder } from "./sources/fromBinder"
 // classes and interfaces
 
 export * from "./_interfaces"
-export { Initial, Next, Error, End } from "./Event"
+export { Next, Error, End } from "./Event"
 export { Observable } from "./Observable"
 export { EventStream } from "./EventStream"
 export { Property } from "./Property"

@@ -1,5 +1,5 @@
-import { Operator } from "./operators/_base"
+import { Dispatcher } from "./_dispatcher"
 
 export abstract class Observable<A> {
-  constructor(public op: Operator<any, A>) {}
+  constructor(public src: Dispatcher<A>) {}
 }

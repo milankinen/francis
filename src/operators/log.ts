@@ -18,10 +18,6 @@ class Logger<T> extends EffectRunner<T> {
     super()
   }
 
-  public initial(tx: Transaction, val: T): void {
-    this.log(val)
-  }
-
   public next(tx: Transaction, val: T): void {
     this.log(val)
   }

@@ -1,4 +1,4 @@
-import { __DEVELOPER__, logAndThrow } from "../_assert"
+import { __DEVELOPER__ } from "../_assert"
 import { Subscriber, Subscription } from "../_core"
 import { Transaction } from "../_tx"
 import { disableNoUnusedWarning } from "../_util"
@@ -7,9 +7,9 @@ import { getOuterScheduler } from "../scheduler/index"
 
 export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>): void {
   const scheduler = getOuterScheduler()
-  const subs = observable.op.subscribe(scheduler, runner, 0)
+  const subs = observable.src.subscribe(scheduler, runner, 0)
   const anyRunner = runner as any
-  if (__DEVELOPER__) {
+  /*if (__DEVELOPER__) {
     const initial = anyRunner.initial
     const noinitial = anyRunner.noinitial
     const next = anyRunner.next
@@ -25,13 +25,13 @@ export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>
       anyRunner.__syncReceived = true
       next.call(anyRunner, tx, val)
     }
-  }
+  }*/
   anyRunner.__init(subs)
   scheduler.run()
   if (__DEVELOPER__) {
-    if (observable.op.sync && anyRunner.__syncReceived === false) {
+    /*if (observable.op && anyRunner.__syncReceived === false) {
       logAndThrow("**BUG** Missing initial/noinitial event")
-    }
+    }*/
   }
 }
 
@@ -46,13 +46,11 @@ export class EffectRunner<T> implements Subscriber<T> {
     }
   }
 
-  public isActive(): boolean {
-    return this.__subs !== null
+  public begin(): boolean {
+    // we've reached to the effect handler so we can now signal the source
+    // that it's ok to begin event emission
+    return true
   }
-
-  public initial(tx: Transaction, val: T): void {}
-
-  public noinitial(tx: Transaction): void {}
 
   public next(tx: Transaction, val: T): void {}
 

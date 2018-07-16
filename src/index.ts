@@ -6,8 +6,7 @@ export { EventStream, isEventStream } from "./EventStream"
 export { Property, isProperty } from "./Property"
 
 // factory functions
-export { once } from "./sources/once"
-export { constant } from "./sources/constant"
+export { once, constant } from "./sources/single"
 export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"

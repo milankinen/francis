@@ -32,20 +32,6 @@ export function isNext<T>(e: Event): e is Next<T> {
 }
 
 // prettier-ignore
-export class Initial<T> implements Event {
-  public hasValue!: boolean
-  public isNext!: boolean
-  public isInitial!: boolean
-  public isError!: boolean
-  public isEnd!: boolean
-  constructor(public value: T) {}
-}
-
-export function isInitial<T>(e: Event): e is Initial<T> {
-  return e.isInitial
-}
-
-// prettier-ignore
 export class Error implements Event {
   public hasValue!: boolean
   public isNext!: boolean
@@ -72,19 +58,13 @@ export function isEnd(e: Event): e is End {
 }
 
 // tslint:disable-next-line:align max-line-length semicolon whitespace
-;(Next.prototype as any).__ident = (Initial.prototype as any).__ident = (Error.prototype as any).__ident = (End.prototype as any).__ident = ident
+;(Next.prototype as any).__ident = (Error.prototype as any).__ident = (End.prototype as any).__ident = ident
 
 Next.prototype.hasValue = true
 Next.prototype.isNext = true
 Next.prototype.isInitial = false
 Next.prototype.isError = false
 Next.prototype.isEnd = false
-
-Initial.prototype.hasValue = true
-Initial.prototype.isNext = false
-Initial.prototype.isInitial = true
-Initial.prototype.isError = false
-Initial.prototype.isEnd = false
 
 Error.prototype.hasValue = false
 Error.prototype.isNext = false

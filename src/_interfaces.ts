@@ -8,7 +8,7 @@ export type Predicate<A> = (val: A) => boolean
 
 export type Dispose = () => void
 
-export type AnyEvent<T> = Event.Next<T> | Event.Initial<T> | Event.Error | Event.End
+export type AnyEvent<T> = Event.Next<T> | Event.Error | Event.End
 
 export type AnyObs<A> = Property<A> | EventStream<A>
 

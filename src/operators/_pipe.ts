@@ -2,9 +2,7 @@ import { Subscriber } from "../_core"
 import { Transaction } from "../_tx"
 
 export interface PipeDest<T> {
-  isActive(): boolean
-  pipedInitial(sender: Pipe<T>, tx: Transaction, val: T): void
-  pipedNoInitial(sender: Pipe<T>, tx: Transaction): void
+  pipedBegin(sender: Pipe<T>): boolean
   pipedNext(sender: Pipe<T>, tx: Transaction, val: T): void
   pipedError(sender: Pipe<T>, tx: Transaction, err: Error): void
   pipedEnd(sender: Pipe<T>, tx: Transaction): void
@@ -13,15 +11,8 @@ export interface PipeDest<T> {
 export class Pipe<T> implements Subscriber<T> {
   constructor(public dest: PipeDest<T>) {}
 
-  public isActive(): boolean {
-    return this.dest.isActive()
-  }
-  public initial(tx: Transaction, val: T): void {
-    this.dest.pipedInitial(this, tx, val)
-  }
-
-  public noinitial(tx: Transaction): void {
-    this.dest.pipedNoInitial(this, tx)
+  public begin(): boolean {
+    return this.dest.pipedBegin(this)
   }
 
   public next(tx: Transaction, val: T): void {

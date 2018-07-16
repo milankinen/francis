@@ -24,7 +24,7 @@ class FromBinderActivation<T> extends Activation<T, FromBinder<T>> {
   protected start(): void {
     if (this.active) {
       const sink: Sink<T> = (event: SinkEvent<T>): SinkResult => {
-        this.active && this.handleSinkEvent(event)
+        this.handleSinkEvent(event)
         return this.active ? Event.more : Event.noMore
       }
       // TODO try-catch?

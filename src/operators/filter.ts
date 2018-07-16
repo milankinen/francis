@@ -24,41 +24,30 @@ export function filter<T>(
   predicate: Predicate<T> | Property<any>,
   observable: Observable<T>,
 ): Observable<T> {
-  if (isProperty<any>(predicate)) {
-    return makeObservable(new FilterSampled(sampleWith(observable, (v, s) => [v, s], predicate).op))
-  } else {
-    return makeObservable(new Filter(observable.op, predicate))
-  }
+  const op: Operator<any, T> = isProperty<any>(predicate)
+    ? new FilterSampled(sampleWith(observable, (v, s) => [v, s], predicate).src)
+    : new Filter(observable.src, predicate)
+  return makeObservable(observable, op)
 }
 
 class Filter<T> extends Operator<T, T> {
   constructor(source: Source<T>, private p: Predicate<T>) {
-    super(source, source.sync)
+    super(source)
   }
 
   public next(tx: Transaction, val: T): void {
     const predicate = this.p
-    predicate(val) && this.dispatcher.next(tx, val)
-  }
-
-  public initial(tx: Transaction, val: T): void {
-    const predicate = this.p
-    predicate(val) ? this.dispatcher.initial(tx, val) : this.dispatcher.noinitial(tx)
+    predicate(val) && this.sink.next(tx, val)
   }
 }
 
 class FilterSampled<T> extends Operator<[any, T], T> {
   constructor(source: Source<[any, T]>) {
-    super(source, source.sync)
+    super(source)
   }
 
   public next(tx: Transaction, sampledVal: [any, T]): void {
     const [tested, val] = sampledVal
-    tested && this.dispatcher.next(tx, val)
-  }
-
-  public initial(tx: Transaction, sampledVal: [any, T]): void {
-    const [tested, val] = sampledVal
-    tested ? this.dispatcher.initial(tx, val) : this.dispatcher.noinitial(tx)
+    tested && this.sink.next(tx, val)
   }
 }

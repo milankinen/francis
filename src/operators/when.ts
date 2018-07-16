@@ -51,29 +51,31 @@ export function when(...patternsAndHandlers: any[]): EventStream<any> {
   const buffers = Array<Buffer>(idxLookup.size)
   idxLookup.forEach((idx, obs) => {
     const buffer = isEventStream(obs) ? new StreamBuffer() : new PropertyBuffer()
-    sources[idx] = new Buffered(obs.op, buffer)
+    sources[idx] = new Buffered(obs.src, buffer)
     buffers[idx] = buffer
   })
   return makeEventStream(new When(new IndexedSource(sources), patterns, buffers))
 }
 
-class When extends JoinOperator<Indexed<Buffer>, any, null> implements IndexedEndSubscriber {
+class When extends JoinOperator<Indexed<Buffer>, any, null>
+  implements IndexedEndSubscriber<Buffer> {
   private activePatterns: Pattern[]
   constructor(
-    source: Source<Indexed<Buffer>>,
+    source: IndexedSource<Buffer>,
     private patterns: Pattern[],
     private buffers: Buffer[],
   ) {
-    super(source, false)
-    this.isource().setEndSubscriber(this)
+    super(source)
+    source.setEndSubscriber(this)
     this.activePatterns = patterns.slice()
   }
 
-  public initial(tx: Transaction, val: Indexed<Buffer>): void {
-    this.forkNext(tx, null)
+  public dispose(): void {
+    this.activePatterns = this.patterns.slice()
+    this.resetBuffers()
+    this.abortJoin()
+    super.dispose()
   }
-
-  public noinitial(tx: Transaction): void {}
 
   public next(tx: Transaction, val: Indexed<Buffer>): void {
     this.forkNext(tx, null)
@@ -83,8 +85,8 @@ class When extends JoinOperator<Indexed<Buffer>, any, null> implements IndexedEn
     this.forkError(tx, err)
   }
 
-  public iend(tx: Transaction, idx: number): void {
-    this.isource().disposeIdx(idx)
+  public iend(tx: Transaction, idx: number, source: IndexedSource<Buffer>): void {
+    source.disposeIdx(idx)
     if (this.buffers[idx].end()) {
       this.forkNext(tx, null)
     }
@@ -96,28 +98,21 @@ class When extends JoinOperator<Indexed<Buffer>, any, null> implements IndexedEn
     while (i < activePatterns.length) {
       const pattern = activePatterns[i]
       const result = pattern.peek(buffers)
-      if (result === PeekResult.READY) {
+      if (result === READY) {
         const vals = pattern.pop(buffers)
-        const f = pattern.f
-        const toEmit = f(...vals)
-        this.dispatcher.next(tx, toEmit)
+        const handler = pattern.f
+        const toEmit = handler(...vals)
+        this.sink.next(tx, toEmit)
         return
-      } else if (result === PeekResult.UNREACHABLE) {
+      } else if (result === UNREACHABLE) {
         activePatterns.splice(i, 1)
       } else {
         ++i
       }
     }
     if (activePatterns.length === 0) {
-      this.dispatcher.end(tx)
+      this.sink.end(tx)
     }
-  }
-
-  protected handleDispose(): void {
-    this.activePatterns = this.patterns.slice()
-    this.resetBuffers()
-    this.abortJoin()
-    this.dispose()
   }
 
   private resetBuffers(): void {
@@ -125,20 +120,14 @@ class When extends JoinOperator<Indexed<Buffer>, any, null> implements IndexedEn
     let n = buffers.length
     while (n--) buffers[n].reset()
   }
-
-  private isource(): IndexedSource<Buffer[]> {
-    return this.source as any
-  }
 }
 
 class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
   public readonly weight: number
-  public readonly sync: boolean
   private sub: Subscription = NOOP_SUBSCRIPTION
-  private dest: Subscriber<Buffer> = NOOP_SUBSCRIBER
+  private sink: Subscriber<Buffer> = NOOP_SUBSCRIBER
 
   constructor(private src: Source<any>, private buf: Buffer) {
-    this.sync = src.sync
     this.weight = src.weight
   }
 
@@ -147,7 +136,7 @@ class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
     subscriber: Subscriber<Buffer>,
     order: number,
   ): Subscription {
-    this.dest = subscriber
+    this.sink = subscriber
     this.sub = this.src.subscribe(scheduler, this, order)
     return this
   }
@@ -155,7 +144,7 @@ class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
   public dispose(): void {
     const { sub } = this
     this.sub = NOOP_SUBSCRIPTION
-    this.dest = NOOP_SUBSCRIBER
+    this.sink = NOOP_SUBSCRIBER
     sub.dispose()
   }
 
@@ -163,36 +152,26 @@ class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
     this.sub.reorder(order)
   }
 
-  public isActive(): boolean {
-    return this.dest.isActive()
-  }
-
-  public initial(tx: Transaction, val: any): void {
-    const { buf } = this
-    buf.push(val)
-    this.dest.initial(tx, buf)
-  }
-
-  public noinitial(tx: Transaction): void {
-    this.dest.noinitial(tx)
+  public begin(): boolean {
+    return this.sink.begin()
   }
 
   public next(tx: Transaction, val: any): void {
     const { buf } = this
     if (buf.push(val)) {
-      this.dest.next(tx, buf)
+      this.sink.next(tx, buf)
     }
   }
 
   public error(tx: Transaction, err: Error): void {
-    this.dest.error(tx, err)
+    this.sink.error(tx, err)
   }
 
   public end(tx: Transaction): void {
     const { buf } = this
     const wasConsumed = buf.end()
-    wasConsumed && this.dest.next(tx, buf)
-    this.dest.isActive() && this.dest.end(tx)
+    wasConsumed && this.sink.next(tx, buf)
+    this.sink.end(tx)
   }
 }
 
@@ -204,6 +183,8 @@ enum PeekResult {
   //  can't pop anymore
   UNREACHABLE = 0,
 }
+
+const { READY, STANDBY, UNREACHABLE } = PeekResult
 
 type PatternHandler = (...args: any[]) => any
 
@@ -245,11 +226,7 @@ class Pattern {
     // if any of the buffer peeks return 0 (can't pop anymore), the multiplied value
     // goes to zero, which indicates that pattern can't be acquired anymore and it
     // can be removed from the active patterns
-    return result === 0
-      ? PeekResult.UNREACHABLE
-      : result === this.READY
-        ? PeekResult.READY
-        : PeekResult.STANDBY
+    return result === 0 ? UNREACHABLE : result === this.READY ? READY : STANDBY
   }
 
   public pop(buffers: Buffer[]): any[] {
@@ -283,7 +260,7 @@ class StreamBuffer implements Buffer {
     return true
   }
   public peek(n: number): PeekResult {
-    return this.n >= n ? PeekResult.READY : this.ended ? PeekResult.UNREACHABLE : PeekResult.STANDBY
+    return this.n >= n ? READY : this.ended ? UNREACHABLE : STANDBY
   }
   public pop(): any {
     const val = this.head.v
@@ -309,7 +286,7 @@ class PropertyBuffer implements Buffer {
     return !hadValue
   }
   public peek(n: number): PeekResult {
-    return this.val !== NONE ? PeekResult.READY : PeekResult.UNREACHABLE
+    return this.val !== NONE ? READY : UNREACHABLE
   }
   public pop(): any {
     return this.val

@@ -26,21 +26,16 @@ export function map<A, B>(
 ): Observable<B> {
   return isProperty(project)
     ? sampleBy(observable, project)
-    : makeObservable(new Map(observable.op, project))
+    : makeObservable(observable, new Map(observable.src, project))
 }
 
 class Map<A, B> extends Operator<A, B> {
   constructor(source: Source<A>, private p: Projection<A, B>) {
-    super(source, source.sync)
+    super(source)
   }
 
   public next(tx: Transaction, val: A): void {
     const project = this.p
-    this.dispatcher.next(tx, project(val))
-  }
-
-  public initial(tx: Transaction, val: A): void {
-    const project = this.p
-    this.dispatcher.initial(tx, project(val))
+    this.sink.next(tx, project(val))
   }
 }

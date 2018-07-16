@@ -18,7 +18,11 @@ describe("F.startWith", () => {
 
     it("doesn't emit anything if Property already has an initial event", done => {
       runner()
-        .setup(record => F.constant("tsers").subscribe(record))
+        .setup(record =>
+          F.constant("tsers")
+            .startWith("initial")
+            .subscribe(record),
+        )
         .after(rec => expect(rec).toMatchSnapshot())
         .run(done)
     })
