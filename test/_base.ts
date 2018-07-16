@@ -1,6 +1,4 @@
 import * as R from "ramda"
-import { withContext } from "../src/scheduler/index"
-import { TestSchedulingContext } from "../src/scheduler/TestSchedulingContext"
 
 export type RunnerSetupFn = (
   record: (x: any) => any,
@@ -36,28 +34,26 @@ export class ObservableRunner {
 
   public run(done: jest.DoneCallback): void {
     const { setupFn, afterFn } = this
-    withContext(new TestSchedulingContext(), (ctx: TestSchedulingContext, ready: () => void) => {
-      const recording = [] as any[]
-      const record = (x: any) => recording.push(x)
-      const wait = (t: number, op: () => any) => {
-        ctx.scheduleTimeout({ due: op }, t)
-      }
-      try {
-        setupFn(record, wait)
-        ctx.runTest(scheduleErr => {
-          try {
-            afterFn(recording)
-            ready()
-            scheduleErr ? done(scheduleErr) : done()
-          } catch (checkErr) {
-            ready()
-            done(checkErr)
-          }
-        })
-      } catch (e) {
-        ctx.abort()
-        done(e)
-      }
+
+    jest.useFakeTimers()
+    const recording = [] as any[]
+    const record = (x: any) => recording.push(x)
+    const wait = (t: number, op: () => any) => {
+      setTimeout(op, t)
+    }
+
+    let complete = false
+    setupFn(record, wait)
+    wait(10000, () => {
+      complete = true
+      jest.useRealTimers()
+      afterFn(recording)
+      done()
     })
+    while (!complete) {
+      jest.runAllTicks()
+      jest.runAllImmediates()
+      jest.advanceTimersByTime(1)
+    }
   }
 }
