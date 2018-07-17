@@ -34,6 +34,10 @@ class StartWithP<T> extends Operator<T, T> {
     super.activate()
     this.sendInitial()
   }
+
+  public dispose(): void {
+    this.has = false
+    super.dispose()
   }
 
   public sendInitial(): void {

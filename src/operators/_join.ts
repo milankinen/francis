@@ -15,6 +15,11 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
     super(origin)
   }
 
+  public dispose(): void {
+    this.abortJoin()
+    super.dispose()
+  }
+
   public startJoin(tx: Transaction): void {
     this.forked = false
     this.join(tx)
@@ -49,6 +54,7 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
   }
 
   protected abortJoin(): void {
+    this.forked = false
     this.hasErr && ((this.hasErr = false) || this.errs.clear())
     this.head = this.tail = null
     this.n = 0

@@ -64,6 +64,11 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
     source.vDest = new Pipe(this)
   }
 
+  public dispose(): void {
+    this.sample = this.val = NONE
+    super.dispose()
+  }
+
   public next(tx: Transaction, sample: S): void {
     this.sample = sample
     this.fork(tx)
