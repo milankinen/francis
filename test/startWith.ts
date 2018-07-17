@@ -1,30 +1,26 @@
 import * as F from "../bacon"
-import { runner, Sync } from "./_base"
+import { run, Sync } from "./_base"
 
 describe("F.startWith", () => {
   describe("applied to Property", () => {
-    it("emits synchronous initial event for property having no initial event", done => {
-      runner()
-        .setup(record => {
-          F.once("tsers")
-            .toProperty()
-            .startWith("initial")
-            .subscribe(record)
-          record(Sync)
-        })
-        .after(rec => expect(rec).toMatchSnapshot())
-        .run(done)
+    it("emits synchronous initial event for property having no initial event", () => {
+      const recording = run(record => {
+        F.once("tsers")
+          .toProperty()
+          .startWith("initial")
+          .subscribe(record)
+        record(Sync)
+      })
+      expect(recording).toMatchSnapshot()
     })
 
-    it("doesn't emit anything if Property already has an initial event", done => {
-      runner()
-        .setup(record =>
-          F.constant("tsers")
-            .startWith("initial")
-            .subscribe(record),
-        )
-        .after(rec => expect(rec).toMatchSnapshot())
-        .run(done)
+    it("doesn't emit anything if Property already has an initial event", () => {
+      const recording = run(record =>
+        F.constant("tsers")
+          .startWith("initial")
+          .subscribe(record),
+      )
+      expect(recording).toMatchSnapshot()
     })
   })
 })

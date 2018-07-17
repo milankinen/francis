@@ -1,9 +1,9 @@
 import * as F from "../bacon"
-import { runner, Sync } from "./_base"
+import { Sync } from "./_base"
 
 describe("F.later", () => {
   it("delays the given value and ends", done => {
-    const rec = []
+    const rec = [] as any[]
     const t = Date.now()
     F.later(10, "tsers").subscribe(e => {
       rec.push(e)
@@ -17,7 +17,7 @@ describe("F.later", () => {
   })
 
   it("can be called without value", done => {
-    const rec = []
+    const rec = [] as any[]
     const t = Date.now()
     F.later(10).subscribe(e => {
       rec.push(e)
