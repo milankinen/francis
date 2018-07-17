@@ -1,7 +1,7 @@
 import cjs from "rollup-plugin-commonjs"
 import buble from "rollup-plugin-buble"
-import closure from "rollup-plugin-closure-compiler-js"
 import replace from "rollup-plugin-replace"
+import { uglify } from "rollup-plugin-uglify"
 
 export default {
   input: "lib/bacon.js",
@@ -17,10 +17,14 @@ export default {
         "process.env.NODE_ENV": JSON.stringify("production"),
         "(__DEVBUILD__)": "(false)",
         "(__DEVELOPER__)": "(false)",
+        "global.__FRANCIS_DEV__": "0",
       },
     }),
     cjs(),
     buble(),
-    closure({ processCommonJsModules: false }),
+    uglify({
+      compress: true,
+      mangle: true,
+    }),
   ],
 }

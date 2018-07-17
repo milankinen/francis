@@ -16,6 +16,7 @@ export default {
         "process.env.NODE_ENV": JSON.stringify("development"),
         "(__DEVBUILD__)": "(true)",
         "(__DEVELOPER__)": "(false)",
+        "global.__FRANCIS_DEV__": "0",
       },
     }),
     cjs(),

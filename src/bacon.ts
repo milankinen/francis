@@ -77,24 +77,27 @@ declare module "./Property" {
 
 export type SampleFn<V, S, R> = (value: V, sample: S) => R
 
+/* tslint:disable:no-string-literal */
+
 // Observable operators (common for both EventStream and Property)
 
-Observable.prototype.subscribe = function<A>(handler: Handler<A>): Dispose {
+Observable.prototype["subscribe"] = function<A>(handler: Handler<A>): Dispose {
   return Subscribe.subscribe(handler, this)
 }
 
-Observable.prototype.log = function(label?: string): Dispose {
+Observable.prototype["log"] = function(label?: string): Dispose {
   return Log.log(label, this)
 }
 
-Observable.prototype.map = function<A, B>(
+Observable.prototype["map"] = function<A, B>(
   project: Projection<A, B> | Property<B>,
   ...rest: any[]
 ): Observable<B> {
   return Map.map(toFunctionsPropAsIs(project, rest), this)
 }
 
-Observable.prototype.filter = function<A>(
+// tslint:disable-next-line:no-string-literal
+Observable.prototype["filter"] = function<A>(
   predicate: Predicate<A> | Property<any>,
   ...rest: any[]
 ): Observable<A> {
@@ -105,39 +108,40 @@ Observable.prototype.take = function<A>(n: number): Observable<A> {
   return Take.take(n, this)
 }
 
-Observable.prototype.first = function<A>(): Observable<A> {
+// tslint:disable-next-line:no-string-literal
+Observable.prototype["first"] = function<A>(): Observable<A> {
   return First.first(this)
 }
 
-Observable.prototype.flatMapLatest = function<A, B>(
+Observable.prototype["flatMapLatest"] = function<A, B>(
   project: Projection<A, B | Observable<B>>,
   ...rest: any[]
 ): Observable<B> {
   return FlatMap.flatMapLatest(toFunction(project, rest), this)
 }
 
-Observable.prototype.flatMapFirst = function<A, B>(
+Observable.prototype["flatMapFirst"] = function<A, B>(
   project: Projection<A, B | Observable<B>>,
   ...rest: any[]
 ): Observable<B> {
   return FlatMap.flatMapFirst(toFunction(project, rest), this)
 }
 
-Observable.prototype.flatMap = function<A, B>(
+Observable.prototype["flatMap"] = function<A, B>(
   project: Projection<A, B | Observable<B>>,
   ...rest: any[]
 ): Observable<B> {
   return FlatMap.flatMap(toFunction(project, rest), this)
 }
 
-Observable.prototype.flatMapConcat = function<A, B>(
+Observable.prototype["flatMapConcat"] = function<A, B>(
   project: Projection<A, B | Observable<B>>,
   ...rest: any[]
 ): Observable<B> {
   return FlatMap.flatMapConcat(toFunction(project, rest), this)
 }
 
-Observable.prototype.flatMapWithConcurrencyLimit = function<A, B>(
+Observable.prototype["flatMapWithConcurrencyLimit"] = function<A, B>(
   limit: number,
   project: Projection<A, B | Observable<B>>,
   ...rest: any[]
@@ -145,12 +149,13 @@ Observable.prototype.flatMapWithConcurrencyLimit = function<A, B>(
   return FlatMap.flatMapWithConcurrencyLimit(limit, toFunction(project, rest), this)
 }
 
-Observable.prototype.startWith = function<A>(value: A): Observable<A> {
+Observable.prototype["startWith"] = function<A>(value: A): Observable<A> {
   return StartWith.startWith(value, this)
 }
+
 // EventStream specific operators
 
-EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
+EventStream.prototype["toProperty"] = function<A>(initialValue?: A): Property<A> {
   return arguments.length === 0
     ? ToProperty.toProperty(this)
     : StartWith._startWithP(initialValue, ToProperty.toProperty(this))
@@ -158,7 +163,7 @@ EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
 
 // Property specific operators
 
-Property.prototype.sampledBy = function<A, B, C>(
+Property.prototype["sampledBy"] = function<A, B, C>(
   sampler: Observable<B>,
   f?: SampleFn<A, B, C>,
   ...rest: any[]
