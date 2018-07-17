@@ -32,7 +32,7 @@ function init(F, nEvents, nForks, nMaps) {
       const arr = Array.from(Array(nForks)).map(() =>
         Array.from(Array(nMaps)).reduce(s => s.map(ident), stream),
       )
-      const res = B.combineAsArray(arr)
+      const res = F.combineAsArray(arr)
       res.subscribe(e => e.isEnd && d.resolve())
     },
   }
