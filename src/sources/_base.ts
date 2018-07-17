@@ -41,9 +41,7 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
       if (this.owner.ended) {
         sendRootEnd(this.subscriber)
       } else {
-        if (this.subscriber.begin()) {
-          this.start()
-        }
+        this.start()
       }
     }
   }

@@ -2,8 +2,6 @@ import { Transaction } from "./_tx"
 import { Task } from "./scheduler/index"
 
 export interface Subscriber<T> {
-  begin(): boolean
-
   next(tx: Transaction, val: T): void
 
   error(tx: Transaction, err: Error): void
@@ -28,9 +26,6 @@ export interface Source<T> {
 export const NONE = new class NONE {}() as any
 
 export const NOOP_SUBSCRIBER = new class NoopSubscriber implements Subscriber<any> {
-  public begin(): boolean {
-    return false
-  }
   public next(tx: Transaction, val: any): void {}
   public error(tx: Transaction, err: Error): void {}
   public end(tx: Transaction): void {}

@@ -139,7 +139,6 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
 
   public dispose(): void {
     this.outerEnded = false
-    this.abortJoin()
     this.disposeInner()
     this.disposeOuter()
     super.dispose()
@@ -166,10 +165,6 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
     } else {
       this.disposeOuter()
     }
-  }
-
-  public pipedBegin(sender: Pipe<B>): boolean {
-    return this.sink.begin()
   }
 
   public pipedNext(sender: Pipe<B>, tx: Transaction, val: B): void {

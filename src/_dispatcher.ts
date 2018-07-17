@@ -65,10 +65,6 @@ export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
     }
   }
 
-  public begin(): boolean {
-    return this.sink.begin()
-  }
-
   public next(tx: Transaction, val: T): void {
     this.sink.next(tx, val)
   }
@@ -137,17 +133,6 @@ class MulticastSubscriber<T> implements Subscriber<T> {
       next: head.t !== null ? this : head.s,
       order,
     }
-  }
-
-  public begin(): boolean {
-    let head = this.h
-    while (head !== null) {
-      if (head.a && head.s.begin()) {
-        return true
-      }
-      head = head.t
-    }
-    return false
   }
 
   public next(tx: Transaction, val: T): void {

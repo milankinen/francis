@@ -151,10 +151,6 @@ class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
     this.sub.reorder(order)
   }
 
-  public begin(): boolean {
-    return this.sink.begin()
-  }
-
   public next(tx: Transaction, val: any): void {
     const { buf } = this
     if (buf.push(val)) {

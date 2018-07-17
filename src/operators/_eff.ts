@@ -23,12 +23,6 @@ export class EffectRunner<T> implements Subscriber<T> {
     subs.dispose()
   }
 
-  public begin(): boolean {
-    // we've reached to the effect handler so we can now signal the source
-    // that it's ok to begin event emission
-    return true
-  }
-
   public next(tx: Transaction, val: T): void {}
 
   public error(tx: Transaction, err: Error): void {}

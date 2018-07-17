@@ -54,10 +54,6 @@ export abstract class Operator<A, B> implements Subscriber<A>, Source<B>, Subscr
 
   public abstract next(tx: Transaction, val: A): void
 
-  public begin(): boolean {
-    return this.sink.begin()
-  }
-
   public error(tx: Transaction, err: Error): void {
     this.sink.error(tx, err)
   }

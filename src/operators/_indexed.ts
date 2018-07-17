@@ -87,10 +87,6 @@ class IndexedPipe<T> implements Subscriber<T> {
     private ies: IndexedEndSubscriber<T>,
   ) {}
 
-  public begin(): boolean {
-    return this.s.begin()
-  }
-
   public next(tx: Transaction, val: T): void {
     this.s.next(tx, { val, idx: this.i })
   }

@@ -77,10 +77,6 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
     this.forkEnd(tx)
   }
 
-  public pipedBegin(sender: Pipe<V>): boolean {
-    return this.sink.begin()
-  }
-
   public pipedNext(sender: Pipe<V>, tx: Transaction, val: V): void {
     this.val = val
   }
