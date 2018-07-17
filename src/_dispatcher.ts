@@ -2,9 +2,9 @@ import {
   NONE,
   NOOP_SUBSCRIBER,
   NOOP_SUBSCRIPTION,
-  sendEndSafely,
-  sendErrorSafely,
-  sendNextSafely,
+  sendEnd,
+  sendError,
+  sendNext,
   Source,
   Subscriber,
   Subscription,
@@ -138,7 +138,7 @@ class MulticastSubscriber<T> implements Subscriber<T> {
   public next(tx: Transaction, val: T): void {
     let head = this.h
     while (head !== null) {
-      head.a && sendNextSafely(tx, head.s, val)
+      head.a && sendNext(tx, head.s, val)
       head = head.t
     }
   }
@@ -146,7 +146,7 @@ class MulticastSubscriber<T> implements Subscriber<T> {
   public error(tx: Transaction, err: Error): void {
     let head = this.h
     while (head !== null) {
-      head.a && sendErrorSafely(tx, head.s, err)
+      head.a && sendError(tx, head.s, err)
       head = head.t
     }
   }
@@ -154,7 +154,7 @@ class MulticastSubscriber<T> implements Subscriber<T> {
   public end(tx: Transaction): void {
     let head = this.h
     while (head !== null) {
-      head.a && sendEndSafely(tx, head.s)
+      head.a && sendEnd(tx, head.s)
       head = head.t
     }
   }

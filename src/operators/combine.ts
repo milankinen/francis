@@ -1,5 +1,5 @@
 import { __DEVBUILD__, assert } from "../_assert"
-import { NONE, sendNextSafely } from "../_core"
+import { NONE, sendNext } from "../_core"
 import { toObservable } from "../_interrop"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
@@ -115,7 +115,7 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
     if (this.has === true) {
       const { f } = this
       this.has = false
-      sendNextSafely(tx, this.sink, f(this.vals))
+      sendNext(tx, this.sink, f(this.vals))
     }
     super.join(tx)
   }

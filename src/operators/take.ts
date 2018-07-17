@@ -2,7 +2,7 @@ import {
   invoke,
   Invokeable,
   NOOP_SUBSCRIPTION,
-  sendRootEnd,
+  sendEndInTx,
   Source,
   Subscriber,
   Subscription,
@@ -51,7 +51,7 @@ class Take<T> extends Operator<T, T> implements Invokeable<undefined> {
   // called if someone trying to activate EventStream/Property that has already
   // taken N events
   public invoke(): void {
-    this.active && sendRootEnd(this.sink)
+    this.active && sendEndInTx(this.sink)
   }
 
   public next(tx: Transaction, val: T): void {

@@ -1,4 +1,4 @@
-import { NONE, sendRootEnd, sendRootNext, Subscriber } from "./_core"
+import { NONE, sendEndInTx, sendNextInTx, Subscriber } from "./_core"
 import { Dispatcher } from "./_dispatcher"
 import { Transaction } from "./_tx"
 import { Observable } from "./Observable"
@@ -36,8 +36,8 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
     const { val, ended } = this
     const hasVal = val !== NONE
     if (hasVal || ended) {
-      hasVal && sendRootNext(subscriber, val)
-      ended === true && sendRootEnd(subscriber)
+      hasVal && sendNextInTx(subscriber, val)
+      ended === true && sendEndInTx(subscriber)
     }
   }
 }

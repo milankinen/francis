@@ -1,12 +1,5 @@
 import { __DEVBUILD__, assert } from "../_assert"
-import {
-  NOOP_SUBSCRIPTION,
-  sendEndSafely,
-  sendErrorSafely,
-  sendNextSafely,
-  Source,
-  Subscription,
-} from "../_core"
+import { NOOP_SUBSCRIPTION, sendEnd, sendError, sendNext, Source, Subscription } from "../_core"
 import { Projection } from "../_interfaces"
 import { toObservable } from "../_interrop"
 import { makeObservable } from "../_obs"
@@ -181,11 +174,11 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
   }
 
   protected joinNext(tx: Transaction, val: B): void {
-    sendNextSafely(tx, this.sink, val)
+    sendNext(tx, this.sink, val)
   }
 
   protected joinError(tx: Transaction, err: Error): void {
-    sendErrorSafely(tx, this.sink, err)
+    sendError(tx, this.sink, err)
   }
 
   protected joinCustom(tx: Transaction, sender: any): void {
@@ -205,7 +198,7 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
   private joinInnerEnd(tx: Transaction, sender: Pipe<B>): void {
     const { ended, subscription } = this.innerEnd(sender)
     if (ended && this.outerEnded) {
-      sendEndSafely(tx, this.sink)
+      sendEnd(tx, this.sink)
     } else if (subscription !== null) {
       activateInnerSubscription(subscription)
     }

@@ -1,4 +1,4 @@
-import { sendRootNext, Source } from "../_core"
+import { sendNextInTx, Source } from "../_core"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
@@ -43,7 +43,7 @@ class StartWithP<T> extends Operator<T, T> {
   public sendInitial(): void {
     if (this.active && !this.has) {
       this.has = true
-      sendRootNext(this.sink, this.value)
+      sendNextInTx(this.sink, this.value)
     }
   }
 

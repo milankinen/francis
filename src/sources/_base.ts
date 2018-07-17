@@ -1,9 +1,9 @@
 import { __DEVELOPER__, logAndThrow } from "../_assert"
 import {
   NOOP_SUBSCRIBER,
-  sendRootEnd,
-  sendRootError,
-  sendRootNext,
+  sendEndInTx,
+  sendErrorInTx,
+  sendNextInTx,
   Source,
   Subscriber,
   Subscription,
@@ -39,7 +39,7 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
   public run(): void {
     if (this.active) {
       if (this.owner.ended) {
-        sendRootEnd(this.subscriber)
+        sendEndInTx(this.subscriber)
       } else {
         this.start()
       }
@@ -82,20 +82,20 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
         }
       }
     } else {
-      sendRootNext(this.subscriber, event)
+      sendNextInTx(this.subscriber, event)
     }
   }
 
   protected sendNext(val: T): void {
-    sendRootNext(this.subscriber, val)
+    sendNextInTx(this.subscriber, val)
   }
 
   protected sendError(err: Error): void {
-    sendRootError(this.subscriber, err)
+    sendErrorInTx(this.subscriber, err)
   }
 
   protected sendEnd(): void {
     this.owner.ended = true
-    sendRootEnd(this.subscriber)
+    sendEndInTx(this.subscriber)
   }
 }

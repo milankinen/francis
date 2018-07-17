@@ -1,9 +1,9 @@
 import {
   NONE,
   NOOP_SUBSCRIPTION,
-  sendEndSafely,
-  sendErrorSafely,
-  sendNextSafely,
+  sendEnd,
+  sendError,
+  sendNext,
   Source,
   Subscriber,
   Subscription,
@@ -101,7 +101,7 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
       const project = this.p
       const result = project(this.val, this.sample)
       this.sample = NONE
-      sendNextSafely(tx, this.sink, result)
+      sendNext(tx, this.sink, result)
     } else {
       this.sample = NONE
     }
@@ -109,11 +109,11 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
   }
 
   public joinError(tx: Transaction, err: Error): void {
-    sendErrorSafely(tx, this.sink, err)
+    sendError(tx, this.sink, err)
   }
 
   public joinEnd(tx: Transaction): void {
-    sendEndSafely(tx, this.sink)
+    sendEnd(tx, this.sink)
   }
 }
 

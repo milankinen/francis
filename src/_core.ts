@@ -37,25 +37,25 @@ export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscript
   public reorder(order: number): void {}
 }()
 
-export function sendRootNext<T>(subscriber: Subscriber<T>, val: T): void {
+export function sendNextInTx<T>(subscriber: Subscriber<T>, val: T): void {
   const tx = new Transaction()
-  sendNextSafely(tx, subscriber, val)
+  sendNext(tx, subscriber, val)
   tx.executePending()
 }
 
-export function sendRootEnd(subscriber: Subscriber<any>): void {
+export function sendEndInTx(subscriber: Subscriber<any>): void {
   const tx = new Transaction()
-  sendEndSafely(tx, subscriber)
+  sendEnd(tx, subscriber)
   tx.executePending()
 }
 
-export function sendRootError(subscriber: Subscriber<any>, err: Error): void {
+export function sendErrorInTx(subscriber: Subscriber<any>, err: Error): void {
   const tx = new Transaction()
-  sendErrorSafely(tx, subscriber, err)
+  sendError(tx, subscriber, err)
   tx.executePending()
 }
 
-export function sendNextSafely<T>(tx: Transaction, s: Subscriber<T>, val: T): void {
+export function sendNext<T>(tx: Transaction, s: Subscriber<T>, val: T): void {
   try {
     s.next(tx, val)
   } catch (err) {
@@ -63,12 +63,12 @@ export function sendNextSafely<T>(tx: Transaction, s: Subscriber<T>, val: T): vo
   }
 }
 
-export function sendErrorSafely<T>(tx: Transaction, s: Subscriber<T>, err: Error): void {
+export function sendError<T>(tx: Transaction, s: Subscriber<T>, err: Error): void {
   // TODO: try-catch
   s.error(tx, err)
 }
 
-export function sendEndSafely<T>(tx: Transaction, s: Subscriber<T>): void {
+export function sendEnd<T>(tx: Transaction, s: Subscriber<T>): void {
   // TODO: try-catch
   s.end(tx)
 }
