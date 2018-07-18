@@ -17,9 +17,8 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
   private val: T = NONE
   private ended: boolean = false
 
-  public activate(subscriber: Subscriber<T>): void {
-    this.replayState(subscriber)
-    super.activate(subscriber)
+  public activate(subscriber: Subscriber<T>, initialNeeded: boolean): void {
+    super.activate(subscriber, initialNeeded && this.replayState(subscriber))
   }
 
   public next(tx: Transaction, val: T): void {
@@ -31,13 +30,14 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
     this.sink.end(tx)
   }
 
-  // invoked when state must be replayed
-  private replayState(subscriber: Subscriber<T>): void {
+  private replayState(subscriber: Subscriber<T>): boolean {
     const { val, ended } = this
     const hasVal = val !== NONE
-    if (hasVal || ended) {
+    const hasInitial = hasVal || ended
+    if (hasInitial) {
       hasVal && sendNextInTx(subscriber, val)
       ended === true && sendEndInTx(subscriber)
     }
+    return !hasInitial
   }
 }

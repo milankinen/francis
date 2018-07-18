@@ -33,11 +33,11 @@ export class IndexedSource<T> implements Source<Indexed<T>>, Subscription {
     this.ies = NOOP_IES
   }
 
-  public activate(): void {
+  public activate(initialNeeded: boolean): void {
     const { subs } = this
     let n = subs.length
     while (n--) {
-      subs[n].activate()
+      subs[n].activate(initialNeeded)
     }
   }
 

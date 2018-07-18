@@ -34,8 +34,8 @@ export abstract class Operator<A, B> implements Subscriber<A>, Source<B>, Subscr
     return this
   }
 
-  public activate(): void {
-    this.subs.activate()
+  public activate(initialNeeded: boolean): void {
+    this.subs.activate(initialNeeded)
   }
 
   public reorder(order: number): void {

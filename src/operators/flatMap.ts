@@ -213,7 +213,8 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDe
 
 function activateInnerSubscription(subscription: Subscription) {
   stepIn()
-  subscription.activate()
+  const initialNeeded = true
+  subscription.activate(initialNeeded)
   stepOut()
 }
 

@@ -10,7 +10,7 @@ export interface Subscriber<T> {
 }
 
 export interface Subscription {
-  activate(): void
+  activate(initialNeeded: boolean): void
 
   dispose(): void
 
@@ -32,7 +32,7 @@ export const NOOP_SUBSCRIBER = new class NoopSubscriber implements Subscriber<an
 }()
 
 export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscription {
-  public activate(): void {}
+  public activate(initialNeeded: boolean): void {}
   public dispose(): void {}
   public reorder(order: number): void {}
 }()

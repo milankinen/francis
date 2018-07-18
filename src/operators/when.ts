@@ -136,8 +136,8 @@ class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
     return this
   }
 
-  public activate(): void {
-    return this.sub.activate()
+  public activate(initialNeeded: boolean): void {
+    return this.sub.activate(initialNeeded)
   }
 
   public dispose(): void {

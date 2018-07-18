@@ -5,8 +5,9 @@ import { handleActivations } from "../scheduler/index"
 
 export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>): void {
   const subs = observable.src.subscribe(runner, 0)
+  const initialNeeded = true
   runner.setSubscription(subs)
-  subs.activate()
+  subs.activate(initialNeeded)
   handleActivations()
 }
 

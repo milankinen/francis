@@ -36,7 +36,7 @@ class Take<T> extends Operator<T, T> implements Invokeable<undefined> {
     }
   }
 
-  public activate(): void {
+  public activate(initialNeeded: boolean): void {
     if (this.n === 0) {
       if (this.isProp) {
         this.invoke()
@@ -44,7 +44,7 @@ class Take<T> extends Operator<T, T> implements Invokeable<undefined> {
         scheduleActivationTask(invoke(this))
       }
     } else {
-      super.activate()
+      super.activate(initialNeeded)
     }
   }
 

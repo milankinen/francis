@@ -133,9 +133,9 @@ class SVSource<S, V> implements Source<S>, Subscription {
     return this
   }
 
-  public activate(): void {
-    this.vSubs.activate()
-    this.sSubs.activate()
+  public activate(initialNeeded: boolean): void {
+    this.vSubs.activate(initialNeeded)
+    this.sSubs.activate(initialNeeded)
   }
 
   public reorder(order: number): void {

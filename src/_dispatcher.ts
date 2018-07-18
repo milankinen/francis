@@ -33,10 +33,10 @@ export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
     }
   }
 
-  public activate(subscriber: Subscriber<T>): void {
+  public activate(subscriber: Subscriber<T>, initialNeeded: boolean): void {
     if (!this.active) {
       this.active = true
-      this.subs.activate()
+      this.subs.activate(initialNeeded)
     }
   }
 
@@ -187,9 +187,9 @@ class MulticastSubscription<T> implements Subscription {
     this.d = dispatcher
   }
 
-  public activate(): void {
+  public activate(initialNeeded: boolean): void {
     this.n.a = true
-    this.d.activate(this.n.s)
+    this.d.activate(this.n.s, initialNeeded)
   }
 
   public dispose(): void {

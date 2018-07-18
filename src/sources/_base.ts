@@ -46,7 +46,7 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
     }
   }
 
-  public activate(): void {
+  public activate(initialNeeded: boolean): void {
     if (this.owner.sync) {
       this.run()
     } else {

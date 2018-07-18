@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.Property emits it's initial state (if any) synchronously 1`] = `
+Array [
+  Next {
+    "value": "Has initial state",
+  },
+  End {},
+  Sync {},
+  Next {
+    "value": "Doesn't have initial state",
+  },
+  End {},
+]
+`;
+
+exports[`F.Property replays its latest state between activations 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 0,
+    },
+    Next {
+      "value": 1,
+    },
+    End {},
+  ],
+  "second": Array [
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 2,
+    },
+    Next {
+      "value": 3,
+    },
+    End {},
+  ],
+}
+`;
+
+exports[`F.Property replays its latest state only once 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+]
+`;
