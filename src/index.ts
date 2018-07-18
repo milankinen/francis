@@ -30,6 +30,7 @@ export {
 export { toProperty } from "./operators/toProperty"
 export { sampleBy, sampleWith } from "./operators/sample"
 export { startWith } from "./operators/startWith"
+export { and, or, not } from "./operators/logic"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"

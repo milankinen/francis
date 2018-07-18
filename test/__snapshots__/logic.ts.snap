@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Property.and returns first falsy value or latest if both are truthy 1`] = `
+Array [
+  Array [
+    "true and true => true",
+  ],
+  Array [
+    "true and false => false",
+  ],
+  Array [
+    "false and true => false",
+  ],
+  Array [
+    "false and false => false",
+  ],
+]
+`;
+
+exports[`Property.not returns boolean negating the value of property 1`] = `
+Array [
+  Array [
+    "NOT \\"\\" => true",
+  ],
+  Array [
+    "NOT true => false",
+  ],
+  Array [
+    "NOT \\"tsers\\" => false",
+  ],
+  Array [
+    "NOT 0 => true",
+  ],
+  Array [
+    "NOT 123 => false",
+  ],
+  Array [
+    "NOT {} => false",
+  ],
+]
+`;
+
+exports[`Property.or returns first truthy value or latest if both are falsy 1`] = `
+Array [
+  Array [
+    "true and true => true",
+  ],
+  Array [
+    "true and false => true",
+  ],
+  Array [
+    "false and true => true",
+  ],
+  Array [
+    "false and false => false",
+  ],
+]
+`;

@@ -6,6 +6,7 @@ import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
 import * as FlatMap from "./operators/flatMap"
 import * as Log from "./operators/log"
+import * as Logic from "./operators/logic"
 import * as Map from "./operators/map"
 import * as Sample from "./operators/sample"
 import * as StartWith from "./operators/startWith"
@@ -74,6 +75,9 @@ declare module "./Property" {
     sampledBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
     sampledBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
     startWith(value: A): Property<A>
+    and<B>(other: Property<B>): Property<Logic.AndResult<A, B>>
+    or<B>(other: Property<B>): Property<Logic.OrResult<A, B>>
+    not<B>(): Property<boolean>
   }
 }
 
@@ -176,6 +180,18 @@ Property.prototype["sampledBy"] = function<A, B, C>(
 ): any {
   const fn = toFunction(f === undefined ? (v: A, s: B) => v as any : f, rest)
   return Sample.sampleWith(sampler, fn, this)
+}
+
+Property.prototype["and"] = function<A, B>(other: Property<B>): Property<Logic.AndResult<A, B>> {
+  return Logic.and(this, other)
+}
+
+Property.prototype["or"] = function<A, B>(other: Property<B>): Property<Logic.OrResult<A, B>> {
+  return Logic.or(this, other)
+}
+
+Property.prototype["not"] = function<A>(): Property<boolean> {
+  return Logic.not(this)
 }
 
 // factory functions
