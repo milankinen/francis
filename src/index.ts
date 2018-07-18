@@ -33,4 +33,5 @@ export { startWith } from "./operators/startWith"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"
+export { onValue } from "./operators/onValue"
 export { log } from "./operators/log"

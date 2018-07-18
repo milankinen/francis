@@ -1,4 +1,4 @@
-import { Dispose, Handler, Predicate, Projection } from "./_interfaces"
+import { Dispose, Handler, Predicate, Projection, ValueHandler } from "./_interfaces"
 import { toFunction, toFunctionsPropAsIs } from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
@@ -10,6 +10,7 @@ import * as Map from "./operators/map"
 import * as Sample from "./operators/sample"
 import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
+import * as OnValue from "./operators/onValue"
 import * as Take from "./operators/take"
 import * as ToProperty from "./operators/toProperty"
 import { Property } from "./Property"
@@ -17,6 +18,7 @@ import { Property } from "./Property"
 declare module "./Observable" {
   interface Observable<A> {
     subscribe(handler: Handler<A>): Dispose
+    onValue(f: ValueHandler<A>): Dispose
     log(label?: string): Dispose
     map<B>(project: Projection<A, B>): Observable<B>
     filter(predicate: Predicate<A> | Property<any>): Observable<A>
@@ -83,6 +85,10 @@ export type SampleFn<V, S, R> = (value: V, sample: S) => R
 
 Observable.prototype["subscribe"] = function<A>(handler: Handler<A>): Dispose {
   return Subscribe.subscribe(handler, this)
+}
+
+Observable.prototype["onValue"] = function<A>(f: ValueHandler<A>): Dispose {
+  return OnValue.onValue(f, this)
 }
 
 Observable.prototype["log"] = function(label?: string): Dispose {

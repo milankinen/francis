@@ -14,6 +14,8 @@ export type AnyObs<A> = Property<A> | EventStream<A>
 
 export type Handler<T> = (event: AnyEvent<T>) => typeof Event.noMore | any
 
+export type ValueHandler<T> = (val: T) => typeof Event.noMore | any
+
 export type SinkEvent<T> = T | AnyEvent<T> | Array<T | AnyEvent<T>>
 
 export type SinkResult = typeof Event.noMore | typeof Event.more
