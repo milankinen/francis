@@ -1,9 +1,9 @@
 import { __DEVBUILD__, assert } from "../_assert"
 import { NONE, sendNext } from "../_core"
 import { toObservable } from "../_interrop"
-import { makeProperty } from "../_obs"
+import { isObservable, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
-import { isArray } from "../_util"
+import { isArray, isObject } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { constant } from "../sources/single"
@@ -52,6 +52,42 @@ export function combineAsArray<T>(...observables: any[]): Property<T[]> {
     return _combine<T, T[]>(slice, observables[0])
   } else {
     return _combine<T, T[]>(slice, observables)
+  }
+}
+
+export type CombinedTemplate<O> = {
+  [K in keyof O]: O[K] extends Observable<infer I>
+    ? I
+    : O[K] extends Record<any, any> ? CombinedTemplate<O[K]> : O[K]
+}
+
+export function combineTemplate<T>(template: T): Observable<CombinedTemplate<T>> {
+  const observables = [] as Array<Observable<any>>
+  const constants = [] as any[]
+  function collect(obj: any): string {
+    const props = [] as string[]
+    Object.keys(obj).forEach(key => {
+      const val: any = obj[key]
+      const skey = JSON.stringify(key)
+      if (isObservable(val)) {
+        props.push(`${skey}:o[${observables.length}]`)
+        observables.push(val)
+      } else if (isObject(val)) {
+        props.push(`${skey}:${collect(val)}`)
+      } else {
+        props.push(`${skey}:c[${constants.length}]`)
+        constants.push(val)
+      }
+    })
+    return "{" + props.join(",") + "}"
+  }
+  const collected = collect(template)
+  if (observables.length === 0) {
+    return constant(template) as any
+  } else {
+    const createPlainObject: any = new Function("o", "c", `return ${collected};`)
+    const fn = (combined: any[]) => createPlainObject(combined, constants)
+    return _combine(fn, observables) as any
   }
 }
 

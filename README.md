@@ -35,7 +35,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `Bus`
 - [ ] `fromCallback`
 - [ ] `fromNodeCallback`
-- [ ] `combineTemplate`
+- [x] `combineTemplate`
 - [x] `fromArray`
 - [ ] `fromESObservable`
 - [ ] `fromEventTarget`

@@ -18,7 +18,7 @@ export { map } from "./operators/map"
 export { filter } from "./operators/filter"
 export { take } from "./operators/take"
 export { first } from "./operators/first"
-export { combineAsArray } from "./operators/combine"
+export { combineAsArray, combineTemplate } from "./operators/combine"
 export { when } from "./operators/when"
 export {
   flatMap,

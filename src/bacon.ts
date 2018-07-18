@@ -179,7 +179,7 @@ export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"
 export { later } from "./sources/later"
-export { combineAsArray } from "./operators/combine"
+export { combineAsArray, combineTemplate } from "./operators/combine"
 export { when } from "./operators/when"
 export { fromBinder } from "./sources/fromBinder"
 

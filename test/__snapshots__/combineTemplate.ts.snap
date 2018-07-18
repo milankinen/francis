@@ -1,0 +1,72 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.combineTemplate has working typings 1`] = `
+Array [
+  Next {
+    "value": Object {
+      "barMsg": "TSERS!",
+      "barNestedNum": 125,
+      "firstLol": 1,
+    },
+  },
+  Next {
+    "value": Object {
+      "barMsg": "TSERS!",
+      "barNestedNum": 125,
+      "firstLol": 1,
+    },
+  },
+  End {},
+]
+`;
+
+exports[`F.combineTemplate transforms every value from the given template object into plain value 1`] = `
+Array [
+  Next {
+    "value": Object {
+      "bar": Object {
+        "msg": "tsers!",
+        "nested": Object {
+          "num": 123,
+        },
+        "num": 10,
+      },
+      "foo": "lol",
+      "lol": Array [
+        1,
+        2,
+        3,
+      ],
+    },
+  },
+  Next {
+    "value": Object {
+      "bar": Object {
+        "msg": "tsers!",
+        "nested": Object {
+          "num": 123,
+        },
+        "num": 10,
+      },
+      "foo": "bal",
+      "lol": Array [
+        1,
+        2,
+        3,
+      ],
+    },
+  },
+  End {},
+]
+`;
+
+exports[`F.combineTemplate works with zero observables in the template 1`] = `
+Array [
+  Next {
+    "value": Object {
+      "lol": "bal",
+    },
+  },
+  End {},
+]
+`;
