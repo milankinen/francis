@@ -4,4 +4,115 @@
 [![npm](https://img.shields.io/npm/v/francis.svg?style=flat-square)](https://www.npmjs.com/package/francis)
 [![Bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/francis.svg?style=flat-square)](https://bundlephobia.com/result?p=francis)
 
-`WIP`
+## Status
+
+Won't do operators marked with ~~strikethrough~~
+
+- [ ] `changes`
+- [ ] `withHandler`
+- [x] `toProperty`
+- [ ] `and`
+- [ ] `or`
+- [ ] `concat`
+- [ ] `bufferingThrottle`
+- [x] `sampledBy`
+- [ ] `sample`
+- [ ] `startWith`
+- [ ] `toEventStream`
+- [ ] `toString`
+- [ ] `Desc`
+- [ ] ~~`spy`~~
+- [x] `never`
+- [x] `constant`
+- [x] `when`
+- [x] `combineAsArray`
+- [ ] `onValues`
+- [ ] `combineWith`
+- [x] `once`
+- [ ] `concatAll`
+- [ ] `fromBinder`
+- [x] `later`
+- [ ] `Bus`
+- [ ] `fromCallback`
+- [ ] `fromNodeCallback`
+- [ ] `combineTemplate`
+- [x] `fromArray`
+- [ ] `fromESObservable`
+- [ ] `fromEventTarget`
+- [ ] `fromEvent`
+- [x] `fromPoll`
+- [ ] `fromPromise`
+- [ ] `interval`
+- [ ] `$.asEventStream`
+- [ ] `mergeAll`
+- [ ] `repeatedly`
+- [ ] `repeat`
+- [ ] `retry`
+- [x] `sequentially`
+- [ ] `try`
+- [ ] `update`
+- [ ] `zipAsArray`
+- [ ] `zipWith`
+- [x] `subscribe`
+- [ ] `onValue`
+- [ ] `onError`
+- [ ] `onEnd`
+- [ ] ~~`name`~~
+- [ ] `withDescription`
+- [ ] ~~`deps`~~
+- [ ] ~~`internalDeps`~~
+- [ ] `assign`
+- [ ] `inspect`
+- [x] `map`
+- [ ] `withStateMachine`
+- [ ] `skipDuplicates`
+- [ ] `awaiting`
+- [ ] `combine`
+- [ ] `not`
+- [x] `filter`
+- [x] `flatMapWithConcurrencyLimit`
+- [x] `flatMapConcat`
+- [x] `flatMap`
+- [ ] `mapEnd`
+- [ ] `skipErrors`
+- [ ] `takeUntil`
+- [x] `flatMapLatest`
+- [ ] `delay`
+- [ ] `debounce`
+- [ ] `debounceImmediate`
+- [ ] `decode`
+- [ ] `scan`
+- [ ] `diff`
+- [ ] `doAction`
+- [ ] `doEnd`
+- [ ] `doError`
+- [ ] `doLog`
+- [ ] `endOnError`
+- [ ] `errors`
+- [ ] `toESObservable`
+- [x] `take`
+- [x] `first`
+- [x] `flatMapFirst`
+- [ ] `mapError`
+- [ ] `flatMapError`
+- [ ] `flatScan`
+- [ ] `fold`
+- [ ] `reduce`
+- [ ] `groupBy`
+- [ ] `last`
+- [x] `log`
+- [ ] `skip`
+- [ ] `slidingWindow`
+- [ ] `takeWhile`
+- [ ] `throttle`
+- [ ] `firstToPromise`
+- [ ] `toPromise`
+- [ ] `zip`
+- [ ] `bufferWithTime`
+- [ ] `bufferWithCount`
+- [ ] `bufferWithTimeOrCount`
+- [ ] `buffer`
+- [ ] `holdWhen`
+- [ ] `merge`
+- [ ] `skipUntil`
+- [ ] `skipWhile`
