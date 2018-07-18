@@ -11,8 +11,8 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `changes`
 - [ ] `withHandler`
 - [x] `toProperty`
-- [ ] `and`
-- [ ] `or`
+- [x] `and`
+- [x] `or`
 - [ ] `concat`
 - [ ] `bufferingThrottle`
 - [x] `sampledBy`
@@ -54,7 +54,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `zipAsArray`
 - [ ] `zipWith`
 - [x] `subscribe`
-- [ ] `onValue`
+- [x] `onValue`
 - [ ] `onError`
 - [ ] `onEnd`
 - [ ] ~~`name`~~
@@ -68,7 +68,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `skipDuplicates`
 - [ ] `awaiting`
 - [ ] `combine`
-- [ ] `not`
+- [x] `not`
 - [x] `filter`
 - [x] `flatMapWithConcurrencyLimit`
 - [x] `flatMapConcat`
