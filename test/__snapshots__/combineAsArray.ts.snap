@@ -201,6 +201,43 @@ Array [
 ]
 `;
 
+exports[`F.combineAsArray remembers it's state (received values) between subscriptions 1`] = `
+Array [
+  Next {
+    "value": Array [
+      "foo",
+      "bar",
+      "lol",
+    ],
+  },
+  Next {
+    "value": Array [
+      "foo",
+      "bar",
+      "bal",
+    ],
+  },
+  End {},
+  "subscribe again...",
+  Next {
+    "value": Array [
+      "foo",
+      "bar",
+      "bal",
+    ],
+  },
+  Sync {},
+  Next {
+    "value": Array [
+      "foo",
+      "bar",
+      "tsers",
+    ],
+  },
+  End {},
+]
+`;
+
 exports[`F.combineAsArray works with arrays as values 1`] = `
 Array [
   Next {

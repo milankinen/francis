@@ -75,19 +75,25 @@ export function _combine<A, B>(
 
 class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber<A> {
   private vals: A[]
-  private has!: boolean
-  private nWaitV!: number
-  private nWaitE!: number
+  private has: boolean
+  private nWaitV: number
+  private nWaitE: number
 
   constructor(source: IndexedSource<A>, private f: (vals: A[]) => B) {
     super(source)
     source.setEndSubscriber(this)
-    this.vals = Array(source.size())
-    this.resetState()
+    let n = (this.nWaitE = this.nWaitV = source.size())
+    this.has = false
+    this.vals = Array(n)
+    while (n--) this.vals[n] = NONE
   }
 
   public dispose(): void {
-    this.resetState()
+    // Ended streams/props will re-emit the end event after activation so we need
+    // to reset the end wait counter. However, only properties emit their latest
+    // value so we can't reset that information - otherwise we might lose some information
+    // between activations
+    this.nWaitE = this.vals.length
     super.dispose()
   }
 
@@ -126,13 +132,6 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
 
   public joinEnd(tx: Transaction) {
     this.sink.end(tx)
-  }
-
-  private resetState(): void {
-    let n = (this.nWaitE = this.nWaitV = this.vals.length)
-    this.has = false
-    while (n--) this.vals[n] = NONE
-    this.abortJoin()
   }
 }
 

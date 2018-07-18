@@ -113,4 +113,21 @@ describe("F.combineAsArray", () => {
     })
     expect(recording).toMatchSnapshot()
   })
+
+  it("remembers it's state (received values) between subscriptions", () => {
+    const recording = run((record, wait) => {
+      const combined = F.combineAsArray([
+        F.once("foo"),
+        F.once("bar"),
+        F.sequentially(10, ["lol", "bal", "tsers"]),
+      ])
+      combined.take(2).subscribe(record)
+      wait(100, () => {
+        record("subscribe again...")
+        combined.subscribe(record)
+        record(Sync)
+      })
+    })
+    expect(recording).toMatchSnapshot()
+  })
 })
