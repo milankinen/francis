@@ -6,6 +6,8 @@ export type Projection<A, B> = (val: A) => B
 
 export type Predicate<A> = (val: A) => boolean
 
+export type Accum<S, T> = (state: S, value: T) => S
+
 export type Dispose = () => void
 
 export type AnyEvent<T> = Event.Next<T> | Event.Error | Event.End

@@ -21,6 +21,7 @@ export { take } from "./operators/take"
 export { first } from "./operators/first"
 export { combineAsArray, combineTemplate } from "./operators/combine"
 export { when } from "./operators/when"
+export { scan } from "./operators/scan"
 export {
   flatMap,
   flatMapConcat,

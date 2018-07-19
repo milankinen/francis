@@ -81,7 +81,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `debounce`
 - [ ] `debounceImmediate`
 - [ ] `decode`
-- [ ] `scan`
+- [x] `scan`
 - [ ] `diff`
 - [ ] `doAction`
 - [ ] `doEnd`

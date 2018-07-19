@@ -1,4 +1,4 @@
-import { Dispose, Handler, Predicate, Projection, ValueHandler } from "./_interfaces"
+import { Accum, Dispose, Handler, Predicate, Projection, ValueHandler } from "./_interfaces"
 import { toFunction, toFunctionsPropAsIs } from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
@@ -10,6 +10,7 @@ import * as Logic from "./operators/logic"
 import * as Map from "./operators/map"
 import * as OnValue from "./operators/onValue"
 import * as Sample from "./operators/sample"
+import * as Scan from "./operators/scan"
 import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
@@ -34,6 +35,7 @@ declare module "./Observable" {
       project: Projection<A, B | Observable<B>>,
     ): Observable<B>
     startWith(value: A): Observable<A>
+    scan<B>(seed: B, f: Accum<B, A>): Property<B>
   }
 }
 
@@ -161,6 +163,14 @@ Observable.prototype["flatMapWithConcurrencyLimit"] = function<A, B>(
 
 Observable.prototype["startWith"] = function<A>(value: A): Observable<A> {
   return StartWith.startWith(value, this)
+}
+
+Observable.prototype["scan"] = function<A, B>(
+  seed: B,
+  f: Accum<B, A>,
+  ...rest: any[]
+): Property<B> {
+  return Scan.scan(seed, toFunction(f, rest), this)
 }
 
 // EventStream specific operators
