@@ -25,7 +25,6 @@ class StartWithP<T> extends Operator<T, T> {
   // flag indicating whether we have an existing initial value for property or not
   // if this flag is set to true, there is no point running this operator anymore
   private has: boolean = false
-
   constructor(source: Source<T>, private readonly value: T) {
     super(source)
   }
@@ -35,15 +34,15 @@ class StartWithP<T> extends Operator<T, T> {
     this.sendInitial()
   }
 
-  public sendInitial(): void {
+  public next(tx: Transaction, val: T): void {
+    this.has = true
+    this.sink.next(tx, val)
+  }
+
+  private sendInitial(): void {
     if (this.active && !this.has) {
       this.has = true
       sendNextInTx(this.sink, this.value)
     }
-  }
-
-  public next(tx: Transaction, val: T): void {
-    this.has = true
-    this.sink.next(tx, val)
   }
 }

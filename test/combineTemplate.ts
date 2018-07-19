@@ -1,5 +1,5 @@
 import * as F from "../bacon"
-import { byLabel, labeled, run, Sync } from "./_base"
+import { run } from "./_base"
 
 describe("F.combineTemplate", () => {
   it("results in Property", () => {
