@@ -204,6 +204,7 @@ export { later } from "./sources/later"
 export { combineAsArray, combineTemplate } from "./operators/combine"
 export { when } from "./operators/when"
 export { fromBinder } from "./sources/fromBinder"
+export { never } from "./sources/never"
 
 // classes and interfaces
 

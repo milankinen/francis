@@ -4,12 +4,12 @@ import { EventStream } from "../EventStream"
 import { identity } from "../operators/_base"
 import { Activation, Root } from "./_base"
 
-export function once<T>(value: T): EventStream<T> {
-  return makeEventStream(identity(new Never(value)))
+export function never<T>(): EventStream<T> {
+  return makeEventStream(identity(new Never<T>()))
 }
 
 class Never<T> extends Root<T> {
-  constructor(public val: T) {
+  constructor() {
     super(false)
   }
 

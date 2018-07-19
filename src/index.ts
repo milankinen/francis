@@ -12,6 +12,7 @@ export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"
 export { later } from "./sources/later"
 export { fromBinder } from "./sources/fromBinder"
+export { never } from "./sources/never"
 
 // operators
 export { map } from "./operators/map"

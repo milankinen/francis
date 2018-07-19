@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.never ends asynchronously 1`] = `
+Array [
+  Sync {},
+  End {},
+]
+`;
