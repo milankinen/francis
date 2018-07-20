@@ -1,3 +1,4 @@
+import { assert } from "./_assert"
 import { Accum, Dispose, Handler, Predicate, Projection, ValueHandler } from "./_interfaces"
 import { toFunction, toFunctionsPropAsIs } from "./_interrop"
 import { EventStream } from "./EventStream"
@@ -14,6 +15,7 @@ import * as Scan from "./operators/scan"
 import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
+import * as ToEventStream from "./operators/toEventStream"
 import * as ToProperty from "./operators/toProperty"
 import { Property } from "./Property"
 
@@ -41,6 +43,7 @@ declare module "./Observable" {
 
 declare module "./EventStream" {
   interface EventStream<A> {
+    toProperty(initialValue?: A): Property<A>
     map<B>(project: Projection<A, B>): EventStream<B>
     filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
@@ -53,13 +56,14 @@ declare module "./EventStream" {
       limit: number,
       project: Projection<A, B | Observable<B>>,
     ): EventStream<B>
-    toProperty(initialValue?: A): Property<A>
     startWith(value: A): EventStream<A>
+    zip<B, C>(other: Observable<B>, f: (a: A, b: B) => C): EventStream<C>
   }
 }
 
 declare module "./Property" {
   interface Property<A> {
+    toEventStream(): EventStream<A>
     map<B>(project: Projection<A, B>): Property<B>
     filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
@@ -181,6 +185,11 @@ EventStream.prototype["toProperty"] = function<A>(initialValue?: A): Property<A>
     : StartWith._startWithP(initialValue, ToProperty.toProperty(this))
 }
 
+const esProto = EventStream.prototype as any
+esProto["toEventStream"] = function<A>(): EventStream<A> {
+  return this
+}
+
 // Property specific operators
 
 Property.prototype["sampledBy"] = function<A, B, C>(
@@ -204,7 +213,17 @@ Property.prototype["not"] = function<A>(): Property<boolean> {
   return Logic.not(this)
 }
 
-// factory functions
+const pProto = Property.prototype as any
+pProto["toProperty"] = function<A>(initialValue?: A): Property<A> {
+  assert(arguments.length === 0, "No arguments supported")
+  return this
+}
+
+Property.prototype["toEventStream"] = function<A>(): EventStream<A> {
+  return ToEventStream.toEventStream(this)
+}
+
+// static operators
 
 export { once, constant } from "./sources/single"
 export { fromArray } from "./sources/fromArray"

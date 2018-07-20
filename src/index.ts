@@ -30,6 +30,7 @@ export {
   flatMapWithConcurrencyLimit,
 } from "./operators/flatMap"
 export { toProperty } from "./operators/toProperty"
+export { toEventStream } from "./operators/toEventStream"
 export { sampleBy, sampleWith } from "./operators/sample"
 export { startWith } from "./operators/startWith"
 export { and, or, not } from "./operators/logic"

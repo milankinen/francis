@@ -7,16 +7,6 @@ export enum EventType {
   END = 3,
 }
 
-/**
- * This function is meant for actual sources (e.g. once, fromArray etc..) to
- * enable multicasting (thus keeping the source's codebase clean)
- *
- * @param source Unicasted "bare" source
- */
-export function identity<T>(source: Source<T>): Operator<T, T> {
-  return new Identity(source)
-}
-
 export abstract class Operator<A, B> implements Subscriber<A>, Source<B>, Subscription {
   public readonly weight: number
 
@@ -70,7 +60,17 @@ export abstract class Operator<A, B> implements Subscriber<A>, Source<B>, Subscr
   }
 }
 
-class Identity<T> extends Operator<T, T> {
+/**
+ * This function is meant for actual sources (e.g. once, fromArray etc..) to
+ * enable multicasting (thus keeping the source's codebase clean)
+ *
+ * @param source Unicasted "bare" source
+ */
+export function identity<T>(source: Source<T>): Operator<T, T> {
+  return new Identity(source)
+}
+
+export class Identity<T> extends Operator<T, T> {
   public next(tx: Transaction, val: T): void {
     this.sink.next(tx, val)
   }

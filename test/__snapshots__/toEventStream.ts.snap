@@ -1,0 +1,17 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Observable.toEventStream responds asynchronously 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;

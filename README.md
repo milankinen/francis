@@ -18,7 +18,7 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `sampledBy`
 - [ ] `sample`
 - [ ] `startWith`
-- [ ] `toEventStream`
+- [x] `toEventStream`
 - [ ] `toString`
 - [ ] `Desc`
 - [ ] ~~`spy`~~
