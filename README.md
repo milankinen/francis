@@ -51,8 +51,8 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `sequentially`
 - [ ] `try`
 - [ ] `update`
-- [ ] `zipAsArray`
-- [ ] `zipWith`
+- [x] `zipAsArray`
+- [x] `zipWith`
 - [x] `subscribe`
 - [x] `onValue`
 - [ ] `onError`
@@ -107,7 +107,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `throttle`
 - [ ] `firstToPromise`
 - [ ] `toPromise`
-- [ ] `zip`
+- [x] `zip`
 - [ ] `bufferWithTime`
 - [ ] `bufferWithCount`
 - [ ] `bufferWithTimeOrCount`

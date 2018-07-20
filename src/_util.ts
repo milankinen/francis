@@ -26,3 +26,7 @@ export function isArray(x: any): x is Array<any> {
 export function isObject(x: any): x is Object {
   return !!x && typeof x === "object" && !isArray(x)
 }
+
+export function slice<T>(arr: T[]): T[] {
+  return arr.slice()
+}

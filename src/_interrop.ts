@@ -1,6 +1,6 @@
 import { __DEVBUILD__, assert } from "./_assert"
 import { isObservable } from "./_obs"
-import { isFunction, isObject } from "./_util"
+import { isArray, isFunction, isObject } from "./_util"
 import { Observable } from "./Observable"
 import { isProperty } from "./Property"
 import { constant } from "./sources/single"
@@ -42,6 +42,19 @@ export function toFunctionsPropAsIs<T>(propertyOrMaybeFn: T, extraArgs: any[]): 
   return isProperty(propertyOrMaybeFn)
     ? propertyOrMaybeFn
     : toFunction(propertyOrMaybeFn, extraArgs)
+}
+
+export function argsToObservables(args: any[]): Array<Observable<any>> {
+  return isArray(args[0]) ? args[0] : args
+}
+
+export function argsToObservablesAndFunction(
+  args: any[],
+): [Array<Observable<any>>, (...fargs: any[]) => any] {
+  const lastIdx = args.length - 1
+  return isFunction(args[0])
+    ? [argsToObservables(args.slice(1)), args[0]]
+    : [argsToObservables(args.slice(0, lastIdx)), args[lastIdx]]
 }
 
 function constantly(x: any): any {

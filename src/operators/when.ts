@@ -16,6 +16,10 @@ import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { JoinOperator } from "./_join"
 
 export function when(...patternsAndHandlers: any[]): EventStream<any> {
+  return _when(patternsAndHandlers, true)
+}
+
+export function _when(patternsAndHandlers: any[], spreadHandlerArgs: boolean): EventStream<any> {
   if (__DEVBUILD__) {
     assert(
       patternsAndHandlers.length > 0 && patternsAndHandlers.length % 2 === 0,
@@ -28,6 +32,7 @@ export function when(...patternsAndHandlers: any[]): EventStream<any> {
   for (let i = 0; i < patternsAndHandlers.length; i += 2) {
     const pattern = patternsAndHandlers[i] as Array<Observable<any>>
     const f = patternsAndHandlers[i + 1] as PatternHandler
+    const handler = spreadHandlerArgs ? (args: any[]) => f(...args) : f
     assert(isFunction(f), "Handler must be a function")
     assertPattern(pattern)
     const nIdx: any = {}
@@ -43,7 +48,7 @@ export function when(...patternsAndHandlers: any[]): EventStream<any> {
       const ahead: number = isEventStream(obs) ? (nIdx[idx] = (nIdx[idx] || 0) + 1) : 0
       aheads[o] = [idx, ahead]
     }
-    patterns[i / 2] = new Pattern(aheads, f)
+    patterns[i / 2] = new Pattern(aheads, handler)
   }
 
   const sources = Array<Buffered>(idxLookup.size)
@@ -100,7 +105,7 @@ class When extends JoinOperator<Indexed<Buffer>, any, null>
       if (result === READY) {
         const vals = pattern.pop(buffers)
         const handler = pattern.f
-        const toEmit = handler(...vals)
+        const toEmit = handler(vals)
         this.sink.next(tx, toEmit)
         return
       } else if (result === UNREACHABLE) {
@@ -112,6 +117,10 @@ class When extends JoinOperator<Indexed<Buffer>, any, null>
     if (activePatterns.length === 0) {
       this.sink.end(tx)
     }
+  }
+
+  public joinError(tx: Transaction, err: Error): void {
+    this.sink.error(tx, err)
   }
 
   private resetBuffers(): void {

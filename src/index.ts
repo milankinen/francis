@@ -34,6 +34,7 @@ export { toEventStream } from "./operators/toEventStream"
 export { sampleBy, sampleWith } from "./operators/sample"
 export { startWith } from "./operators/startWith"
 export { and, or, not } from "./operators/logic"
+export { zipAsArray, zipWith } from "./operators/zip"
 
 // subscribers / side-effects
 export { subscribe } from "./operators/subscribe"

@@ -1,6 +1,6 @@
 import { assert } from "./_assert"
 import { Accum, Dispose, Handler, Predicate, Projection, ValueHandler } from "./_interfaces"
-import { toFunction, toFunctionsPropAsIs } from "./_interrop"
+import { argsToObservablesAndFunction, toFunction, toFunctionsPropAsIs } from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Filter from "./operators/filter"
@@ -17,6 +17,7 @@ import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as ToEventStream from "./operators/toEventStream"
 import * as ToProperty from "./operators/toProperty"
+import * as Zip from "./operators/zip"
 import { Property } from "./Property"
 
 declare module "./Observable" {
@@ -38,6 +39,7 @@ declare module "./Observable" {
     ): Observable<B>
     startWith(value: A): Observable<A>
     scan<B>(seed: B, f: Accum<B, A>): Property<B>
+    zip<B, C>(other: Observable<B>, f: (a: A, b: B) => C): EventStream<C>
   }
 }
 
@@ -57,7 +59,6 @@ declare module "./EventStream" {
       project: Projection<A, B | Observable<B>>,
     ): EventStream<B>
     startWith(value: A): EventStream<A>
-    zip<B, C>(other: Observable<B>, f: (a: A, b: B) => C): EventStream<C>
   }
 }
 
@@ -177,6 +178,14 @@ Observable.prototype["scan"] = function<A, B>(
   return Scan.scan(seed, toFunction(f, rest), this)
 }
 
+Observable.prototype["zip"] = function<A, B, C>(
+  other: Observable<B>,
+  f: (a: A, b: B) => C,
+  ...rest: any[]
+): EventStream<C> {
+  return Zip.zipWith(toFunction(f, rest), [this, other])
+}
+
 // EventStream specific operators
 
 EventStream.prototype["toProperty"] = function<A>(initialValue?: A): Property<A> {
@@ -234,6 +243,70 @@ export { combineAsArray, combineTemplate } from "./operators/combine"
 export { when } from "./operators/when"
 export { fromBinder } from "./sources/fromBinder"
 export { never } from "./sources/never"
+export { zipAsArray } from "./operators/zip"
+
+export function zipWith<A, T>(f: (a: A) => T, streams: [Observable<A>]): EventStream<T>
+export function zipWith<A, B, T>(
+  f: (a: A, b: B) => T,
+  streams: [Observable<A>, Observable<B>],
+): EventStream<T>
+export function zipWith<A, B, C, T>(
+  f: (a: A, b: B, c: C) => T,
+  streams: [Observable<A>, Observable<B>, Observable<C>],
+): EventStream<T>
+export function zipWith<A, B, C, D, T>(
+  f: (a: A, b: B, c: C, d: D) => T,
+  streams: [Observable<A>, Observable<B>, Observable<C>, Observable<D>],
+): EventStream<T>
+export function zipWith<A, B, C, D, E, T>(
+  f: (a: A, b: B, c: C, d: D, e: E) => T,
+  streams: [Observable<A>, Observable<B>, Observable<C>, Observable<D>, Observable<E>],
+): EventStream<T>
+export function zipWith<A, B, C, D, E, F, T>(
+  f: (a: A, b: B, c: C, d: D, e: E, f: F) => T,
+  streams: [
+    Observable<A>,
+    Observable<B>,
+    Observable<C>,
+    Observable<D>,
+    Observable<E>,
+    Observable<F>
+  ],
+): EventStream<T>
+export function zipWith<A, T>(f: (...args: A[]) => T, streams: A[]): EventStream<T>
+export function zipWith<A, T>(f: (streams: [Observable<A>], a: A) => T): EventStream<T>
+export function zipWith<A, B, T>(
+  streams: [Observable<A>, Observable<B>],
+  f: (a: A, b: B) => T,
+): EventStream<T>
+export function zipWith<A, B, C, T>(
+  streams: [Observable<A>, Observable<B>, Observable<C>],
+  f: (a: A, b: B, c: C) => T,
+): EventStream<T>
+export function zipWith<A, B, C, D, T>(
+  streams: [Observable<A>, Observable<B>, Observable<C>, Observable<D>],
+  f: (a: A, b: B, c: C, d: D) => T,
+): EventStream<T>
+export function zipWith<A, B, C, D, E, T>(
+  streams: [Observable<A>, Observable<B>, Observable<C>, Observable<D>, Observable<E>],
+  f: (a: A, b: B, c: C, d: D, e: E) => T,
+): EventStream<T>
+export function zipWith<A, B, C, D, E, F, T>(
+  streams: [
+    Observable<A>,
+    Observable<B>,
+    Observable<C>,
+    Observable<D>,
+    Observable<E>,
+    Observable<F>
+  ],
+  f: (a: A, b: B, c: C, d: D, e: E, f: F) => T,
+): EventStream<T>
+export function zipWith<A, T>(streams: A[], f: (...args: A[]) => T): EventStream<T>
+export function zipWith(...args: any[]): EventStream<any> {
+  const [observables, f] = argsToObservablesAndFunction(args)
+  return Zip.zipWith(f, observables as any)
+}
 
 // classes and interfaces
 

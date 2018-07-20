@@ -3,7 +3,7 @@ import { NONE, sendNext } from "../_core"
 import { toObservable } from "../_interrop"
 import { isObservable, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
-import { isArray, isObject } from "../_util"
+import { isArray, isObject, slice } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { constant } from "../sources/single"
@@ -169,8 +169,4 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
   public joinEnd(tx: Transaction) {
     this.sink.end(tx)
   }
-}
-
-function slice<T>(arr: T[]): T[] {
-  return arr.slice()
 }

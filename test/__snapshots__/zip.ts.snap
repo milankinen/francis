@@ -1,0 +1,115 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.zipWith accepts array of stream as first param too 1`] = `
+Array [
+  Next {
+    "value": "aA",
+  },
+  Next {
+    "value": "bB",
+  },
+  Next {
+    "value": "cC",
+  },
+  End {},
+]
+`;
+
+exports[`F.zipWith can zip an observable with itself 1`] = `
+Array [
+  Next {
+    "value": "aA",
+  },
+  Next {
+    "value": "bB",
+  },
+  Next {
+    "value": "cC",
+  },
+  End {},
+]
+`;
+
+exports[`F.zipWith completes as soon as possible 1`] = `
+Array [
+  Next {
+    "value": "1a",
+  },
+  End {},
+]
+`;
+
+exports[`F.zipWith fires for Property events too (unlike F.when) 1`] = `
+Array [
+  Next {
+    "value": "12",
+  },
+  Next {
+    "value": "23",
+  },
+  Next {
+    "value": "34",
+  },
+  Next {
+    "value": "45",
+  },
+  End {},
+]
+`;
+
+exports[`F.zipWith pairwise combines values from two streams using given combinator function 1`] = `
+Array [
+  Next {
+    "value": "1a",
+  },
+  Next {
+    "value": "2b",
+  },
+  Next {
+    "value": "3c",
+  },
+  End {},
+]
+`;
+
+exports[`F.zipWith passes through errors 1`] = `
+Array [
+  Error {
+    "error": "lol",
+  },
+  Next {
+    "value": "1a",
+  },
+  Next {
+    "value": "2b",
+  },
+  Error {
+    "error": "bal",
+  },
+  Next {
+    "value": "3c",
+  },
+  End {},
+]
+`;
+
+exports[`F.zipWith works with one stream 1`] = `
+Array [
+  Next {
+    "value": "a",
+  },
+  Next {
+    "value": "b",
+  },
+  Next {
+    "value": "c",
+  },
+  End {},
+]
+`;
+
+exports[`F.zipWith works with zero streams (= F.never()) 1`] = `
+Array [
+  End {},
+]
+`;
