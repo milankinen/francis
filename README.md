@@ -96,8 +96,8 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `mapError`
 - [ ] `flatMapError`
 - [ ] `flatScan`
-- [ ] `fold`
-- [ ] `reduce`
+- [x] `fold`
+- [x] `reduce`
 - [ ] `groupBy`
 - [x] `last`
 - [x] `log`

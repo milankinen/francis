@@ -12,6 +12,7 @@ import * as Concat from "./operators/concat"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
 import * as FlatMap from "./operators/flatMap"
+import * as Fold from "./operators/fold"
 import * as Last from "./operators/last"
 import * as Log from "./operators/log"
 import * as Logic from "./operators/logic"
@@ -48,6 +49,8 @@ declare module "./Observable" {
     ): Observable<B>
     startWith(value: A): Observable<A>
     scan<B>(seed: B, f: Accum<B, A>): Property<B>
+    fold<B>(seed: B, f: Accum<B, A>): Property<B>
+    reduce<B>(seed: B, f: Accum<B, A>): Property<B>
     zip<B, C>(other: Observable<B>, f: (a: A, b: B) => C): EventStream<C>
     merge(other: Observable<A>): EventStream<A>
     concat(other: Observable<A>): EventStream<A>
@@ -191,6 +194,14 @@ Observable.prototype["scan"] = function<A, B>(
   ...rest: any[]
 ): Property<B> {
   return Scan.scan(seed, toFunction(f, rest), this)
+}
+
+Observable.prototype["fold"] = Observable.prototype["reduce"] = function<A, B>(
+  seed: B,
+  f: Accum<B, A>,
+  ...rest: any[]
+): Property<B> {
+  return Fold.fold(seed, toFunction(f, rest), this)
 }
 
 Observable.prototype["zip"] = function<A, B, C>(

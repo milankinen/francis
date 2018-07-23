@@ -25,6 +25,7 @@ export { merge, mergeAll } from "./operators/merge"
 export { concat, concatAll } from "./operators/concat"
 export { when } from "./operators/when"
 export { scan } from "./operators/scan"
+export { fold } from "./operators/fold"
 export {
   flatMap,
   flatMapConcat,
