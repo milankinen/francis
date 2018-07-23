@@ -1,7 +1,7 @@
 import { Dispose } from "../_interfaces"
 import { Transaction } from "../_tx"
 import { Observable } from "../Observable"
-import { EffectRunner, runEffects } from "./_eff"
+import { Eff, runEffects } from "./_eff"
 
 export function log<T>(label: string | undefined, observable: Observable<T>): Dispose {
   const logger = new Logger(label)
@@ -11,7 +11,7 @@ export function log<T>(label: string | undefined, observable: Observable<T>): Di
   }
 }
 
-class Logger<T> extends EffectRunner<T> {
+class Logger<T> extends Eff<T> {
   constructor(private label: string | undefined) {
     super()
   }

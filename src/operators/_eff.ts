@@ -3,15 +3,15 @@ import { Transaction } from "../_tx"
 import { Observable } from "../Observable"
 import { handleActivations } from "../scheduler/index"
 
-export function runEffects<T>(runner: EffectRunner<T>, observable: Observable<T>): void {
-  const subs = observable.src.subscribe(runner, 0)
+export function runEffects<T>(eff: Eff<T>, observable: Observable<T>): void {
+  const subs = observable.src.subscribe(eff, 0)
   const initialNeeded = true
-  runner.setSubscription(subs)
+  eff.setSubscription(subs)
   subs.activate(initialNeeded)
   handleActivations()
 }
 
-export class EffectRunner<T> implements Subscriber<T> {
+export class Eff<T> implements Subscriber<T> {
   private subs: Subscription = NOOP_SUBSCRIPTION
 
   public setSubscription(subscription: Subscription): void {

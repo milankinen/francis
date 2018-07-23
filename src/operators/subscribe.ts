@@ -2,17 +2,17 @@ import { AnyEvent, Dispose, Handler } from "../_interfaces"
 import { Transaction } from "../_tx"
 import * as Event from "../Event"
 import { Observable } from "../Observable"
-import { EffectRunner, runEffects } from "./_eff"
+import { Eff, runEffects } from "./_eff"
 
 export function subscribe<T>(handler: Handler<T>, observable: Observable<T>): Dispose {
-  const eh = new EffHandler(handler)
-  runEffects(eh, observable)
+  const s = new Subscribe(handler)
+  runEffects(s, observable)
   return function dispose(): void {
-    eh.dispose()
+    s.dispose()
   }
 }
 
-class EffHandler<T> extends EffectRunner<T> {
+class Subscribe<T> extends Eff<T> {
   constructor(private handler: Handler<T>) {
     super()
   }
