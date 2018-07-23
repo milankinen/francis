@@ -3,7 +3,7 @@ import { run, Sync } from "./_base"
 
 describe("Observable.toEventStream", () => {
   it("results in EventStream", () => {
-    expect(F.once(1).toEventStream()).toBeInstanceOf(F.EventStream)
+    expect((F.once(1) as any).toEventStream()).toBeInstanceOf(F.EventStream)
     expect(F.constant(1).toEventStream()).toBeInstanceOf(F.EventStream)
   })
 
