@@ -23,7 +23,7 @@ export class Transaction {
           return
         }
       }
-      n === 0 ? q.unshift(op) : q.splice(n, 0, op)
+      n === -1 ? q.unshift(op) : q.splice(n + 1, 0, op)
     }
   }
 
@@ -34,6 +34,7 @@ export class Transaction {
       while ((op = q[this.cursor++]) !== undefined) {
         op.exec(this)
       }
+      --this.cursor
     }
   }
 }
