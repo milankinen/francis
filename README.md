@@ -99,7 +99,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `fold`
 - [ ] `reduce`
 - [ ] `groupBy`
-- [ ] `last`
+- [x] `last`
 - [x] `log`
 - [ ] `skip`
 - [ ] `slidingWindow`

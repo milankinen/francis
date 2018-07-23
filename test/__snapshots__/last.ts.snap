@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.last takes last event and ends 1`] = `
+Array [
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`Property.last takes last event and ends 1`] = `
+Array [
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`Property.last works with F.constant 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  End {},
+  Sync {},
+]
+`;

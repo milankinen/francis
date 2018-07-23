@@ -12,6 +12,7 @@ import * as Concat from "./operators/concat"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
 import * as FlatMap from "./operators/flatMap"
+import * as Last from "./operators/last"
 import * as Log from "./operators/log"
 import * as Logic from "./operators/logic"
 import * as Map from "./operators/map"
@@ -36,6 +37,7 @@ declare module "./Observable" {
     filter(predicate: Predicate<A> | Property<any>): Observable<A>
     take(n: number): Observable<A>
     first(): Observable<A>
+    last(): Observable<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Observable<B>
@@ -59,6 +61,7 @@ declare module "./EventStream" {
     filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
     first(): EventStream<A>
+    last(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
@@ -78,6 +81,7 @@ declare module "./Property" {
     filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
     first(): Property<A>
+    last(): Property<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Property<B>
@@ -122,7 +126,6 @@ Observable.prototype["map"] = function<A, B>(
   return Map.map(toFunctionsPropAsIs(project, rest), this)
 }
 
-// tslint:disable-next-line:no-string-literal
 Observable.prototype["filter"] = function<A>(
   predicate: Predicate<A> | Property<any>,
   ...rest: any[]
@@ -134,9 +137,12 @@ Observable.prototype.take = function<A>(n: number): Observable<A> {
   return Take.take(n, this)
 }
 
-// tslint:disable-next-line:no-string-literal
 Observable.prototype["first"] = function<A>(): Observable<A> {
   return First.first(this)
+}
+
+Observable.prototype["last"] = function<A>(): Observable<A> {
+  return Last.last(this)
 }
 
 Observable.prototype["flatMapLatest"] = function<A, B>(
