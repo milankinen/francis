@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.concatAll concats all given streams and properties into a single stream and ends when all of them are exhausted 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "lol",
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`F.concatAll remembers exhausted streams when subscribing again after disposal 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 2,
+    },
+  ],
+  "second": Array [
+    Next {
+      "value": 3,
+    },
+    Next {
+      "value": 4,
+    },
+    Next {
+      "value": 5,
+    },
+    End {},
+  ],
+  "third": Array [
+    End {},
+  ],
+}
+`;

@@ -1,0 +1,87 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.mergeAll does not duplicate same error from two streams 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Error {
+    "error": "lol",
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 4,
+  },
+  Error {
+    "error": "bal",
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 6,
+  },
+  End {},
+]
+`;
+
+exports[`F.mergeAll merges all given streams and ends when all of them are exhausted 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 5,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 6,
+  },
+  End {},
+]
+`;
+
+exports[`F.mergeAll re-emits end event if all source streams have been exhausted 1`] = `
+Array [
+  Sync {},
+  End {},
+]
+`;
+
+exports[`F.mergeAll respects subscriber return value 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 3,
+  },
+  "disposed!",
+  End {},
+]
+`;
+
+exports[`F.mergeAll supports arguments spread syntax 1`] = `
+Array [
+  Next {
+    "value": "LOL",
+  },
+  Next {
+    "value": "BAL",
+  },
+  End {},
+]
+`;

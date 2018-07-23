@@ -20,6 +20,8 @@ export { filter } from "./operators/filter"
 export { take } from "./operators/take"
 export { first } from "./operators/first"
 export { combineAsArray, combineTemplate } from "./operators/combine"
+export { merge, mergeAll } from "./operators/merge"
+export { concat, concatAll } from "./operators/concat"
 export { when } from "./operators/when"
 export { scan } from "./operators/scan"
 export {

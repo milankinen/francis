@@ -13,7 +13,7 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `toProperty`
 - [x] `and`
 - [x] `or`
-- [ ] `concat`
+- [x] `concat`
 - [ ] `bufferingThrottle`
 - [x] `sampledBy`
 - [ ] `sample`
@@ -29,8 +29,8 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `onValues`
 - [ ] `combineWith`
 - [x] `once`
-- [ ] `concatAll`
-- [ ] `fromBinder`
+- [x] `concatAll`
+- [x] `fromBinder`
 - [x] `later`
 - [ ] `Bus`
 - [ ] `fromCallback`
@@ -44,7 +44,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `fromPromise`
 - [ ] `interval`
 - [ ] `$.asEventStream`
-- [ ] `mergeAll`
+- [x] `mergeAll`
 - [ ] `repeatedly`
 - [ ] `repeat`
 - [ ] `retry`
@@ -113,6 +113,6 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `bufferWithTimeOrCount`
 - [ ] `buffer`
 - [ ] `holdWhen`
-- [ ] `merge`
+- [x] `merge`
 - [ ] `skipUntil`
 - [ ] `skipWhile`

@@ -30,3 +30,11 @@ export function isObject(x: any): x is Object {
 export function slice<T>(arr: T[]): T[] {
   return arr.slice()
 }
+
+export function every<T>(pred: (x: T) => any, xs: T[]): boolean {
+  let n = xs.length
+  while (n--) {
+    if (!pred(xs[n])) return false
+  }
+  return true
+}

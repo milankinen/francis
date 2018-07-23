@@ -1,14 +1,21 @@
 import { assert } from "./_assert"
 import { Accum, Dispose, Handler, Predicate, Projection, ValueHandler } from "./_interfaces"
-import { argsToObservablesAndFunction, toFunction, toFunctionsPropAsIs } from "./_interrop"
+import {
+  argsToObservables,
+  argsToObservablesAndFunction,
+  toFunction,
+  toFunctionsPropAsIs,
+} from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
+import * as Concat from "./operators/concat"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
 import * as FlatMap from "./operators/flatMap"
 import * as Log from "./operators/log"
 import * as Logic from "./operators/logic"
 import * as Map from "./operators/map"
+import * as Merge from "./operators/merge"
 import * as OnValue from "./operators/onValue"
 import * as Sample from "./operators/sample"
 import * as Scan from "./operators/scan"
@@ -40,6 +47,8 @@ declare module "./Observable" {
     startWith(value: A): Observable<A>
     scan<B>(seed: B, f: Accum<B, A>): Property<B>
     zip<B, C>(other: Observable<B>, f: (a: A, b: B) => C): EventStream<C>
+    merge(other: Observable<A>): EventStream<A>
+    concat(other: Observable<A>): EventStream<A>
   }
 }
 
@@ -186,6 +195,14 @@ Observable.prototype["zip"] = function<A, B, C>(
   return Zip.zipWith(toFunction(f, rest), [this, other])
 }
 
+Observable.prototype["merge"] = function<A>(other: Observable<A>): EventStream<A> {
+  return Merge.mergeAll([this, other])
+}
+
+Observable.prototype["concat"] = function<A>(other: Observable<A>): EventStream<A> {
+  return Concat.concatAll([this, other])
+}
+
 // EventStream specific operators
 
 EventStream.prototype["toProperty"] = function<A>(initialValue?: A): Property<A> {
@@ -234,16 +251,22 @@ Property.prototype["toEventStream"] = function<A>(): EventStream<A> {
 
 // static operators
 
-export { once, constant } from "./sources/single"
-export { fromArray } from "./sources/fromArray"
-export { sequentially } from "./sources/sequentially"
-export { fromPoll } from "./sources/fromPoll"
-export { later } from "./sources/later"
+export { End, Error, Next } from "./Event"
+export { EventStream } from "./EventStream"
+export { Observable } from "./Observable"
 export { combineAsArray, combineTemplate } from "./operators/combine"
 export { when } from "./operators/when"
-export { fromBinder } from "./sources/fromBinder"
-export { never } from "./sources/never"
 export { zipAsArray } from "./operators/zip"
+export { Property } from "./Property"
+export { fromArray } from "./sources/fromArray"
+export { fromBinder } from "./sources/fromBinder"
+export { fromPoll } from "./sources/fromPoll"
+export { later } from "./sources/later"
+export { never } from "./sources/never"
+export { sequentially } from "./sources/sequentially"
+export { constant, once } from "./sources/single"
+// classes and interfaces
+export * from "./_interfaces"
 
 export function zipWith<A, T>(f: (a: A) => T, streams: [Observable<A>]): EventStream<T>
 export function zipWith<A, B, T>(
@@ -308,10 +331,20 @@ export function zipWith(...args: any[]): EventStream<any> {
   return Zip.zipWith(f, observables as any)
 }
 
-// classes and interfaces
+export function concatAll<T>(...observables: Array<Observable<T>>): EventStream<T>
+export function concatAll<T>(observables: Array<Observable<T>>): EventStream<T>
+export function concatAll<T>(
+  observables: Array<Observable<T>> | Observable<T>,
+  ...rest: Array<Observable<T>>
+): EventStream<T> {
+  return Concat.concatAll(argsToObservables([observables, ...rest]) as Array<EventStream<T>>)
+}
 
-export * from "./_interfaces"
-export { Next, Error, End } from "./Event"
-export { Observable } from "./Observable"
-export { EventStream } from "./EventStream"
-export { Property } from "./Property"
+export function mergeAll<T>(...observables: Array<Observable<T>>): EventStream<T>
+export function mergeAll<T>(observables: Array<Observable<T>>): EventStream<T>
+export function mergeAll<T>(
+  observables: Array<Observable<T>> | Observable<T>,
+  ...rest: Array<Observable<T>>
+): EventStream<T> {
+  return Merge.mergeAll(argsToObservables([observables, ...rest]))
+}
