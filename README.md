@@ -8,6 +8,8 @@
 
 Won't do operators marked with ~~strikethrough~~
 
+(:warning: = no proper tests written)
+
 - [ ] `changes`
 - [ ] `withHandler`
 - [x] `toProperty`
@@ -26,7 +28,7 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `constant`
 - [x] `when`
 - [x] `combineAsArray`
-- [ ] `onValues`
+- [x] `onValues` :warning:
 - [ ] `combineWith`
 - [x] `once`
 - [x] `concatAll`
@@ -55,13 +57,13 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `zipWith`
 - [x] `subscribe`
 - [x] `onValue`
-- [ ] `onError`
-- [ ] `onEnd`
+- [x] `onError` :warning:
+- [x] `onEnd` :warning:
 - [ ] ~~`name`~~
 - [ ] `withDescription`
 - [ ] ~~`deps`~~
 - [ ] ~~`internalDeps`~~
-- [ ] `assign`
+- [x] `assign` :warning:
 - [ ] `inspect`
 - [x] `map`
 - [ ] `withStateMachine`

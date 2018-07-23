@@ -41,6 +41,5 @@ export { and, or, not } from "./operators/logic"
 export { zipAsArray, zipWith } from "./operators/zip"
 
 // subscribers / side-effects
-export { subscribe } from "./operators/subscribe"
-export { onValue } from "./operators/onValue"
+export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"
 export { log } from "./operators/log"

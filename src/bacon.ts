@@ -1,5 +1,15 @@
 import { assert } from "./_assert"
-import { Accum, Dispose, Handler, Predicate, Projection, ValueHandler } from "./_interfaces"
+import {
+  Accum,
+  Dispose,
+  EndHandler,
+  ErrorHandler,
+  Handler,
+  Predicate,
+  Projection,
+  ValueHandler,
+  ValuesHandler,
+} from "./_interfaces"
 import {
   argsToObservables,
   argsToObservablesAndFunction,
@@ -18,7 +28,6 @@ import * as Log from "./operators/log"
 import * as Logic from "./operators/logic"
 import * as Map from "./operators/map"
 import * as Merge from "./operators/merge"
-import * as OnValue from "./operators/onValue"
 import * as Sample from "./operators/sample"
 import * as Scan from "./operators/scan"
 import * as StartWith from "./operators/startWith"
@@ -33,6 +42,10 @@ declare module "./Observable" {
   interface Observable<A> {
     subscribe(handler: Handler<A>): Dispose
     onValue(f: ValueHandler<A>): Dispose
+    onValues(f: ValuesHandler<A>): Dispose
+    onError(f: ErrorHandler): Dispose
+    onEnd(f: EndHandler): Dispose
+    assign(obj: any, method: string, ...params: any[]): Dispose
     log(label?: string): Dispose
     map<B>(project: Projection<A, B>): Observable<B>
     filter(predicate: Predicate<A> | Property<any>): Observable<A>
@@ -110,12 +123,28 @@ export type SampleFn<V, S, R> = (value: V, sample: S) => R
 
 // Observable operators (common for both EventStream and Property)
 
-Observable.prototype["subscribe"] = function<A>(handler: Handler<A>): Dispose {
-  return Subscribe.subscribe(handler, this)
+Observable.prototype["subscribe"] = function<A>(handler: Handler<A>, ...rest: any[]): Dispose {
+  return Subscribe.subscribe(toFunction(handler, rest), this)
 }
 
-Observable.prototype["onValue"] = function<A>(f: ValueHandler<A>): Dispose {
-  return OnValue.onValue(f, this)
+Observable.prototype["onValue"] = function<A>(f: ValueHandler<A>, ...rest: any[]): Dispose {
+  return Subscribe.onValue(toFunction(f, rest), this)
+}
+
+Observable.prototype["onValues"] = function<A>(f: ValuesHandler<A>, ...rest: any[]): Dispose {
+  return Subscribe.onValues(toFunction(f, rest), this)
+}
+
+Observable.prototype["onError"] = function<A>(f: ErrorHandler, ...rest: any[]): Dispose {
+  return Subscribe.onError(toFunction(f, rest), this)
+}
+
+Observable.prototype["onEnd"] = function<A>(f: EndHandler, ...rest: any[]): Dispose {
+  return Subscribe.onEnd(toFunction(f, rest), this)
+}
+
+Observable.prototype["assign"] = function<A>(obj: any, method: string, ...params: any[]): Dispose {
+  return Subscribe.onValue(toFunction(obj, [method, ...params]), this)
 }
 
 Observable.prototype["log"] = function(label?: string): Dispose {

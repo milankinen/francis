@@ -18,6 +18,12 @@ export type Handler<T> = (event: AnyEvent<T>) => typeof Event.noMore | any
 
 export type ValueHandler<T> = (val: T) => typeof Event.noMore | any
 
+export type ValuesHandler<T> = (...vals: T[]) => typeof Event.noMore | any
+
+export type ErrorHandler = (err: Error) => typeof Event.noMore | any
+
+export type EndHandler = () => void
+
 export type SinkEvent<T> = T | AnyEvent<T> | Array<T | AnyEvent<T>>
 
 export type SinkResult = typeof Event.noMore | typeof Event.more
