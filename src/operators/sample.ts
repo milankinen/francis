@@ -13,8 +13,8 @@ import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
+import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
-import { Pipe, PipeDest } from "./_pipe"
 
 export function sampleWith<S, V, R>(
   sampler: Property<S>,
@@ -55,7 +55,7 @@ function _sampleF<S, V, R>(
   return makeObservable(sampler, new Sample(cs, project))
 }
 
-class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeDest<V> {
+class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeSubscriber<V> {
   private sample: S = NONE
   private val: V = NONE
 

@@ -9,8 +9,8 @@ import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { stepIn, stepOut } from "../scheduler/index"
+import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
-import { Pipe, PipeDest } from "./_pipe"
 
 export function flatMapLatest<A, B>(
   project: Projection<A, B | Observable<B>>,
@@ -117,7 +117,7 @@ export function flatMapWithConcurrencyLimit<A, B>(
   return makeObservable(observable, new FlatMapConcurrent(observable.src, project, limit))
 }
 
-abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeDest<B> {
+abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeSubscriber<B> {
   protected outerEnded: boolean = false
   private otx: Transaction | null = null
 
@@ -363,7 +363,7 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
 class InnerPipe<T> extends Pipe<T> {
   public t: InnerPipe<T> | null = null
   public subs: Subscription = NOOP_SUBSCRIPTION
-  constructor(dest: PipeDest<T>, public src: Source<T>) {
+  constructor(dest: PipeSubscriber<T>, public src: Source<T>) {
     super(dest)
   }
 }

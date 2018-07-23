@@ -60,6 +60,79 @@ export abstract class Operator<A, B> implements Subscriber<A>, Source<B>, Subscr
   }
 }
 
+export interface PipeSubscriber<T> {
+  pipedNext(sender: Pipe<T>, tx: Transaction, val: T): void
+  pipedError(sender: Pipe<T>, tx: Transaction, err: Error): void
+  pipedEnd(sender: Pipe<T>, tx: Transaction): void
+}
+
+export class Pipe<T> implements Subscriber<T> {
+  constructor(public s: PipeSubscriber<T>) {}
+
+  public next(tx: Transaction, val: T): void {
+    this.s.pipedNext(this, tx, val)
+  }
+
+  public error(tx: Transaction, err: Error): void {
+    this.s.pipedError(this, tx, err)
+  }
+
+  public end(tx: Transaction): void {
+    this.s.pipedEnd(this, tx)
+  }
+}
+
+export class LinkedPipe<T> extends Pipe<T> {
+  constructor(
+    s: PipeSubscriber<T>,
+    public h: LinkedPipe<T> | null,
+    public t: LinkedPipe<T> | null,
+  ) {
+    super(s)
+  }
+}
+
+export class LinkedPipeList<T> {
+  public size: number
+  private t: LinkedPipe<T> | null
+  private h: LinkedPipe<T> | null
+
+  constructor(subscribers: Array<PipeSubscriber<T>>) {
+    this.size = subscribers.length
+    if (subscribers.length === 0) {
+      this.t = this.h = null
+    } else {
+      let tail = (this.h = new LinkedPipe(subscribers[0], null, null))
+      for (let i = 0; i < this.size; i++) {
+        tail = tail.t = new LinkedPipe(subscribers[i], tail, null)
+      }
+      this.t = tail
+    }
+  }
+
+  public head(): LinkedPipe<T> | null {
+    return this.h
+  }
+
+  public append(subscriber: PipeSubscriber<T>): LinkedPipe<T> {
+    const node = (this.t = new LinkedPipe(subscriber, this.h, null))
+    this.h === null && (this.h = node)
+    ++this.size
+    return node
+  }
+
+  public remove(node: LinkedPipe<T>): void {
+    node.h !== null ? (node.h.t = node.t) : (this.h = node.t)
+    node.t !== null ? (node.t.h = node.h) : (this.t = node.h)
+    --this.size
+  }
+
+  public clear(): void {
+    this.h = this.t = null
+    this.size = 0
+  }
+}
+
 /**
  * This function is meant for actual sources (e.g. once, fromArray etc..) to
  * enable multicasting (thus keeping the source's codebase clean)
