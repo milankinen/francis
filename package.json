@@ -24,7 +24,8 @@
     "format": "npm run prettify && npm run linterfixes",
     "ts-node": "ts-node -O '{\"module\": \"commonjs\"}'",
     "ncu": "ncu -u -a && ncu -u -a --packageFile perf/package.json",
-    "test": "jest"
+    "test": "jest",
+    "test:ci": "jest --runInBand"
   },
   "devDependencies": {
     "@types/jest": "^23.1.4",

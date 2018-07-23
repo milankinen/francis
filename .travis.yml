@@ -9,4 +9,4 @@ install:
 script:
   - npm run build
   - npm run lint
-  - npm t
+  - npm run test:ci
