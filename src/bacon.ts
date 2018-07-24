@@ -19,6 +19,7 @@ import {
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import * as Concat from "./operators/concat"
+import * as Do from "./operators/do"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
 import * as FlatMap from "./operators/flatMap"
@@ -45,6 +46,7 @@ declare module "./Observable" {
     onValues(f: ValuesHandler<A>): Dispose
     onError(f: ErrorHandler): Dispose
     onEnd(f: EndHandler): Dispose
+    doAction(f: (val: A) => void): Observable<A>
     assign(obj: any, method: string, ...params: any[]): Dispose
     log(label?: string): Dispose
     map<B>(project: Projection<A, B>): Observable<B>
@@ -73,6 +75,7 @@ declare module "./Observable" {
 declare module "./EventStream" {
   interface EventStream<A> {
     toProperty(initialValue?: A): Property<A>
+    doAction(f: (val: A) => void): EventStream<A>
     map<B>(project: Projection<A, B>): EventStream<B>
     filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
@@ -93,6 +96,7 @@ declare module "./EventStream" {
 declare module "./Property" {
   interface Property<A> {
     toEventStream(): EventStream<A>
+    doAction(f: (val: A) => void): Property<A>
     map<B>(project: Projection<A, B>): Property<B>
     filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
@@ -145,6 +149,10 @@ Observable.prototype["onEnd"] = function<A>(f: EndHandler, ...rest: any[]): Disp
 
 Observable.prototype["assign"] = function<A>(obj: any, method: string, ...params: any[]): Dispose {
   return Subscribe.onValue(toFunction(obj, [method, ...params]), this)
+}
+
+Observable.prototype["doAction"] = function<A>(f: (val: A) => void, ...rest: any[]): Observable<A> {
+  return Do.doAction(toFunction(f, rest), this)
 }
 
 Observable.prototype["log"] = function(label?: string): Dispose {

@@ -85,7 +85,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `decode`
 - [x] `scan`
 - [ ] `diff`
-- [ ] `doAction`
+- [x] `doAction` :warning:
 - [ ] `doEnd`
 - [ ] `doError`
 - [ ] `doLog`

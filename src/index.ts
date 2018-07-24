@@ -45,3 +45,4 @@ export { zipAsArray, zipWith } from "./operators/zip"
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"
 export { log } from "./operators/log"
+export { doAction } from "./operators/do"
