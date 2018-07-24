@@ -31,10 +31,17 @@ export function slice<T>(arr: T[]): T[] {
   return arr.slice()
 }
 
-export function every<T>(pred: (x: T) => any, xs: T[]): boolean {
+export function every<T>(pred: (x: T) => boolean, xs: T[]): boolean {
   let n = xs.length
   while (n--) {
     if (!pred(xs[n])) return false
   }
   return true
+}
+
+export function find<T>(pred: (x: T) => boolean, xs: T[]): T | undefined {
+  for (let i = 0, n = xs.length; i < n; i++) {
+    if (pred(xs[i])) return xs[i]
+  }
+  return undefined
 }

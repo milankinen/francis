@@ -10,8 +10,10 @@ export { once, constant } from "./sources/single"
 export { fromArray } from "./sources/fromArray"
 export { sequentially } from "./sources/sequentially"
 export { fromPoll } from "./sources/fromPoll"
+export { interval } from "./sources/interval"
 export { later } from "./sources/later"
 export { fromBinder } from "./sources/fromBinder"
+export { fromEvent } from "./sources/fromEvent"
 export { never } from "./sources/never"
 
 // operators

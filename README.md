@@ -41,10 +41,10 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `fromArray`
 - [ ] `fromESObservable`
 - [ ] `fromEventTarget`
-- [ ] `fromEvent`
+- [x] `fromEvent` :warning:
 - [x] `fromPoll`
 - [ ] `fromPromise`
-- [ ] `interval`
+- [x] `interval` :warning:
 - [ ] `$.asEventStream`
 - [x] `mergeAll`
 - [ ] `repeatedly`
