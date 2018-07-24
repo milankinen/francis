@@ -6,6 +6,9 @@
   "private": true,
   "license": "MIT",
   "keywords": [],
+  "scripts": {
+    "tree": "cd tree && parcel index.html"
+  },
   "devDependencies": {
     "baconjs": "^2.0.7",
     "benchmark": "^2.1.4",
@@ -13,6 +16,9 @@
     "xstream": "^11.7.0"
   },
   "dependencies": {
+    "fpsmeter": "^0.3.1",
+    "kefir": "^3.8.3",
+    "parcel-bundler": "^1.9.7",
     "rxjs-compat": "^6.2.1"
   }
 }
