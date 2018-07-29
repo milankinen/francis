@@ -19,7 +19,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `bufferingThrottle`
 - [x] `sampledBy`
 - [ ] `sample`
-- [ ] `startWith`
+- [x] `startWith`
 - [x] `toEventStream`
 - [ ] `toString`
 - [ ] `Desc`

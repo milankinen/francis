@@ -23,4 +23,30 @@ describe("F.startWith", () => {
       expect(recording).toMatchSnapshot()
     })
   })
+
+  describe("applied to EventStream", () => {
+    it("preprends the start value to stream", () => {
+      const recording = run(record => {
+        F.fromArray([1, 2, 3])
+          .startWith(0)
+          .subscribe(record)
+        record(Sync)
+      })
+      expect(recording).toMatchSnapshot()
+    })
+
+    it("works in inner scheduling contexts (inside flatMap**) as well", () => {
+      const recording = run(record => {
+        F.fromArray(["lol", "bal"])
+          .flatMapLatest(x =>
+            F.fromArray([1, 2])
+              .startWith(0)
+              .map(y => x + " " + y),
+          )
+          .subscribe(record)
+        record(Sync)
+      })
+      expect(recording).toMatchSnapshot()
+    })
+  })
 })

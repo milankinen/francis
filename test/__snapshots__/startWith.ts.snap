@@ -1,5 +1,49 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`F.startWith applied to EventStream preprends the start value to stream 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 0,
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`F.startWith applied to EventStream works in inner scheduling contexts (inside flatMap**) as well 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "lol 0",
+  },
+  Next {
+    "value": "lol 1",
+  },
+  Next {
+    "value": "lol 2",
+  },
+  Next {
+    "value": "bal 0",
+  },
+  Next {
+    "value": "bal 1",
+  },
+  Next {
+    "value": "bal 2",
+  },
+  End {},
+]
+`;
+
 exports[`F.startWith applied to Property doesn't emit anything if Property already has an initial event 1`] = `
 Array [
   Next {
