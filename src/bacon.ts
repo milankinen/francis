@@ -31,6 +31,7 @@ import * as Map from "./operators/map"
 import * as Merge from "./operators/merge"
 import * as Sample from "./operators/sample"
 import * as Scan from "./operators/scan"
+import * as Skip from "./operators/skip"
 import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
@@ -57,6 +58,7 @@ declare module "./Observable" {
     take(n: number): Observable<A>
     first(): Observable<A>
     last(): Observable<A>
+    skip(n: number): Observable<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Observable<B>
@@ -87,6 +89,7 @@ declare module "./EventStream" {
     take(n: number): EventStream<A>
     first(): EventStream<A>
     last(): EventStream<A>
+    skip(n: number): EventStream<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
@@ -111,6 +114,7 @@ declare module "./Property" {
     take(n: number): Property<A>
     first(): Property<A>
     last(): Property<A>
+    skip(n: number): Property<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Property<B>
@@ -197,8 +201,12 @@ Observable.prototype["filter"] = function<A>(
   return Filter.filter(toFunctionsPropAsIs(predicate, rest), this)
 }
 
-Observable.prototype.take = function<A>(n: number): Observable<A> {
+Observable.prototype["take"] = function<A>(n: number): Observable<A> {
   return Take.take(n, this)
+}
+
+Observable.prototype["skip"] = function<A>(n: number): Observable<A> {
+  return Skip.skip(n, this)
 }
 
 Observable.prototype["first"] = function<A>(): Observable<A> {

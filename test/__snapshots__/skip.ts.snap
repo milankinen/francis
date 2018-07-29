@@ -1,0 +1,28 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.skip skips the given first n events before starts emitting values 1`] = `
+Array [
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`Property.skip skips the given first n events, including initial event, before starts emitting values 1`] = `
+Array [
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;

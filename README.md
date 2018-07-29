@@ -103,7 +103,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `groupBy`
 - [x] `last`
 - [x] `log`
-- [ ] `skip`
+- [x] `skip`
 - [ ] `slidingWindow`
 - [ ] `takeWhile`
 - [ ] `throttle`
