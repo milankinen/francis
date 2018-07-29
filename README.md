@@ -86,9 +86,9 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `scan`
 - [ ] `diff`
 - [x] `doAction` :warning:
-- [ ] `doEnd`
-- [ ] `doError`
-- [ ] `doLog`
+- [x] `doEnd`
+- [x] `doError`
+- [x] `doLog`
 - [ ] `endOnError`
 - [ ] `errors`
 - [ ] `toESObservable`

@@ -46,4 +46,4 @@ export { update } from "./operators/update"
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"
 export { log } from "./operators/log"
-export { doAction } from "./operators/do"
+export { doAction, doError, doEnd, doLog } from "./operators/do"

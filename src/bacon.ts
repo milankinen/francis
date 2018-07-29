@@ -47,6 +47,9 @@ declare module "./Observable" {
     onError(f: ErrorHandler): Dispose
     onEnd(f: EndHandler): Dispose
     doAction(f: (val: A) => void): Observable<A>
+    doError(f: (err: Error) => void): Observable<A>
+    doEnd(f: () => void): Observable<A>
+    doLog(label?: string): Observable<A>
     assign(obj: any, method: string, ...params: any[]): Dispose
     log(label?: string): Dispose
     map<B>(project: Projection<A, B>): Observable<B>
@@ -76,6 +79,9 @@ declare module "./EventStream" {
   interface EventStream<A> {
     toProperty(initialValue?: A): Property<A>
     doAction(f: (val: A) => void): EventStream<A>
+    doError(f: (err: Error) => void): EventStream<A>
+    doEnd(f: () => void): EventStream<A>
+    doLog(label?: string): EventStream<A>
     map<B>(project: Projection<A, B>): EventStream<B>
     filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
@@ -97,6 +103,9 @@ declare module "./Property" {
   interface Property<A> {
     toEventStream(): EventStream<A>
     doAction(f: (val: A) => void): Property<A>
+    doError(f: (err: Error) => void): Property<A>
+    doEnd(f: () => void): Property<A>
+    doLog(label?: string): Property<A>
     map<B>(project: Projection<A, B>): Property<B>
     filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
@@ -153,6 +162,21 @@ Observable.prototype["assign"] = function<A>(obj: any, method: string, ...params
 
 Observable.prototype["doAction"] = function<A>(f: (val: A) => void, ...rest: any[]): Observable<A> {
   return Do.doAction(toFunction(f, rest), this)
+}
+
+Observable.prototype["doError"] = function<A>(
+  f: (err: Error) => void,
+  ...rest: any[]
+): Observable<A> {
+  return Do.doError(toFunction(f, rest), this)
+}
+
+Observable.prototype["doEnd"] = function<A>(f: () => void, ...rest: any[]): Observable<A> {
+  return Do.doEnd(toFunction(f, rest), this)
+}
+
+Observable.prototype["doLog"] = function<A>(label?: string): Observable<A> {
+  return Do.doLog(label, this)
 }
 
 Observable.prototype["log"] = function(label?: string): Dispose {
