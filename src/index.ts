@@ -41,6 +41,7 @@ export { sampleBy, sampleWith } from "./operators/sample"
 export { startWith } from "./operators/startWith"
 export { and, or, not } from "./operators/logic"
 export { zipAsArray, zipWith } from "./operators/zip"
+export { update } from "./operators/update"
 
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"

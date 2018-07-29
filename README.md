@@ -52,7 +52,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `retry`
 - [x] `sequentially`
 - [ ] `try`
-- [ ] `update`
+- [x] `update` :warning:
 - [x] `zipAsArray`
 - [x] `zipWith`
 - [x] `subscribe`

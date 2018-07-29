@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.update accumulates the state based on pattern matches 1`] = `
+Array [
+  Next {
+    "value": "",
+  },
+  Sync {},
+  Next {
+    "value": "t",
+  },
+  Next {
+    "value": "ts",
+  },
+  Next {
+    "value": "tse",
+  },
+  Next {
+    "value": "tser",
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;

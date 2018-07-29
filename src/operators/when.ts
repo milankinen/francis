@@ -20,6 +20,17 @@ export function when(...patternsAndHandlers: any[]): EventStream<any> {
 }
 
 export function _when(patternsAndHandlers: any[], spreadHandlerArgs: boolean): EventStream<any> {
+  const [patterns, buffers, sources] = extractPatternsAndBuffers(
+    patternsAndHandlers,
+    spreadHandlerArgs,
+  )
+  return makeEventStream(new When(new IndexedSource(sources), patterns, buffers))
+}
+
+export function extractPatternsAndBuffers(
+  patternsAndHandlers: any[],
+  spreadHandlerArgs: boolean,
+): [Pattern[], Buffer[], Buffered[]] {
   if (__DEVBUILD__) {
     assert(
       patternsAndHandlers.length > 0 && patternsAndHandlers.length % 2 === 0,
@@ -58,10 +69,11 @@ export function _when(patternsAndHandlers: any[], spreadHandlerArgs: boolean): E
     sources[idx] = new Buffered(obs.src, buffer)
     buffers[idx] = buffer
   })
-  return makeEventStream(new When(new IndexedSource(sources), patterns, buffers))
+
+  return [patterns, buffers, sources]
 }
 
-class When extends JoinOperator<Indexed<Buffer>, any, null>
+export class When extends JoinOperator<Indexed<Buffer>, any, null>
   implements IndexedEndSubscriber<Buffer> {
   private activePatterns: Pattern[]
   constructor(
@@ -104,9 +116,7 @@ class When extends JoinOperator<Indexed<Buffer>, any, null>
       const result = pattern.peek(buffers)
       if (result === READY) {
         const vals = pattern.pop(buffers)
-        const handler = pattern.f
-        const toEmit = handler(vals)
-        this.sink.next(tx, toEmit)
+        this.handleMatch(tx, pattern, vals)
         return
       } else if (result === UNREACHABLE) {
         activePatterns.splice(i, 1)
@@ -123,6 +133,11 @@ class When extends JoinOperator<Indexed<Buffer>, any, null>
     this.sink.error(tx, err)
   }
 
+  protected handleMatch(tx: Transaction, match: Pattern, vals: any[]): void {
+    const { f } = match
+    this.sink.next(tx, f(vals))
+  }
+
   private resetBuffers(): void {
     const { buffers } = this
     let n = buffers.length
@@ -130,7 +145,7 @@ class When extends JoinOperator<Indexed<Buffer>, any, null>
   }
 }
 
-class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
+export class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
   public readonly weight: number
   private sub: Subscription = NOOP_SUBSCRIPTION
   private sink: Subscriber<Buffer> = NOOP_SUBSCRIBER
@@ -200,7 +215,7 @@ type PatternPop = (buffers: Buffer[], pop: BufferPop) => any[]
 const bpeek: BufferPeek = (b, n) => b.peek(n)
 const bpop: BufferPop = b => b.pop()
 
-class Pattern {
+export class Pattern {
   private readonly READY: number
   private ppeek: PatternPeek
   private ppop: PatternPop
@@ -239,7 +254,7 @@ class Pattern {
   }
 }
 
-interface Buffer {
+export interface Buffer {
   push(x: any): boolean
   peek(n: number): PeekResult
   pop(): any
