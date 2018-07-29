@@ -29,7 +29,7 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `when`
 - [x] `combineAsArray`
 - [x] `onValues` :warning:
-- [ ] `combineWith`
+- [x] `combineWith` :warning:
 - [x] `once`
 - [x] `concatAll`
 - [x] `fromBinder`
@@ -69,7 +69,7 @@ Won't do operators marked with ~~strikethrough~~
 - [ ] `withStateMachine`
 - [ ] `skipDuplicates`
 - [ ] `awaiting`
-- [ ] `combine`
+- [x] `combine` :warning:
 - [x] `not`
 - [x] `filter`
 - [x] `flatMapWithConcurrencyLimit`

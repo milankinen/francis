@@ -18,6 +18,7 @@ import {
 } from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
+import * as Combine from "./operators/combine"
 import * as Concat from "./operators/concat"
 import * as Do from "./operators/do"
 import * as Filter from "./operators/filter"
@@ -74,6 +75,7 @@ declare module "./Observable" {
     zip<B, C>(other: Observable<B>, f: (a: A, b: B) => C): EventStream<C>
     merge(other: Observable<A>): EventStream<A>
     concat(other: Observable<A>): EventStream<A>
+    combine<B, C>(other: Observable<B>, f: (a: A, b: B) => C): Property<C>
   }
 }
 
@@ -289,6 +291,14 @@ Observable.prototype["concat"] = function<A>(other: Observable<A>): EventStream<
   return Concat.concatAll([this, other])
 }
 
+Observable.prototype["combine"] = function<A, B, C>(
+  other: Observable<A>,
+  f: (a: A, b: B) => C,
+  ...rest: any[]
+): Property<C> {
+  return Combine.combineWith(toFunction(f, rest), [this, other] as any)
+}
+
 // EventStream specific operators
 
 EventStream.prototype["toProperty"] = function<A>(initialValue?: A): Property<A> {
@@ -418,6 +428,95 @@ export function zipWith<A, T>(streams: A[], f: (...args: A[]) => T): EventStream
 export function zipWith(...args: any[]): EventStream<any> {
   const [observables, f] = argsToObservablesAndFunction(args)
   return Zip.zipWith(f, observables as any)
+}
+
+export function combineWith<A, R>(
+  f: (a: A) => R,
+  observables: [Combine.Combineable<A>],
+): Property<R>
+export function combineWith<A, B, R>(
+  f: (a: A, b: B) => R,
+  observables: [Combine.Combineable<A>, Combine.Combineable<B>],
+): Property<R>
+export function combineWith<A, B, C, R>(
+  f: (a: A, b: B, c: C) => R,
+  observables: [Combine.Combineable<A>, Combine.Combineable<B>, Combine.Combineable<C>],
+): Property<R>
+export function combineWith<A, B, C, D, R>(
+  f: (a: A, b: B, c: C, d: D) => R,
+  observables: [
+    Combine.Combineable<A>,
+    Combine.Combineable<B>,
+    Combine.Combineable<C>,
+    Combine.Combineable<D>
+  ],
+): Property<R>
+export function combineWith<A, B, C, D, E, R>(
+  f: (a: A, b: B, c: C, d: D, e: E) => R,
+  observables: [
+    Combine.Combineable<A>,
+    Combine.Combineable<B>,
+    Combine.Combineable<C>,
+    Combine.Combineable<D>,
+    Combine.Combineable<E>
+  ],
+): Property<R>
+export function combineWith<A, B, C, D, E, F, R>(
+  f: (a: A, b: B, c: C, d: D, e: E, f: F) => R,
+  observables: [
+    Combine.Combineable<A>,
+    Combine.Combineable<B>,
+    Combine.Combineable<C>,
+    Combine.Combineable<D>,
+    Combine.Combineable<E>,
+    Combine.Combineable<F>
+  ],
+): Property<R>
+export function combineWith<A, R>(
+  observables: [Combine.Combineable<A>],
+  f: (a: A) => R,
+): Property<R>
+export function combineWith<A, B, R>(
+  observables: [Combine.Combineable<A>, Combine.Combineable<B>],
+  f: (a: A, b: B) => R,
+): Property<R>
+export function combineWith<A, B, C, R>(
+  observables: [Combine.Combineable<A>, Combine.Combineable<B>, Combine.Combineable<C>],
+  f: (a: A, b: B, c: C) => R,
+): Property<R>
+export function combineWith<A, B, C, D, R>(
+  observables: [
+    Combine.Combineable<A>,
+    Combine.Combineable<B>,
+    Combine.Combineable<C>,
+    Combine.Combineable<D>
+  ],
+  f: (a: A, b: B, c: C, d: D) => R,
+): Property<R>
+export function combineWith<A, B, C, D, E, R>(
+  observables: [
+    Combine.Combineable<A>,
+    Combine.Combineable<B>,
+    Combine.Combineable<C>,
+    Combine.Combineable<D>,
+    Combine.Combineable<E>
+  ],
+  f: (a: A, b: B, c: C, d: D, e: E) => R,
+): Property<R>
+export function combineWith<A, B, C, D, E, F, R>(
+  observables: [
+    Combine.Combineable<A>,
+    Combine.Combineable<B>,
+    Combine.Combineable<C>,
+    Combine.Combineable<D>,
+    Combine.Combineable<E>,
+    Combine.Combineable<F>
+  ],
+  f: (a: A, b: B, c: C, d: D, e: E, f: F) => R,
+): Property<R>
+export function combineWith<T, R>(...args: any[]): Property<R> {
+  const [observables, f] = argsToObservablesAndFunction(args)
+  return Combine.combineWith(f, observables as any)
 }
 
 export function concatAll<T>(...observables: Array<Observable<T>>): EventStream<T>

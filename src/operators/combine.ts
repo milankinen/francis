@@ -12,6 +12,9 @@ import { JoinOperator } from "./_join"
 import { map } from "./map"
 import { toProperty } from "./toProperty"
 
+export type Combineable<T> = Observable<T> | T
+
+// TODO: fix combineAsArray typings
 export function combineAsArray<T>(observables?: Array<Observable<T> | T>): Property<T[]>
 export function combineAsArray<A>(o1: Observable<A> | A): Property<[A]>
 export function combineAsArray<A, B>(o1: Observable<A> | A, o2: Observable<B> | B): Property<[A, B]>
@@ -89,6 +92,41 @@ export function combineTemplate<T>(template: T): Observable<CombinedTemplate<T>>
     const fn = (combined: any[]) => createPlainObject(combined, constants)
     return _combine(fn, observables) as any
   }
+}
+
+export function combineWith<A, R>(f: (a: A) => R, observables: [Combineable<A>]): Property<R>
+export function combineWith<A, B, R>(
+  f: (a: A, b: B) => R,
+  observables: [Combineable<A>, Combineable<B>],
+): Property<R>
+export function combineWith<A, B, C, R>(
+  f: (a: A, b: B, c: C) => R,
+  observables: [Combineable<A>, Combineable<B>, Combineable<C>],
+): Property<R>
+export function combineWith<A, B, C, D, R>(
+  f: (a: A, b: B, c: C, d: D) => R,
+  observables: [Combineable<A>, Combineable<B>, Combineable<C>, Combineable<D>],
+): Property<R>
+export function combineWith<A, B, C, D, E, R>(
+  f: (a: A, b: B, c: C, d: D, e: E) => R,
+  observables: [Combineable<A>, Combineable<B>, Combineable<C>, Combineable<D>, Combineable<E>],
+): Property<R>
+export function combineWith<A, B, C, D, E, F, R>(
+  f: (a: A, b: B, c: C, d: D, e: E, f: F) => R,
+  observables: [
+    Combineable<A>,
+    Combineable<B>,
+    Combineable<C>,
+    Combineable<D>,
+    Combineable<E>,
+    Combineable<F>
+  ],
+): Property<R>
+export function combineWith<T, R>(
+  f: (...vals: T[]) => R,
+  observables: Array<Combineable<T>>,
+): Property<R> {
+  return _combine<T, R>((vals: T[]) => f(...vals), observables)
 }
 
 export function _combine<A, B>(
