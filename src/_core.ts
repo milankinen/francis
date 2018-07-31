@@ -22,6 +22,10 @@ export interface Source<T> {
   subscribe(subscriber: Subscriber<T>, order: number): Subscription
 }
 
+export interface EndStateAware {
+  isEnded(): boolean
+}
+
 // tslint:disable-next-line:no-shadowed-variable
 export const NONE = new class NONE {}() as any
 

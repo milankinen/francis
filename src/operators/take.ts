@@ -1,62 +1,30 @@
-import {
-  invoke,
-  Invokeable,
-  NOOP_SUBSCRIPTION,
-  sendEndInTx,
-  Source,
-  Subscriber,
-  Subscription,
-} from "../_core"
-import { makeObservable } from "../_obs"
+import { EndStateAware, Source } from "../_core"
+import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
-import { isProperty, Property } from "../Property"
-import { scheduleActivationTask } from "../scheduler/index"
+import { Property } from "../Property"
 import { Operator } from "./_base"
 
 export function take<T>(n: number, stream: EventStream<T>): EventStream<T>
 export function take<T>(n: number, property: Property<T>): Property<T>
 export function take<T>(n: number, observable: Observable<T>): Observable<T>
 export function take<T>(n: number, observable: Observable<T>): Observable<T> {
-  return makeObservable(observable, new Take(observable.src, n, isProperty(observable)))
+  return makeStatefulObservable(observable, new Take(observable.src, n))
 }
 
-class Take<T> extends Operator<T, T> implements Invokeable<undefined> {
-  constructor(source: Source<T>, private n: number, private readonly isProp: boolean) {
+class Take<T> extends Operator<T, T> implements EndStateAware {
+  constructor(source: Source<T>, private n: number) {
     super(source)
   }
 
-  public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
-    if (this.n === 0) {
-      this.init(subscriber, order, NOOP_SUBSCRIPTION)
-      return this
-    } else {
-      return super.subscribe(subscriber, order)
-    }
-  }
-
-  public activate(initialNeeded: boolean): void {
-    if (this.n === 0) {
-      if (this.isProp) {
-        this.invoke()
-      } else {
-        scheduleActivationTask(invoke(this))
-      }
-    } else {
-      super.activate(initialNeeded)
-    }
-  }
-
-  // called if someone trying to activate EventStream/Property that has already
-  // taken N events
-  public invoke(): void {
-    this.active && sendEndInTx(this.sink)
-  }
-
   public next(tx: Transaction, val: T): void {
-    const n = --this.n
+    const n = this.n > 0 ? --this.n : 0
     this.sink.next(tx, val)
     n === 0 && this.sink.end(tx)
+  }
+
+  public isEnded(): boolean {
+    return this.n === 0
   }
 }
