@@ -1,4 +1,4 @@
-import { NONE, sendEndInTx, sendNextInTx, Subscriber } from "./_core"
+import { NONE, sendEndInTx, sendNextInTx, Subscriber, Subscription, NOOP_SUBSCRIBER } from "./_core"
 import { Dispatcher } from "./_dispatcher"
 import { Transaction } from "./_tx"
 import { Observable } from "./Observable"
@@ -17,6 +17,12 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
   private val: T = NONE
   private ended: boolean = false
 
+  public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
+    return this.ended === true
+      ? new PropertyEndedSubscription(this, subscriber)
+      : super.subscribe(subscriber, order)
+  }
+
   public activate(subscriber: Subscriber<T>, initialNeeded: boolean): void {
     super.activate(subscriber, initialNeeded && this.replayState(subscriber))
   }
@@ -30,7 +36,7 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
     this.sink.end(tx)
   }
 
-  private replayState(subscriber: Subscriber<T>): boolean {
+  public replayState(subscriber: Subscriber<T>): boolean {
     const { val, ended } = this
     const hasVal = val !== NONE
     const hasInitial = hasVal || ended
@@ -39,5 +45,19 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
       ended === true && sendEndInTx(subscriber)
     }
     return !hasInitial
+  }
+}
+
+class PropertyEndedSubscription<T> implements Subscription {
+  constructor(private d: PropertyDispatcher<any>, private s: Subscriber<T>) {}
+
+  public activate(initialNeeded: boolean): void {
+    this.d.replayState(this.s)
+  }
+  public dispose(): void {
+    this.s = NOOP_SUBSCRIBER
+  }
+  public reorder(order: number): void {
+    // noop
   }
 }
