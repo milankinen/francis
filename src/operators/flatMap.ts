@@ -1,5 +1,5 @@
 import { __DEVBUILD__, assert } from "../_assert"
-import { NOOP_SUBSCRIPTION, sendEnd, sendError, sendNext, Source, Subscription } from "../_core"
+import { NOOP_SUBSCRIPTION, sendEnd, Source, Subscription } from "../_core"
 import { Projection } from "../_interfaces"
 import { toObservable } from "../_interrop"
 import { makeObservable } from "../_obs"
@@ -117,7 +117,7 @@ export function flatMapWithConcurrencyLimit<A, B>(
   return makeObservable(observable, new FlatMapConcurrent(observable.src, project, limit))
 }
 
-abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeSubscriber<B> {
+abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubscriber<B> {
   protected outerEnded: boolean = false
   private otx: Transaction | null = null
 
@@ -171,14 +171,6 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B, B> implements PipeSu
   public pipedEnd(sender: Pipe<B>, tx: Transaction): void {
     // we need sender later so queue end as custom event
     this.forkCustom(this.otx || tx, sender)
-  }
-
-  protected joinNext(tx: Transaction, val: B): void {
-    sendNext(tx, this.sink, val)
-  }
-
-  protected joinError(tx: Transaction, err: Error): void {
-    sendError(tx, this.sink, err)
   }
 
   protected joinCustom(tx: Transaction, sender: any): void {

@@ -1,8 +1,7 @@
 import {
   NONE,
+  NOOP_SUBSCRIBER,
   NOOP_SUBSCRIPTION,
-  sendEnd,
-  sendError,
   sendNext,
   Source,
   Subscriber,
@@ -51,17 +50,17 @@ function _sampleF<S, V, R>(
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): Observable<R> {
-  const cs = new SVSource(value.src, sampler.src, new Pipe(null as any))
-  return makeObservable(sampler, new Sample(cs, project))
+  return makeObservable(sampler, new Sample(value.src, sampler.src, project))
 }
 
-class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeSubscriber<V> {
+class Sample<S, V, R> extends JoinOperator<S, R> implements PipeSubscriber<V> {
+  protected source!: SVSource<S, V>
   private sample: S = NONE
   private val: V = NONE
 
-  constructor(source: SVSource<S, V>, private p: (value: V, sample: S) => R) {
-    super(source)
-    source.vDest = new Pipe(this)
+  constructor(vSrc: Source<V>, sSrc: Source<S>, private p: (value: V, sample: S) => R) {
+    super(new SVSource(vSrc, sSrc, NOOP_SUBSCRIBER))
+    this.source.vDest = new Pipe(this)
   }
 
   public dispose(): void {
@@ -91,8 +90,7 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeSubscriber
   }
 
   public pipedEnd(sender: Pipe<V>, tx: Transaction): void {
-    const svs = this.source as SVSource<S, V>
-    svs.disposeValue()
+    this.source.disposeValue()
   }
 
   public join(tx: Transaction): void {
@@ -107,17 +105,9 @@ class Sample<S, V, R> extends JoinOperator<S, R, null> implements PipeSubscriber
     }
     super.join(tx)
   }
-
-  public joinError(tx: Transaction, err: Error): void {
-    sendError(tx, this.sink, err)
-  }
-
-  public joinEnd(tx: Transaction): void {
-    sendEnd(tx, this.sink)
-  }
 }
 
-class SVSource<S, V> implements Source<S>, Subscription {
+export class SVSource<S, V> implements Source<S>, Subscription {
   public readonly weight: number
   private vSubs: Subscription
   private sSubs: Subscription

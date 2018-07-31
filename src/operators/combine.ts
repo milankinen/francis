@@ -147,7 +147,7 @@ export function _combine<A, B>(
   }
 }
 
-class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements IndexedEndSubscriber<A> {
+class Combine<A, B> extends JoinOperator<Indexed<A>, B> implements IndexedEndSubscriber<A> {
   private vals: A[]
   private has: boolean
   private nWaitV: number
@@ -198,13 +198,5 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B, null> implements Indexed
       sendNext(tx, this.sink, f(this.vals))
     }
     super.join(tx)
-  }
-
-  public joinError(tx: Transaction, err: Error) {
-    this.sink.error(tx, err)
-  }
-
-  public joinEnd(tx: Transaction) {
-    this.sink.end(tx)
   }
 }

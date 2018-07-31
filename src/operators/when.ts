@@ -73,7 +73,7 @@ export function extractPatternsAndBuffers(
   return [patterns, buffers, sources]
 }
 
-export class When extends JoinOperator<Indexed<Buffer>, any, null>
+export class When extends JoinOperator<Indexed<Buffer>, any>
   implements IndexedEndSubscriber<Buffer> {
   private activePatterns: Pattern[]
   constructor(
@@ -127,10 +127,6 @@ export class When extends JoinOperator<Indexed<Buffer>, any, null>
     if (activePatterns.length === 0) {
       this.sink.end(tx)
     }
-  }
-
-  public joinError(tx: Transaction, err: Error): void {
-    this.sink.error(tx, err)
   }
 
   protected handleMatch(tx: Transaction, match: Pattern, vals: any[]): void {

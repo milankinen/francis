@@ -3,11 +3,11 @@ import { priorityOf } from "../_priority"
 import { Operation, Transaction } from "../_tx"
 import { EventType, Operator } from "./_base"
 
-export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
+export abstract class JoinOperator<A, B> extends Operator<A, B> {
   private forked: boolean = false
   private errs: Set<Error> = new Set()
-  private head: ForkedEvent<Q> | null = null
-  private tail: ForkedEvent<Q> | null = null
+  private head: ForkedEvent<B> | null = null
+  private tail: ForkedEvent<B> | null = null
   private n: number = 0
   private hasErr: boolean = false
 
@@ -33,7 +33,7 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
     this.n = 0
     // perf optimization: usual case is that we have only one, so let's write it explictly
     if (n === 1) {
-      this.handleFE(tx, head as ForkedEvent<Q>)
+      this.handleFE(tx, head as ForkedEvent<B>)
     } else {
       while (head !== null && this.active) {
         this.handleFE(tx, head)
@@ -60,7 +60,7 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
     this.n = 0
   }
 
-  protected forkNext(tx: Transaction, val: Q): void {
+  protected forkNext(tx: Transaction, val: B): void {
     this.fe(tx, { t: EventType.NEXT, v: val, n: null, e: null as any })
   }
 
@@ -80,15 +80,25 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
     this.fe(tx, { t: -1 as any, v: val, n: null, e: null as any })
   }
 
-  protected joinNext(tx: Transaction, val: Q): void {}
-  protected joinError(tx: Transaction, err: Error): void {}
-  protected joinEnd(tx: Transaction): void {}
+  protected joinNext(tx: Transaction, val: B): void {
+    // TODO: send in try-catch block (sendNext)??
+    this.sink.next(tx, val)
+  }
+
+  protected joinError(tx: Transaction, err: Error): void {
+    this.sink.error(tx, err)
+  }
+
+  protected joinEnd(tx: Transaction): void {
+    this.sink.end(tx)
+  }
+
   protected joinCustom(tx: Transaction, val: any): void {}
 
-  private handleFE(tx: Transaction, fe: ForkedEvent<Q>): void {
+  private handleFE(tx: Transaction, fe: ForkedEvent<B>): void {
     switch (fe.t) {
       case EventType.NEXT:
-        this.joinNext(tx, (fe.v as any) as Q)
+        this.joinNext(tx, (fe.v as any) as B)
         break
       case EventType.ERROR:
         this.joinError(tx, (fe.e as any) as Error)
@@ -102,7 +112,7 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
     }
   }
 
-  private fe(tx: Transaction, fe: ForkedEvent<Q>) {
+  private fe(tx: Transaction, fe: ForkedEvent<B>) {
     ++this.n
     this.tail === null ? (this.head = this.tail = fe) : (this.tail = this.tail.n = fe)
     this.fork(tx)
@@ -110,7 +120,7 @@ export abstract class JoinOperator<A, B, Q> extends Operator<A, B> {
 }
 
 class Join implements Operation {
-  constructor(public priority: number, private target: JoinOperator<any, any, any>) {}
+  constructor(public priority: number, private target: JoinOperator<any, any>) {}
 
   public exec(tx: Transaction): void {
     this.target.startJoin(tx)
