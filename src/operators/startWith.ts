@@ -1,4 +1,4 @@
-import { invoke, Invokeable, sendNextInTx, Source } from "../_core"
+import { invoke, Invokeable, sendNextInTx, Source, Subscriber, Subscription } from "../_core"
 import { makeEventStream, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
@@ -50,17 +50,39 @@ class StartWithP<T> extends Operator<T, T> {
   }
 }
 
-class StartWithE<T> extends Identity<T> implements Invokeable<undefined> {
+class StartWithE<T> extends Identity<T> {
   constructor(source: Source<T>, private readonly value: T) {
     super(source)
   }
 
+  public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
+    return new StartWithESubscription(this, super.subscribe(subscriber, order))
+  }
+
+  public start(): void {
+    this.active && sendNextInTx(this.sink, this.value)
+  }
+}
+
+class StartWithESubscription<T> implements Subscription, Invokeable<undefined> {
+  private d: boolean = false
+  constructor(private swe: StartWithE<T>, private s: Subscription) {}
+
   public activate(initialNeeded: boolean): void {
     scheduleActivationTask(invoke(this))
-    super.activate(initialNeeded)
+    this.swe.activate(initialNeeded)
   }
 
   public invoke(): void {
-    this.active && sendNextInTx(this.sink, this.value)
+    !this.d && this.swe.start()
+  }
+
+  public dispose(): void {
+    this.d = true
+    this.s.dispose()
+  }
+
+  public reorder(order: number): void {
+    this.s.reorder(order)
   }
 }
