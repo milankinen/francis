@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.bufferingThrottle limits throughput but includes all events 1`] = `
+Array [
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 2,
+  },
+  Object {
+    "event": Next {
+      "value": 2,
+    },
+    "tick": 5,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 8,
+  },
+  Object {
+    "event": End {},
+    "tick": 11,
+  },
+]
+`;
+
+exports[`Property.bufferingThrottle passes intial value immediately and limits changes throughput but includes all events 1`] = `
+Array [
+  Object {
+    "event": Next {
+      "value": 0,
+    },
+    "tick": 0,
+  },
+  Sync {},
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 3,
+  },
+  Object {
+    "event": Next {
+      "value": 2,
+    },
+    "tick": 6,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 9,
+  },
+  Object {
+    "event": End {},
+    "tick": 12,
+  },
+]
+`;

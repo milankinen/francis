@@ -14,6 +14,22 @@ export function throttle<T>(delay: number, observable: Observable<T>): Observabl
   return makeObservable(observable, new Throttle(observable.src, delay))
 }
 
+export function bufferingThrottle<T>(minimumInterval: number, observable: Property<T>): Property<T>
+export function bufferingThrottle<T>(
+  minimumInterval: number,
+  observable: EventStream<T>,
+): EventStream<T>
+export function bufferingThrottle<T>(
+  minimumInterval: number,
+  observable: Observable<T>,
+): Observable<T>
+export function bufferingThrottle<T>(
+  minimumInterval: number,
+  observable: Observable<T>,
+): Observable<T> {
+  return makeObservable(observable, new BufferingThrottle(observable.src, minimumInterval))
+}
+
 export abstract class ThrottleBase<T> extends InitialAndChanges<T> implements OnTimeout {
   protected to: Timeout | null = null
 
@@ -74,5 +90,46 @@ export class Throttle<T> extends ThrottleBase<T> {
     this.to = null
     sendNextInTx(this.sink, this.memo)
     this.active && this.ended && sendEndInTx(this.sink)
+  }
+}
+
+class BufferingThrottle<T> extends ThrottleBase<T> {
+  private buffer: T[] = []
+  private ended: boolean = false
+
+  public dispose(): void {
+    this.buffer = []
+    this.ended = false
+    super.dispose()
+  }
+
+  public nextInitial(tx: Transaction, val: T): void {
+    this.ensureTimeout()
+    this.sink.next(tx, val)
+  }
+
+  public nextChange(tx: Transaction, val: T): void {
+    if (this.to === null) {
+      this.nextInitial(tx, val)
+    } else {
+      this.buffer.push(val)
+    }
+  }
+
+  public end(tx: Transaction): void {
+    this.ended = true
+    if (this.to === null) {
+      this.sink.end(tx)
+    }
+  }
+
+  public due(): void {
+    this.to = null
+    if (this.buffer.length > 0) {
+      this.ensureTimeout()
+      sendNextInTx(this.sink, this.buffer.shift())
+    } else if (this.ended && this.active) {
+      sendEndInTx(this.sink)
+    }
   }
 }

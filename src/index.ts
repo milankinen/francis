@@ -50,7 +50,7 @@ export { and, or, not } from "./operators/logic"
 export { zipAsArray, zipWith } from "./operators/zip"
 export { update } from "./operators/update"
 export { errors } from "./operators/errors"
-export { throttle } from "./operators/throttle"
+export { throttle, bufferingThrottle } from "./operators/throttle"
 
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"

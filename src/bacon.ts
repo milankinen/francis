@@ -90,6 +90,7 @@ declare module "./Observable" {
     combine<B, C>(other: Observable<B>, f: (a: A, b: B) => C): Property<C>
     errors(): Observable<A>
     throttle(delay: number): Observable<A>
+    bufferingThrottle(minimumInterval: number): Observable<A>
   }
 }
 
@@ -121,6 +122,7 @@ declare module "./EventStream" {
     startWith(value: A): EventStream<A>
     errors(): EventStream<A>
     throttle(delay: number): EventStream<A>
+    bufferingThrottle(minimumInterval: number): EventStream<A>
   }
 }
 
@@ -161,6 +163,7 @@ declare module "./Property" {
     not<B>(): Property<boolean>
     errors(): Property<A>
     throttle(delay: number): Property<A>
+    bufferingThrottle(minimumInterval: number): Property<A>
   }
 }
 
@@ -355,6 +358,10 @@ Observable.prototype["errors"] = function<A>(): Observable<A> {
 
 Observable.prototype["throttle"] = function<A>(delay: number): Observable<A> {
   return Throttle.throttle(delay, this)
+}
+
+Observable.prototype["bufferingThrottle"] = function<A>(minimumInterval: number): Observable<A> {
+  return Throttle.bufferingThrottle(minimumInterval, this)
 }
 
 // EventStream specific operators
