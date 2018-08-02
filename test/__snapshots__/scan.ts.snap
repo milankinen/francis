@@ -59,7 +59,7 @@ Array [
 ]
 `;
 
-exports[`Property.filter with initial value, starts with f(seed, init),immediately 1`] = `
+exports[`Property.scan with initial value, starts with f(seed, init),immediately 1`] = `
 Array [
   Next {
     "value": 1,
@@ -75,7 +75,7 @@ Array [
 ]
 `;
 
-exports[`Property.filter without initial value, starts with seed, immediately 1`] = `
+exports[`Property.scan without initial value, starts with seed, immediately 1`] = `
 Array [
   Next {
     "value": 0,
@@ -91,7 +91,7 @@ Array [
 ]
 `;
 
-exports[`Property.filter works with synchronously responding empty source 1`] = `
+exports[`Property.scan works with synchronously responding empty source 1`] = `
 Array [
   Next {
     "value": 1,

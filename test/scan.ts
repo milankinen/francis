@@ -42,7 +42,7 @@ describe("EventStream.scan", () => {
   })
 })
 
-describe("Property.filter", () => {
+describe("Property.scan", () => {
   it("results in Property", () => {
     expect(F.constant(1).scan(0, (s, a) => s + a)).toBeInstanceOf(F.Property)
   })
