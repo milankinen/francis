@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.repeat does not cause stack overflow 1`] = `
+Array [
+  End {},
+]
+`;
+
+exports[`F.repeat does not mess up transcation semantics 1`] = `
+Array [
+  Next {
+    "value": Array [
+      Array [
+        "a",
+        "a!",
+        "a?",
+      ],
+      "A",
+    ],
+  },
+  Next {
+    "value": Array [
+      Array [
+        "b",
+        "b!",
+        "b?",
+      ],
+      "B",
+    ],
+  },
+  Next {
+    "value": Array [
+      Array [
+        "c",
+        "c!",
+        "c?",
+      ],
+      "C",
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`F.repeat polls new streams from generator function until empty result 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`F.repeat works with synchronous streams 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;

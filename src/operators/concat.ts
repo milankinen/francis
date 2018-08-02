@@ -13,7 +13,7 @@ export function concatAll<T>(observables: Array<Observable<T>>): EventStream<T> 
   return makeMultiSourceStream<T>(observables, Concat)
 }
 
-class Concat<T> extends MultiSource<T> {
+export class Concat<T> extends MultiSource<T> {
   constructor(sources: Array<Source<T>>) {
     super(sources, 1)
   }

@@ -15,6 +15,7 @@ export { later } from "./sources/later"
 export { fromBinder } from "./sources/fromBinder"
 export { fromEvent } from "./sources/fromEvent"
 export { never } from "./sources/never"
+export { repeat } from "./sources/repeat"
 
 // operators
 export { map } from "./operators/map"

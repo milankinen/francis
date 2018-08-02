@@ -422,6 +422,7 @@ export { later } from "./sources/later"
 export { never } from "./sources/never"
 export { sequentially } from "./sources/sequentially"
 export { constant, once } from "./sources/single"
+export { repeat } from "./sources/repeat"
 // classes and interfaces
 export * from "./_interfaces"
 
