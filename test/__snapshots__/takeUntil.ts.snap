@@ -50,6 +50,26 @@ Array [
 ]
 `;
 
+exports[`EventStream.takeUntil remembers its end state 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 2,
+    },
+    Next {
+      "value": 3,
+    },
+    End {},
+  ],
+  "second": Array [
+    End {},
+  ],
+}
+`;
+
 exports[`EventStream.takeUntil takes elements from source until an event appears in the other stream 1`] = `
 Array [
   Next {

@@ -1,5 +1,5 @@
 import * as F from "../bacon"
-import { run, Sync } from "./_base"
+import { byLabel, labeled, run, Sync } from "./_base"
 
 describe("EventStream.takeWhile", () => {
   it("results in EventStream", () => {
@@ -22,6 +22,17 @@ describe("EventStream.takeWhile", () => {
       s.takeWhile(odd).subscribe(record)
     })
     expect(recording).toMatchSnapshot()
+  })
+
+  it("remembers its end state", () => {
+    const recording = run((record, wait) => {
+      const s = F.sequentially(3, [1, 2, 3, 4, 5, 6, 7, 8]).takeWhile(x => x < 3)
+      s.subscribe(labeled(record, "first"))
+      wait(100, () => {
+        s.subscribe(labeled(record, "second"))
+      })
+    })
+    expect(byLabel(recording)).toMatchSnapshot()
   })
 })
 

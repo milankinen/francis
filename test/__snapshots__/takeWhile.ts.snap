@@ -12,6 +12,23 @@ Array [
 ]
 `;
 
+exports[`EventStream.takeWhile remembers its end state 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 2,
+    },
+    End {},
+  ],
+  "second": Array [
+    End {},
+  ],
+}
+`;
+
 exports[`EventStream.takeWhile takes while predicate is true 1`] = `
 Array [
   Next {
