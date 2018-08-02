@@ -1,5 +1,6 @@
 import { __DEVBUILD__, assert } from "../_assert"
 import {
+  EndStateAware,
   invoke,
   InvokeableWithoutParam,
   NOOP_SUBSCRIBER,
@@ -9,14 +10,14 @@ import {
   Subscriber,
   Subscription,
 } from "../_core"
-import { isObservable, makeEventStream } from "../_obs"
+import { isObservable, makeStatefulEventStream } from "../_obs"
 import { Transaction } from "../_tx"
 import { every } from "../_util"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { scheduleActivationTask } from "../scheduler/index"
 import { never } from "../sources/never"
-import { identity } from "./_base"
+import { Identity } from "./_base"
 import { toEventStream } from "./toEventStream"
 
 export function makeMultiSourceStream<T>(
@@ -29,14 +30,29 @@ export function makeMultiSourceStream<T>(
   if (observables.length === 0) {
     observables = [never()]
   }
-  return makeEventStream(identity<T>(new ctor(observables.map(o => toEventStream(o).src))))
+  return makeStatefulEventStream(
+    new MSIdentity(new ctor(observables.map(o => toEventStream(o).src))),
+  )
 }
 
 export interface MultiSourceCtor<T> {
-  new (sources: Array<Source<T>>): MultiSource<T>
+  new (sources: Array<Source<T>>): MultiSource<T> & EndStateAware
 }
 
-export abstract class MultiSource<T> implements Source<T>, Subscription, InvokeableWithoutParam {
+export class MSIdentity<T> extends Identity<T> implements EndStateAware {
+  protected source!: MultiSource<T>
+
+  constructor(source: MultiSource<T>) {
+    super(source)
+  }
+
+  public isEnded(): boolean {
+    return this.source.isEnded()
+  }
+}
+
+export abstract class MultiSource<T>
+  implements Source<T>, Subscription, InvokeableWithoutParam, EndStateAware {
   public readonly weight: number
   protected head: MultiSourceNode<T> | null
   protected sink: Subscriber<T> = NOOP_SUBSCRIBER
@@ -49,6 +65,10 @@ export abstract class MultiSource<T> implements Source<T>, Subscription, Invokea
     for (let i = 1; i < sources.length; i++) {
       tail = tail.t = new MultiSourceNode(this, sources[i], tail, null)
     }
+  }
+
+  public isEnded(): boolean {
+    return this.head === null
   }
 
   public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
