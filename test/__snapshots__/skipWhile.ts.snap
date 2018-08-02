@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.skipWhile can filter by Property value 1`] = `
+Array [
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 8,
+  },
+  Next {
+    "value": 7,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipWhile skips while predicate is true 1`] = `
+Array [
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`Property.skipWhile works synchronously 1`] = `
+Array [
+  Sync {},
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;

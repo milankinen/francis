@@ -33,6 +33,8 @@ import * as Merge from "./operators/merge"
 import * as Sample from "./operators/sample"
 import * as Scan from "./operators/scan"
 import * as Skip from "./operators/skip"
+import * as SkipUntil from "./operators/skipUntil"
+import * as SkipWhile from "./operators/skipWhile"
 import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
@@ -64,6 +66,8 @@ declare module "./Observable" {
     first(): Observable<A>
     last(): Observable<A>
     skip(n: number): Observable<A>
+    skipUntil(trigger: Observable<any>): Observable<A>
+    skipWhile(trigger: Predicate<A> | Property<boolean>): Observable<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Observable<B>
@@ -98,6 +102,8 @@ declare module "./EventStream" {
     first(): EventStream<A>
     last(): EventStream<A>
     skip(n: number): EventStream<A>
+    skipUntil(trigger: Observable<any>): EventStream<A>
+    skipWhile(trigger: Predicate<A> | Property<boolean>): EventStream<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
@@ -125,6 +131,8 @@ declare module "./Property" {
     first(): Property<A>
     last(): Property<A>
     skip(n: number): Property<A>
+    skipUntil(trigger: Observable<any>): Property<A>
+    skipWhile(trigger: Predicate<A> | Property<boolean>): Property<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Property<B>
@@ -228,6 +236,17 @@ Observable.prototype["takeWhile"] = function<A>(
 
 Observable.prototype["skip"] = function<A>(n: number): Observable<A> {
   return Skip.skip(n, this)
+}
+
+Observable.prototype["skipUntil"] = function<A>(trigger: Observable<any>): Observable<A> {
+  return SkipUntil.skipUntil(trigger, this)
+}
+
+Observable.prototype["skipWhile"] = function<A>(
+  f: Predicate<A> | Property<boolean>,
+  ...rest: any[]
+): Observable<A> {
+  return SkipWhile.skipWhile(isProperty(f) ? f : toFunction(f, rest), this)
 }
 
 Observable.prototype["first"] = function<A>(): Observable<A> {

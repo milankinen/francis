@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.skipUntil considers Property init value as trigger 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipUntil end properly when trigger produces value 1`] = `
+Array [
+  "activate: trigger",
+  "activate: source",
+  "dispose: trigger",
+]
+`;
+
+exports[`EventStream.skipUntil ends properly when source ends 1`] = `
+Array [
+  "activate: trigger",
+  "activate: source",
+  "dispose: source",
+  "dispose: trigger",
+  End {},
+]
+`;
+
+exports[`EventStream.skipUntil includes source errors, ignores trigger errors 1`] = `
+Array [
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 4,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipUntil skips events until one appears in given trigger stream 1`] = `
+Array [
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipUntil works on self-derived stopper with an evil twist 1`] = `
+Array [
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipUntil works on self-derived trigger 1`] = `
+Array [
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipUntil works with Property as trigger 1`] = `
+Array [
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`Property.skipUntil works synchronously 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
