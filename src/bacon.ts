@@ -18,6 +18,7 @@ import {
 } from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
+import * as Buffer from "./operators/buffer"
 import * as Changes from "./operators/changes"
 import * as Combine from "./operators/combine"
 import * as Concat from "./operators/concat"
@@ -123,6 +124,9 @@ declare module "./EventStream" {
     errors(): EventStream<A>
     throttle(delay: number): EventStream<A>
     bufferingThrottle(minimumInterval: number): EventStream<A>
+    bufferWithTime(delay: number): EventStream<A[]>
+    bufferWithCount(count: number): EventStream<A[]>
+    bufferWithTimeOrCount(delay: number, count: number): EventStream<A[]>
   }
 }
 
@@ -375,6 +379,21 @@ EventStream.prototype["toProperty"] = function<A>(initialValue?: A): Property<A>
 const esProto = EventStream.prototype as any
 esProto["toEventStream"] = function<A>(): EventStream<A> {
   return this
+}
+
+EventStream.prototype["bufferWithTime"] = function<A>(delay: number): EventStream<A[]> {
+  return Buffer.bufferWithTime(delay, this)
+}
+
+EventStream.prototype["bufferWithCount"] = function<A>(count: number): EventStream<A[]> {
+  return Buffer.bufferWithCount(count, this)
+}
+
+EventStream.prototype["bufferWithTimeOrCount"] = function<A>(
+  delay: number,
+  count: number,
+): EventStream<A[]> {
+  return Buffer.bufferWithTimeOrCount(delay, count, this)
 }
 
 // Property specific operators

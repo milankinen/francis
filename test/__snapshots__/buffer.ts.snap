@@ -1,0 +1,99 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.bufferWithCount returns events in chunks of fixed size, passing through errors 1`] = `
+Array [
+  Next {
+    "value": Array [
+      1,
+      2,
+    ],
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": Array [
+      3,
+      4,
+    ],
+  },
+  Next {
+    "value": Array [
+      5,
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.bufferWithCount works with empty stream 1`] = `
+Array [
+  End {},
+]
+`;
+
+exports[`EventStream.bufferWithTime returns events in bursts, passing through errors 1`] = `
+Array [
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": Array [
+      1,
+      2,
+      3,
+      4,
+    ],
+  },
+  Next {
+    "value": Array [
+      5,
+      6,
+      7,
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.bufferWithTime works with empty stream 1`] = `
+Array [
+  End {},
+]
+`;
+
+exports[`EventStream.bufferWithTimeOrCount flushes correctly when scheduled and count-based times overlap 1`] = `
+Array [
+  Next {
+    "value": Array [
+      1,
+      2,
+      3,
+      4,
+      5,
+    ],
+  },
+  Next {
+    "value": Array [
+      6,
+      7,
+    ],
+  },
+  Next {
+    "value": Array [
+      10,
+    ],
+  },
+  Next {
+    "value": Array [
+      20,
+    ],
+  },
+  Next {
+    "value": Array [
+      30,
+    ],
+  },
+  End {},
+]
+`;

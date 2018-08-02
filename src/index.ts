@@ -51,6 +51,7 @@ export { zipAsArray, zipWith } from "./operators/zip"
 export { update } from "./operators/update"
 export { errors } from "./operators/errors"
 export { throttle, bufferingThrottle } from "./operators/throttle"
+export { bufferWithTime, bufferWithCount, bufferWithTimeOrCount } from "./operators/buffer"
 
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"
