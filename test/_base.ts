@@ -28,6 +28,7 @@ export function byLabel(recording: any[]): any {
 export type RecordedCodeBlock = (
   record: (x: any) => any,
   wait: (t: number, op: () => any) => void,
+  now: () => number,
 ) => void
 
 export function run(fn: RecordedCodeBlock): any[] {
@@ -36,6 +37,7 @@ export function run(fn: RecordedCodeBlock): any[] {
     const state = {
       complete: false,
       recording: [] as any[],
+      tick: 0,
     }
     const record = (x: any) => {
       state.recording.push(x)
@@ -43,11 +45,13 @@ export function run(fn: RecordedCodeBlock): any[] {
     const wait = (t: number, op: () => any) => {
       setTimeout(op, t)
     }
-    fn(record, wait)
+    const now = () => state.tick
+    fn(record, wait, now)
     wait(10000, () => (state.complete = true))
     while (!state.complete) {
       jest.runAllTicks()
       jest.runAllImmediates()
+      ++state.tick
       jest.advanceTimersByTime(1)
     }
     return state.recording

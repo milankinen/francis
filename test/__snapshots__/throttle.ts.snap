@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.throttle outputs at steady intervals, without waiting for quiet period 1`] = `
+Array [
+  Object {
+    "event": Next {
+      "value": 2,
+    },
+    "tick": 5,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 9,
+  },
+  Object {
+    "event": End {},
+    "tick": 9,
+  },
+]
+`;
+
+exports[`Property.throttle throttles changes but not initial value 1`] = `
+Array [
+  Object {
+    "event": Next {
+      "value": 0,
+    },
+    "tick": 0,
+  },
+  Sync {},
+  Object {
+    "event": Next {
+      "value": 2,
+    },
+    "tick": 5,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 9,
+  },
+  Object {
+    "event": End {},
+    "tick": 9,
+  },
+]
+`;

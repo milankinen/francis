@@ -42,6 +42,7 @@ import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as TakeUntil from "./operators/takeUntil"
 import * as TakeWhile from "./operators/takeWhile"
+import * as Throttle from "./operators/throttle"
 import * as ToEventStream from "./operators/toEventStream"
 import * as ToProperty from "./operators/toProperty"
 import * as Zip from "./operators/zip"
@@ -88,6 +89,7 @@ declare module "./Observable" {
     concat(other: Observable<A>): EventStream<A>
     combine<B, C>(other: Observable<B>, f: (a: A, b: B) => C): Property<C>
     errors(): Observable<A>
+    throttle(delay: number): Observable<A>
   }
 }
 
@@ -118,6 +120,7 @@ declare module "./EventStream" {
     ): EventStream<B>
     startWith(value: A): EventStream<A>
     errors(): EventStream<A>
+    throttle(delay: number): EventStream<A>
   }
 }
 
@@ -157,6 +160,7 @@ declare module "./Property" {
     or<B>(other: Property<B>): Property<Logic.OrResult<A, B>>
     not<B>(): Property<boolean>
     errors(): Property<A>
+    throttle(delay: number): Property<A>
   }
 }
 
@@ -347,6 +351,10 @@ Observable.prototype["combine"] = function<A, B, C>(
 
 Observable.prototype["errors"] = function<A>(): Observable<A> {
   return Errors.errors(this)
+}
+
+Observable.prototype["throttle"] = function<A>(delay: number): Observable<A> {
+  return Throttle.throttle(delay, this)
 }
 
 // EventStream specific operators
