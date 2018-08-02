@@ -44,6 +44,7 @@ import * as ToEventStream from "./operators/toEventStream"
 import * as ToProperty from "./operators/toProperty"
 import * as Zip from "./operators/zip"
 import { isProperty, Property } from "./Property"
+import { interval } from "./sources/interval"
 
 declare module "./Observable" {
   interface Observable<A> {
@@ -145,6 +146,7 @@ declare module "./Property" {
     sampledBy<B>(sampler: Property<B>): Property<A>
     sampledBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
     sampledBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
+    sample(interval: number): EventStream<A>
     startWith(value: A): Property<A>
     and<B>(other: Property<B>): Property<Logic.AndResult<A, B>>
     or<B>(other: Property<B>): Property<Logic.OrResult<A, B>>
@@ -359,6 +361,10 @@ Property.prototype["sampledBy"] = function<A, B, C>(
 ): any {
   const fn = toFunction(f === undefined ? (v: A, s: B) => v as any : f, rest)
   return Sample.sampleWith(sampler, fn, this)
+}
+
+Property.prototype["sample"] = function<A>(i: number): EventStream<A> {
+  return Sample.sampleBy(interval(i, null as any), this)
 }
 
 Property.prototype["and"] = function<A, B>(other: Property<B>): Property<Logic.AndResult<A, B>> {
