@@ -1,0 +1,53 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Property.changes skips cached property latest value event when re-subscribing 1`] = `
+Object {
+  ".changes": Array [
+    Next {
+      "value": 3,
+    },
+    Next {
+      "value": 4,
+    },
+    End {},
+  ],
+  ".toEventStream": Array [
+    Next {
+      "value": 2,
+    },
+    Next {
+      "value": 3,
+    },
+    Next {
+      "value": 4,
+    },
+    End {},
+  ],
+}
+`;
+
+exports[`Property.changes skips property's initial event 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.changes skips startWith initial event 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;

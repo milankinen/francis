@@ -18,6 +18,7 @@ import {
 } from "./_interrop"
 import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
+import * as Changes from "./operators/changes"
 import * as Combine from "./operators/combine"
 import * as Concat from "./operators/concat"
 import * as Do from "./operators/do"
@@ -123,6 +124,7 @@ declare module "./EventStream" {
 declare module "./Property" {
   interface Property<A> {
     toEventStream(): EventStream<A>
+    changes(): EventStream<A>
     doAction(f: (val: A) => void): Property<A>
     doError(f: (err: Error) => void): Property<A>
     doEnd(f: () => void): Property<A>
@@ -395,6 +397,10 @@ pProto["toProperty"] = function<A>(initialValue?: A): Property<A> {
 
 Property.prototype["toEventStream"] = function<A>(): EventStream<A> {
   return ToEventStream.toEventStream(this)
+}
+
+Property.prototype["changes"] = function<A>(): EventStream<A> {
+  return Changes.changes(this)
 }
 
 // static operators
