@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.takeWhile can filter by Property value 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.takeWhile takes while predicate is true 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.takeWhile works synchronously 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;

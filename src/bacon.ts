@@ -37,10 +37,11 @@ import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
 import * as TakeUntil from "./operators/takeUntil"
+import * as TakeWhile from "./operators/takeWhile"
 import * as ToEventStream from "./operators/toEventStream"
 import * as ToProperty from "./operators/toProperty"
 import * as Zip from "./operators/zip"
-import { Property } from "./Property"
+import { isProperty, Property } from "./Property"
 
 declare module "./Observable" {
   interface Observable<A> {
@@ -59,6 +60,7 @@ declare module "./Observable" {
     filter(predicate: Predicate<A> | Property<any>): Observable<A>
     take(n: number): Observable<A>
     takeUntil(trigger: Observable<any>): Observable<A>
+    takeWhile(f: Predicate<A> | Property<boolean>): Observable<A>
     first(): Observable<A>
     last(): Observable<A>
     skip(n: number): Observable<A>
@@ -92,6 +94,7 @@ declare module "./EventStream" {
     filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
     takeUntil(trigger: Observable<any>): EventStream<A>
+    takeWhile(f: Predicate<A> | Property<boolean>): EventStream<A>
     first(): EventStream<A>
     last(): EventStream<A>
     skip(n: number): EventStream<A>
@@ -118,6 +121,7 @@ declare module "./Property" {
     filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
     takeUntil(trigger: Observable<any>): Property<A>
+    takeWhile(f: Predicate<A> | Property<boolean>): Property<A>
     first(): Property<A>
     last(): Property<A>
     skip(n: number): Property<A>
@@ -213,6 +217,13 @@ Observable.prototype["take"] = function<A>(n: number): Observable<A> {
 
 Observable.prototype["takeUntil"] = function<A>(trigger: Observable<any>): Observable<A> {
   return TakeUntil.takeUntil(trigger, this)
+}
+
+Observable.prototype["takeWhile"] = function<A>(
+  f: Predicate<A> | Property<boolean>,
+  ...rest: any[]
+): Observable<A> {
+  return TakeWhile.takeWhile(isProperty(f) ? f : toFunction(f, rest), this)
 }
 
 Observable.prototype["skip"] = function<A>(n: number): Observable<A> {
