@@ -21,6 +21,7 @@ import { Observable } from "./Observable"
 import * as Combine from "./operators/combine"
 import * as Concat from "./operators/concat"
 import * as Do from "./operators/do"
+import * as Errors from "./operators/errors"
 import * as Filter from "./operators/filter"
 import * as First from "./operators/first"
 import * as FlatMap from "./operators/flatMap"
@@ -85,6 +86,7 @@ declare module "./Observable" {
     merge(other: Observable<A>): EventStream<A>
     concat(other: Observable<A>): EventStream<A>
     combine<B, C>(other: Observable<B>, f: (a: A, b: B) => C): Property<C>
+    errors(): Observable<A>
   }
 }
 
@@ -114,6 +116,7 @@ declare module "./EventStream" {
       project: Projection<A, B | Observable<B>>,
     ): EventStream<B>
     startWith(value: A): EventStream<A>
+    errors(): EventStream<A>
   }
 }
 
@@ -151,6 +154,7 @@ declare module "./Property" {
     and<B>(other: Property<B>): Property<Logic.AndResult<A, B>>
     or<B>(other: Property<B>): Property<Logic.OrResult<A, B>>
     not<B>(): Property<boolean>
+    errors(): Property<A>
   }
 }
 
@@ -337,6 +341,10 @@ Observable.prototype["combine"] = function<A, B, C>(
   ...rest: any[]
 ): Property<C> {
   return Combine.combineWith(toFunction(f, rest), [this, other] as any)
+}
+
+Observable.prototype["errors"] = function<A>(): Observable<A> {
+  return Errors.errors(this)
 }
 
 // EventStream specific operators

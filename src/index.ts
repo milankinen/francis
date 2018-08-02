@@ -47,6 +47,7 @@ export { startWith } from "./operators/startWith"
 export { and, or, not } from "./operators/logic"
 export { zipAsArray, zipWith } from "./operators/zip"
 export { update } from "./operators/update"
+export { errors } from "./operators/errors"
 
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"
