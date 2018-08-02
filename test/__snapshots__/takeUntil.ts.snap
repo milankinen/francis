@@ -1,0 +1,109 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.takeUntil considers Property init value as trigger 1`] = `
+Array [
+  End {},
+]
+`;
+
+exports[`EventStream.takeUntil end properly when trigger produces value 1`] = `
+Array [
+  "activate: trigger",
+  "activate: source",
+  Next {
+    "value": "tsers",
+  },
+  "dispose: trigger",
+  "dispose: source",
+  End {},
+]
+`;
+
+exports[`EventStream.takeUntil ends properly when source ends 1`] = `
+Array [
+  "activate: trigger",
+  "activate: source",
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  "dispose: source",
+  "dispose: trigger",
+  End {},
+]
+`;
+
+exports[`EventStream.takeUntil includes source errors, ignores trigger errors 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.takeUntil takes elements from source until an event appears in the other stream 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.takeUntil works on self-derived stopper with an evil twist 1`] = `
+Array [
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.takeUntil works on self-derived trigger 1`] = `
+Array [
+  Next {
+    "value": 3,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.takeUntil works with Property as trigger 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;
+
+exports[`Property.takeUntil works synchronously 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  End {},
+]
+`;

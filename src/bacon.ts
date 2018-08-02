@@ -36,6 +36,7 @@ import * as Skip from "./operators/skip"
 import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
+import * as TakeUntil from "./operators/takeUntil"
 import * as ToEventStream from "./operators/toEventStream"
 import * as ToProperty from "./operators/toProperty"
 import * as Zip from "./operators/zip"
@@ -57,6 +58,7 @@ declare module "./Observable" {
     map<B>(project: Projection<A, B>): Observable<B>
     filter(predicate: Predicate<A> | Property<any>): Observable<A>
     take(n: number): Observable<A>
+    takeUntil(trigger: Observable<any>): Observable<A>
     first(): Observable<A>
     last(): Observable<A>
     skip(n: number): Observable<A>
@@ -89,6 +91,7 @@ declare module "./EventStream" {
     map<B>(project: Projection<A, B>): EventStream<B>
     filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
+    takeUntil(trigger: Observable<any>): EventStream<A>
     first(): EventStream<A>
     last(): EventStream<A>
     skip(n: number): EventStream<A>
@@ -114,6 +117,7 @@ declare module "./Property" {
     map<B>(project: Projection<A, B>): Property<B>
     filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
+    takeUntil(trigger: Observable<any>): Property<A>
     first(): Property<A>
     last(): Property<A>
     skip(n: number): Property<A>
@@ -205,6 +209,10 @@ Observable.prototype["filter"] = function<A>(
 
 Observable.prototype["take"] = function<A>(n: number): Observable<A> {
   return Take.take(n, this)
+}
+
+Observable.prototype["takeUntil"] = function<A>(trigger: Observable<any>): Observable<A> {
+  return TakeUntil.takeUntil(trigger, this)
 }
 
 Observable.prototype["skip"] = function<A>(n: number): Observable<A> {
