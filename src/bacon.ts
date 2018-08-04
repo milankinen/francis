@@ -38,6 +38,7 @@ import * as Merge from "./operators/merge"
 import * as Sample from "./operators/sample"
 import * as Scan from "./operators/scan"
 import * as Skip from "./operators/skip"
+import * as SkipErrors from "./operators/skipErrors"
 import * as SkipUntil from "./operators/skipUntil"
 import * as SkipWhile from "./operators/skipWhile"
 import * as StartWith from "./operators/startWith"
@@ -77,6 +78,7 @@ declare module "./Observable" {
     skip(n: number): Observable<A>
     skipUntil(trigger: Observable<any>): Observable<A>
     skipWhile(trigger: Predicate<A> | Property<boolean>): Observable<A>
+    skipErrors(): Observable<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Observable<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Observable<B>
@@ -118,6 +120,7 @@ declare module "./EventStream" {
     skip(n: number): EventStream<A>
     skipUntil(trigger: Observable<any>): EventStream<A>
     skipWhile(trigger: Predicate<A> | Property<boolean>): EventStream<A>
+    skipErrors(): EventStream<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): EventStream<B>
@@ -156,6 +159,7 @@ declare module "./Property" {
     skip(n: number): Property<A>
     skipUntil(trigger: Observable<any>): Property<A>
     skipWhile(trigger: Predicate<A> | Property<boolean>): Property<A>
+    skipErrors(): Property<A>
     flatMapLatest<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMapFirst<B>(project: Projection<A, B | Observable<B>>): Property<B>
     flatMap<B>(project: Projection<A, B | Observable<B>>): Property<B>
@@ -285,6 +289,10 @@ Observable.prototype["skipWhile"] = function<A>(
   ...rest: any[]
 ): Observable<A> {
   return SkipWhile.skipWhile(toFunctionsPropAsIs(f, rest), this)
+}
+
+Observable.prototype["skipErrors"] = function<A>(): Observable<A> {
+  return SkipErrors.skipErrors(this)
 }
 
 Observable.prototype["first"] = function<A>(): Observable<A> {

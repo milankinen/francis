@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.skipErrors drops out error events and passthroughs next events 1`] = `
+Array [
+  Next {
+    "value": "lol",
+  },
+  Next {
+    "value": "bal",
+  },
+  End {},
+]
+`;
+
+exports[`Property.skipErrors drops out error events and passthroughs next events 1`] = `
+Array [
+  Next {
+    "value": "...",
+  },
+  Sync {},
+  Next {
+    "value": "lol",
+  },
+  Next {
+    "value": "bal",
+  },
+  End {},
+]
+`;
