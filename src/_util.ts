@@ -45,3 +45,7 @@ export function find<T>(pred: (x: T) => boolean, xs: T[]): T | undefined {
   }
   return undefined
 }
+
+export function constantly<T>(x: T): () => T {
+  return () => x
+}

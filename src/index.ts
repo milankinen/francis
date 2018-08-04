@@ -19,6 +19,8 @@ export { repeat } from "./sources/repeat"
 
 // operators
 export { map } from "./operators/map"
+export { mapError } from "./operators/mapError"
+export { mapEnd } from "./operators/mapEnd"
 export { filter } from "./operators/filter"
 export { take } from "./operators/take"
 export { takeUntil } from "./operators/takeUntil"

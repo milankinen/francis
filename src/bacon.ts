@@ -32,6 +32,8 @@ import * as Last from "./operators/last"
 import * as Log from "./operators/log"
 import * as Logic from "./operators/logic"
 import * as Map from "./operators/map"
+import * as MapEnd from "./operators/mapEnd"
+import * as MapError from "./operators/mapError"
 import * as Merge from "./operators/merge"
 import * as Sample from "./operators/sample"
 import * as Scan from "./operators/scan"
@@ -47,7 +49,7 @@ import * as Throttle from "./operators/throttle"
 import * as ToEventStream from "./operators/toEventStream"
 import * as ToProperty from "./operators/toProperty"
 import * as Zip from "./operators/zip"
-import { isProperty, Property } from "./Property"
+import { Property } from "./Property"
 import { interval } from "./sources/interval"
 
 declare module "./Observable" {
@@ -64,6 +66,8 @@ declare module "./Observable" {
     assign(obj: any, method: string, ...params: any[]): Dispose
     log(label?: string): Dispose
     map<B>(project: Projection<A, B>): Observable<B>
+    mapError<A>(project: Projection<Error, A>): Observable<A>
+    mapEnd(f: MapEnd.EndProjection<A>): Observable<A>
     filter(predicate: Predicate<A> | Property<any>): Observable<A>
     take(n: number): Observable<A>
     takeUntil(trigger: Observable<any>): Observable<A>
@@ -103,6 +107,8 @@ declare module "./EventStream" {
     doEnd(f: () => void): EventStream<A>
     doLog(label?: string): EventStream<A>
     map<B>(project: Projection<A, B>): EventStream<B>
+    mapError<A>(project: Projection<Error, A>): EventStream<A>
+    mapEnd(f: A | MapEnd.EndProjection<A>): EventStream<A>
     filter(predicate: Predicate<A> | Property<any>): EventStream<A>
     take(n: number): EventStream<A>
     takeUntil(trigger: Observable<any>): EventStream<A>
@@ -139,6 +145,8 @@ declare module "./Property" {
     doEnd(f: () => void): Property<A>
     doLog(label?: string): Property<A>
     map<B>(project: Projection<A, B>): Property<B>
+    mapError<A>(project: Projection<Error, A>): Property<A>
+    mapEnd(f: MapEnd.EndProjection<A>): Property<A>
     filter(predicate: Predicate<A> | Property<any>): Property<A>
     take(n: number): Property<A>
     takeUntil(trigger: Observable<any>): Property<A>
@@ -231,6 +239,17 @@ Observable.prototype["map"] = function<A, B>(
   return Map.map(toFunctionsPropAsIs(project, rest), this)
 }
 
+Observable.prototype["mapError"] = function<A>(
+  project: Projection<Error, A>,
+  ...rest: any[]
+): Observable<A> {
+  return MapError.mapError(toFunction(project, rest), this)
+}
+
+Observable.prototype["mapEnd"] = function<A>(f: MapEnd.EndProjection<A>): Observable<A> {
+  return MapEnd.mapEnd(f, this)
+}
+
 Observable.prototype["filter"] = function<A>(
   predicate: Predicate<A> | Property<any>,
   ...rest: any[]
@@ -250,7 +269,7 @@ Observable.prototype["takeWhile"] = function<A>(
   f: Predicate<A> | Property<boolean>,
   ...rest: any[]
 ): Observable<A> {
-  return TakeWhile.takeWhile(isProperty(f) ? f : toFunction(f, rest), this)
+  return TakeWhile.takeWhile(toFunctionsPropAsIs(f, rest), this)
 }
 
 Observable.prototype["skip"] = function<A>(n: number): Observable<A> {
@@ -265,7 +284,7 @@ Observable.prototype["skipWhile"] = function<A>(
   f: Predicate<A> | Property<boolean>,
   ...rest: any[]
 ): Observable<A> {
-  return SkipWhile.skipWhile(isProperty(f) ? f : toFunction(f, rest), this)
+  return SkipWhile.skipWhile(toFunctionsPropAsIs(f, rest), this)
 }
 
 Observable.prototype["first"] = function<A>(): Observable<A> {

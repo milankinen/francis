@@ -1,0 +1,50 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.mapEnd accepts a constant value too 1`] = `
+Array [
+  Next {
+    "value": "lol",
+  },
+  Next {
+    "value": "bal",
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.mapEnd adds an extra event to the end of stream 1`] = `
+Array [
+  Next {
+    "value": "lol",
+  },
+  Next {
+    "value": "bal",
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`Property.mapEnd adds an extra event to the end of stream 1`] = `
+Array [
+  Next {
+    "value": "...",
+  },
+  Sync {},
+  Next {
+    "value": "lol",
+  },
+  Next {
+    "value": "bal",
+  },
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
