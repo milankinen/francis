@@ -1,0 +1,31 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.fromCallback emits the callback value asynchronously 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`F.fromNodeCallback emits the callback value asynchronously 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
+
+exports[`F.fromNodeCallback supports node callback errors 1`] = `
+Array [
+  Sync {},
+  Error {
+    "error": [Error: tsers],
+  },
+  End {},
+]
+`;

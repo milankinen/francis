@@ -31,3 +31,9 @@ export type SinkResult = typeof Event.noMore | typeof Event.more
 export type Sink<T> = (event: SinkEvent<T>) => SinkResult
 
 export type Subscribe<T> = (sink: Sink<T>) => Dispose | any
+
+export type AsyncCallback<T> = (callback: (result: T | AnyEvent<T>) => void) => void
+
+export type AsyncNodeCallback<T> = (
+  callback: (error: Error | null, result?: T | AnyEvent<T>) => void,
+) => void
