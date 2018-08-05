@@ -52,6 +52,7 @@ export {
   flatMapLatest,
   flatMapWithConcurrencyLimit,
 } from "./operators/flatMap"
+export { flatMapError } from "./operators/flatMapError"
 export { toProperty } from "./operators/toProperty"
 export { toEventStream } from "./operators/toEventStream"
 export { changes } from "./operators/changes"

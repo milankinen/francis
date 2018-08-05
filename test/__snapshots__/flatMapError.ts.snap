@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.flatMapError allows spawning a new stream from an error events, passing through next events 1`] = `
+Array [
+  Next {
+    "value": "1",
+  },
+  Next {
+    "value": "2",
+  },
+  Next {
+    "value": "tsers!",
+  },
+  Next {
+    "value": "tsers?",
+  },
+  Next {
+    "value": "3",
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatMapError allows spawning a new stream from an error events, passing through next events 1`] = `
+Array [
+  Next {
+    "value": "1",
+  },
+  Sync {},
+  Next {
+    "value": "2",
+  },
+  Next {
+    "value": "tsers!",
+  },
+  Next {
+    "value": "tsers?",
+  },
+  Next {
+    "value": "3",
+  },
+  End {},
+]
+`;

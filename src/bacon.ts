@@ -59,6 +59,7 @@ declare module "./Observable" {
       limit: number,
       project: Projection<A, B | Observable<B>>,
     ): Observable<B>
+    flatMapError(project: Projection<Error, A | Observable<A>>): Observable<A>
     startWith(value: A): Observable<A>
     scan<B>(seed: B, f: Accum<B, A>): Property<B>
     fold<B>(seed: B, f: Accum<B, A>): Property<B>
@@ -104,6 +105,7 @@ declare module "./EventStream" {
       limit: number,
       project: Projection<A, B | Observable<B>>,
     ): EventStream<B>
+    flatMapError(project: Projection<Error, A | Observable<A>>): EventStream<A>
     startWith(value: A): EventStream<A>
     errors(): EventStream<A>
     throttle(delay: number): EventStream<A>
@@ -145,6 +147,7 @@ declare module "./Property" {
       limit: number,
       project: Projection<A, B | Observable<B>>,
     ): Property<B>
+    flatMapError(project: Projection<Error, A | Observable<A>>): Property<A>
     sampledBy<B>(sampler: EventStream<B>): EventStream<A>
     sampledBy<B>(sampler: Property<B>): Property<A>
     sampledBy<B, C>(sampler: EventStream<B>, f: SampleFn<A, B, C>): EventStream<C>
@@ -313,6 +316,13 @@ Observable.prototype.flatMapWithConcurrencyLimit = function<A, B>(
   ...rest: any[]
 ): Observable<B> {
   return F.flatMapWithConcurrencyLimit(limit, toFunction(project, rest), this)
+}
+
+Observable.prototype.flatMapError = function<A>(
+  project: Projection<Error, A | Observable<A>>,
+  ...rest: any[]
+): Observable<A> {
+  return F.flatMapError(toFunction(project, rest), this)
 }
 
 Observable.prototype.startWith = function<A>(value: A): Observable<A> {
