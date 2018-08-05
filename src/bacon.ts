@@ -72,6 +72,7 @@ declare module "./Observable" {
     bufferingThrottle(minimumInterval: number): Observable<A>
     slidingWindow(max: number, min?: number): Property<A[]>
     skipDuplicates(isEqual?: Eq<A>): Observable<A>
+    diff<D>(start: A, f: F.Delta<A, D>): Observable<D>
   }
 }
 
@@ -111,6 +112,7 @@ declare module "./EventStream" {
     bufferWithCount(count: number): EventStream<A[]>
     bufferWithTimeOrCount(delay: number, count: number): EventStream<A[]>
     skipDuplicates(isEqual?: Eq<A>): EventStream<A>
+    diff<D>(start: A, f: F.Delta<A, D>): EventStream<D>
   }
 }
 
@@ -156,6 +158,7 @@ declare module "./Property" {
     throttle(delay: number): Property<A>
     bufferingThrottle(minimumInterval: number): Property<A>
     skipDuplicates(isEqual?: Eq<A>): Property<A>
+    diff<D>(start: A, f: F.Delta<A, D>): Property<D>
   }
 }
 
@@ -372,6 +375,9 @@ Observable.prototype.skipDuplicates = function<A>(isEqual?: Eq<A>): Observable<A
   return isEqual === undefined ? F.skipEquals(this) : F.skipDuplicates(isEqual, this)
 }
 
+Observable.prototype.diff = function<A, D>(start: A, f: F.Delta<A, D>): Observable<D> {
+  return F.diff(f, start, this)
+}
 // EventStream specific operators
 
 EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {

@@ -1,0 +1,58 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.diff apply diff function to previous and current values, passing through errors 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 3,
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 5,
+  },
+  End {},
+]
+`;
+
+exports[`Property.diff with initial value, starts with f(start, initial) 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Sync {},
+  Next {
+    "value": 3,
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 5,
+  },
+  End {},
+]
+`;
+
+exports[`Property.diff without initial value, works like EventStream.diff 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 3,
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 5,
+  },
+  End {},
+]
+`;
