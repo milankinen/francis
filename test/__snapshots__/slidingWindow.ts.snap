@@ -1,0 +1,90 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.slidingWindow accepts second parameter for minimum length of the window 1`] = `
+Array [
+  Next {
+    "value": Array [
+      1,
+      2,
+    ],
+  },
+  Next {
+    "value": Array [
+      1,
+      2,
+      3,
+    ],
+  },
+  Next {
+    "value": Array [
+      2,
+      3,
+      4,
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.slidingWindow slides the window over events, passing through errors 1`] = `
+Array [
+  Next {
+    "value": Array [],
+  },
+  Sync {},
+  Next {
+    "value": Array [
+      1,
+    ],
+  },
+  Next {
+    "value": Array [
+      1,
+      2,
+    ],
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": Array [
+      2,
+      3,
+    ],
+  },
+  End {},
+]
+`;
+
+exports[`Property.slidingWindow slides the window over events, passing through errors 1`] = `
+Array [
+  Next {
+    "value": Array [
+      0,
+    ],
+  },
+  Sync {},
+  Next {
+    "value": Array [
+      0,
+      1,
+    ],
+  },
+  Next {
+    "value": Array [
+      1,
+      2,
+    ],
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": Array [
+      2,
+      3,
+    ],
+  },
+  End {},
+]
+`;

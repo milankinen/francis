@@ -41,6 +41,7 @@ import * as Skip from "./operators/skip"
 import * as SkipErrors from "./operators/skipErrors"
 import * as SkipUntil from "./operators/skipUntil"
 import * as SkipWhile from "./operators/skipWhile"
+import * as SlidingWindow from "./operators/slidingWindow"
 import * as StartWith from "./operators/startWith"
 import * as Subscribe from "./operators/subscribe"
 import * as Take from "./operators/take"
@@ -98,6 +99,7 @@ declare module "./Observable" {
     errors(): Observable<A>
     throttle(delay: number): Observable<A>
     bufferingThrottle(minimumInterval: number): Observable<A>
+    slidingWindow(max: number, min?: number): Property<A[]>
   }
 }
 
@@ -393,6 +395,10 @@ Observable.prototype["throttle"] = function<A>(delay: number): Observable<A> {
 
 Observable.prototype["bufferingThrottle"] = function<A>(minimumInterval: number): Observable<A> {
   return Throttle.bufferingThrottle(minimumInterval, this)
+}
+
+Observable.prototype["slidingWindow"] = function<A>(max: number, min?: number): Property<A[]> {
+  return SlidingWindow.slidingWindow(min === undefined ? 0 : min, max, this)
 }
 
 // EventStream specific operators
