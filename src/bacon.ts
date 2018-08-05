@@ -15,6 +15,7 @@ import {
   Eq,
   ErrorHandler,
   EventStream,
+  FlatAccum,
   Handler,
   Observable,
   OrResult,
@@ -23,7 +24,6 @@ import {
   Property,
   ValueHandler,
   ValuesHandler,
-  FlatAccum,
 } from "./index"
 
 declare module "./Observable" {
