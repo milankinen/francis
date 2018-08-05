@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Francis functional interface supports curried ops and piping the curried ops 1`] = `
+Array [
+  Next {
+    "value": "tsers!",
+  },
+  Next {
+    "value": "tsers!!",
+  },
+  Next {
+    "value": "tsers!!!",
+  },
+  Next {
+    "value": "tsers!!!!",
+  },
+  Next {
+    "value": "tsers!!!!!",
+  },
+  End {},
+]
+`;

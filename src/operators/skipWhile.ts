@@ -2,7 +2,7 @@ import { Source } from "../_core"
 import { Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
@@ -10,19 +10,14 @@ import { filter } from "./filter"
 import { skipUntil } from "./skipUntil"
 import { startWith } from "./startWith"
 
-export function skipWhile<T>(
-  f: Predicate<T> | Property<boolean>,
-  property: Property<T>,
-): Property<T>
-export function skipWhile<T>(
-  f: Predicate<T> | Property<boolean>,
-  stream: EventStream<T>,
-): EventStream<T>
-export function skipWhile<T>(
-  f: Predicate<T> | Property<boolean>,
-  observable: Observable<T>,
-): Observable<T>
-export function skipWhile<T>(
+export interface SkipWhileOp {
+  <T>(f: Predicate<T> | Property<boolean>, observable: Observable<T>): Observable<T>
+  <T>(f: Predicate<T> | Property<boolean>): (observable: Observable<T>) => Observable<T>
+}
+
+export const skipWhile: SkipWhileOp = curry2(_skipWhile)
+
+function _skipWhile<T>(
   f: Predicate<T> | Property<boolean>,
   observable: Observable<T>,
 ): Observable<T> {

@@ -1,18 +1,21 @@
 import { EndStateAware, NOOP_SUBSCRIBER, Source } from "../_core"
 import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 import { SVSource } from "./sample"
 import { toEventStream } from "./toEventStream"
 
-export function takeUntil<T>(trigger: Observable<any>, property: Property<T>): Property<T>
-export function takeUntil<T>(trigger: Observable<any>, stream: EventStream<T>): EventStream<T>
-export function takeUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T>
-export function takeUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
+export interface TakeUntilOp {
+  <T>(trigger: Observable<any>, observable: Observable<T>): Observable<T>
+  <T>(trigger: Observable<any>): (observable: Observable<T>) => Observable<T>
+}
+
+export const takeUntil: TakeUntilOp = curry2(_takeUntil)
+
+function _takeUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
   return makeStatefulObservable(
     observable,
     new TakeUntil(toEventStream(trigger).src, observable.src),

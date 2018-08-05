@@ -1,6 +1,6 @@
 import { __DEVBUILD__, assert } from "../_assert"
 import { NONE, sendNext } from "../_core"
-import { toObservable } from "../_interrop"
+import { toObs } from "../_interrop"
 import { isObservable, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { isArray, isObject, slice } from "../_util"
@@ -135,13 +135,13 @@ export function _combine<A, B>(
 ): Property<B> {
   let n = observables.length
   if (n === 0) {
-    return map(f, constant([] as A[]))
+    return map(f, constant([] as A[])) as Property<B>
   } else if (n === 1) {
-    return toProperty(map(val => f([val]), toObservable<A, Observable<A>>(observables[0])))
+    return toProperty(map(val => f([val]), toObs<A, Observable<A>>(observables[0])))
   } else {
     const sources = Array(n)
     while (n--) {
-      sources[n] = toObservable(observables[n]).src
+      sources[n] = toObs(observables[n]).src
     }
     return makeProperty(new Combine<A, B>(new IndexedSource(sources), f))
   }

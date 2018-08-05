@@ -1,16 +1,19 @@
 import { sendEndInTx, sendNextInTx, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { InitialAndChanges } from "./_changes"
 
-export function delay<T>(time: number, observable: Property<T>): Property<T>
-export function delay<T>(time: number, observable: EventStream<T>): EventStream<T>
-export function delay<T>(time: number, observable: Observable<T>): Observable<T>
-export function delay<T>(time: number, observable: Observable<T>): Observable<T> {
+export interface DelayOp {
+  <T>(time: number, observable: Observable<T>): Observable<T>
+  <T>(time: number): (observable: Observable<T>) => Observable<T>
+}
+
+export const delay: DelayOp = curry2(_delay)
+
+function _delay<T>(time: number, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new Delay(observable.src, time))
 }
 

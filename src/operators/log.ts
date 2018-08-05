@@ -1,9 +1,17 @@
 import { Dispose } from "../_interfaces"
 import { Transaction } from "../_tx"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
 import { Eff, runEffects } from "./_eff"
 
-export function log<T>(label: string | undefined, observable: Observable<T>): Dispose {
+export interface LogOp {
+  (label: string | undefined, observable: Observable<any>): Dispose
+  (label: string | undefined): (observable: Observable<any>) => Dispose
+}
+
+export const log: LogOp = curry2(_log)
+
+function _log<T>(label: string | undefined, observable: Observable<T>): Dispose {
   const logger = new Logger(label)
   runEffects(logger, observable)
   return function dispose(): void {

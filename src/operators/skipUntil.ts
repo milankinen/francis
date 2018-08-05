@@ -1,18 +1,21 @@
 import { NOOP_SUBSCRIBER, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 import { SVSource } from "./sample"
 import { toEventStream } from "./toEventStream"
 
-export function skipUntil<T>(trigger: Observable<any>, property: Property<T>): Property<T>
-export function skipUntil<T>(trigger: Observable<any>, stream: EventStream<T>): EventStream<T>
-export function skipUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T>
-export function skipUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
+export interface SkipUntilOp {
+  <T>(trigger: Observable<any>, observable: Observable<T>): Observable<T>
+  <T>(trigger: Observable<any>): (observable: Observable<T>) => Observable<T>
+}
+
+export const skipUntil: SkipUntilOp = curry2(_skipUntil)
+
+function _skipUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new SkipUntil(toEventStream(trigger).src, observable.src))
 }
 

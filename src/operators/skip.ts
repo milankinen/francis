@@ -1,15 +1,18 @@
 import { Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { Operator } from "./_base"
 
-export function skip<T>(n: number, stream: EventStream<T>): EventStream<T>
-export function skip<T>(n: number, property: Property<T>): Property<T>
-export function skip<T>(n: number, observable: Observable<T>): Observable<T>
-export function skip<T>(n: number, observable: Observable<T>): Observable<T> {
+export interface SkipOp {
+  <T>(n: number, observable: Observable<T>): Observable<T>
+  <T>(n: number): (observable: Observable<T>) => Observable<T>
+}
+
+export const skip: SkipOp = curry2(_skip)
+
+function _skip<T>(n: number, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new Skip(observable.src, n))
 }
 

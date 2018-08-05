@@ -1,28 +1,26 @@
 import { FlatAccum } from "../_interfaces"
-import { toObservable } from "../_interrop"
+import { toObs } from "../_interrop"
+import { curry3, pipe } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { doAction } from "./do"
 import { flatMapConcat } from "./flatMap"
-import { startWith } from "./startWith"
-import { toProperty } from "./toProperty"
+import { toPropertyWith } from "./toProperty"
 
-export function flatScan<S, T>(
-  seed: S,
-  acc: FlatAccum<S, T>,
-  observable: Observable<T>,
-): Property<S> {
+export interface FlatScanOp {
+  <S, T>(seed: S, acc: FlatAccum<S, T>, observable: Observable<T>): Property<S>
+  <S, T>(seed: S, acc: FlatAccum<S, T>): (observable: Observable<T>) => Property<S>
+  <S, T>(seed: S): (acc: FlatAccum<S, T>, observable: Observable<T>) => Property<S>
+  <S, T>(seed: S): (acc: FlatAccum<S, T>) => (observable: Observable<T>) => Property<S>
+}
+
+export const flatScan: FlatScanOp = curry3(_flatScan)
+
+function _flatScan<S, T>(seed: S, acc: FlatAccum<S, T>, observable: Observable<T>): Property<S> {
   let s = seed
-  return startWith(
-    seed,
-    toProperty(
-      flatMapConcat(
-        t =>
-          doAction(a => {
-            s = a
-          }, toObservable<S, Observable<S>>(acc(s, t))),
-        observable,
-      ),
-    ),
+  // prettier-ignore
+  return pipe(observable,
+    flatMapConcat(x => doAction(a => s = a, toObs<S, Observable<S>>(acc(s, x)))),
+    toPropertyWith(seed)
   )
 }

@@ -2,25 +2,20 @@ import { Source } from "../_core"
 import { Projection } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
 import { sampleBy } from "./sample"
 
-export function map<A, B>(
-  project: Projection<A, B> | Property<B>,
-  stream: EventStream<A>,
-): EventStream<B>
-export function map<A, B>(
-  project: Projection<A, B> | Property<B>,
-  property: Property<A>,
-): Property<B>
-export function map<A, B>(
-  project: Projection<A, B> | Property<B>,
-  observable: Observable<A>,
-): Observable<B>
-export function map<A, B>(
+export interface MapOp {
+  <A, B>(project: Projection<A, B> | Property<B>, observable: Observable<A>): Observable<B>
+  <A, B>(project: Projection<A, B> | Property<B>): (observable: Observable<A>) => Observable<B>
+}
+
+export const map: MapOp = curry2(_map)
+
+function _map<A, B>(
   project: Projection<A, B> | Property<B>,
   observable: Observable<A>,
 ): Observable<B> {

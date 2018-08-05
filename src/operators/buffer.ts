@@ -1,19 +1,42 @@
 import { sendNextInTx, Source } from "../_core"
 import { makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
+import { curry2, curry3 } from "../_util"
 import { EventStream } from "../EventStream"
+import { Observable } from "../Observable"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { Operator } from "./_base"
 
-export function bufferWithTime<T>(delay: number, stream: EventStream<T>): EventStream<T[]> {
+export interface BufferWithTimeOp {
+  <T>(delay: number, observable: Observable<T>): Observable<T[]>
+  <T>(delay: number): (observable: Observable<T>) => Observable<T[]>
+}
+
+export interface BufferWithCountOp {
+  <T>(count: number, observable: Observable<T>): Observable<T[]>
+  <T>(count: number): (observable: Observable<T>) => Observable<T[]>
+}
+
+export interface BufferWithTimeOrCountOp {
+  <T>(delay: number, count: number, observable: Observable<T>): Observable<T[]>
+  <T>(delay: number): (count: number, observable: Observable<T>) => Observable<T[]>
+  <T>(delay: number, count: number): (observable: Observable<T>) => Observable<T[]>
+  <T>(delay: number): (count: number) => (observable: Observable<T>) => Observable<T[]>
+}
+
+export const bufferWithTime: BufferWithTimeOp = curry2(_bufferWithTime)
+export const bufferWithCount: BufferWithCountOp = curry2(_bufferWithCount)
+export const bufferWithTimeOrCount: BufferWithTimeOrCountOp = curry3(_bufferWithTimeOrCount)
+
+function _bufferWithTime<T>(delay: number, stream: EventStream<T>): EventStream<T[]> {
   return makeEventStream(new Buffer(stream.src, Infinity, delay))
 }
 
-export function bufferWithCount<T>(count: number, stream: EventStream<T>): EventStream<T[]> {
+function _bufferWithCount<T>(count: number, stream: EventStream<T>): EventStream<T[]> {
   return makeEventStream(new Buffer(stream.src, count, -1))
 }
 
-export function bufferWithTimeOrCount<T>(
+function _bufferWithTimeOrCount<T>(
   delay: number,
   count: number,
   stream: EventStream<T>,

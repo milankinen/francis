@@ -9,28 +9,39 @@ import {
 } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2, curry3 } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 
-export function sampleWith<S, V, R>(
-  sampler: Property<S>,
-  project: (value: V, sample: S) => R,
-  value: Property<V>,
-): Property<R>
-export function sampleWith<S, V, R>(
-  sampler: EventStream<S>,
-  project: (value: V, sample: S) => R,
-  value: Property<V>,
-): EventStream<R>
-export function sampleWith<S, V, R>(
-  sampler: Observable<S>,
-  project: (value: V, sample: S) => R,
-  value: Property<V>,
-): Observable<R>
-export function sampleWith<S, V, R>(
+export interface SampleWithOp {
+  <S, V, R>(
+    sampler: Observable<S>,
+    project: (value: V, sample: S) => R,
+    value: Property<V>,
+  ): Observable<R>
+  <S, V, R>(sampler: Observable<S>): (
+    project: (value: V, sample: S) => R,
+    value: Property<V>,
+  ) => Observable<R>
+  <S, V, R>(sampler: Observable<S>, project: (value: V, sample: S) => R): (
+    value: Property<V>,
+  ) => Observable<R>
+  <S, V, R>(sampler: Observable<S>): (
+    project: (value: V, sample: S) => R,
+  ) => (value: Property<V>) => Observable<R>
+}
+
+export interface SampleByOp {
+  <S, V>(sampler: Observable<S>, value: Property<V>): Observable<V>
+  <S, V>(sampler: Observable<S>): (value: Property<V>) => Observable<V>
+}
+
+export const sampleWith: SampleWithOp = curry3(_sampleWith)
+export const sampleBy: SampleByOp = curry2(_sampleBy)
+
+function _sampleWith<S, V, R>(
   sampler: Observable<S>,
   project: (value: V, sample: S) => R,
   value: Property<V>,
@@ -38,10 +49,7 @@ export function sampleWith<S, V, R>(
   return _sampleF(sampler, project, value)
 }
 
-export function sampleBy<S, V>(sampler: Property<S>, value: Property<V>): Property<V>
-export function sampleBy<S, V>(sampler: EventStream<S>, value: Property<V>): EventStream<V>
-export function sampleBy<S, V>(sampler: Observable<S>, value: Property<V>): Observable<V>
-export function sampleBy<S, V>(sampler: Observable<S>, value: Property<V>): Observable<V> {
+function _sampleBy<S, V>(sampler: Observable<S>, value: Property<V>): Observable<V> {
   return _sampleF(sampler, (v: V, s: S) => v, value)
 }
 

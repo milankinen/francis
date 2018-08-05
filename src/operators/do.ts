@@ -1,16 +1,37 @@
 import { Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { Identity } from "./_base"
 import { map } from "./map"
 
-export function doAction<T>(f: (val: T) => void, observable: Property<T>): Property<T>
-export function doAction<T>(f: (val: T) => void, observable: EventStream<T>): EventStream<T>
-export function doAction<T>(f: (val: T) => void, observable: Observable<T>): Observable<T>
-export function doAction<T>(f: (val: T) => void, observable: Observable<T>): Observable<T> {
+export interface DoActionOp {
+  <T>(f: (val: T) => void, observable: Observable<T>): Observable<T>
+  <T>(f: (val: T) => void): (observable: Observable<T>) => Observable<T>
+}
+
+export interface DoErrorOp {
+  <T>(f: (err: Error) => void, observable: Observable<T>): Observable<T>
+  <T>(f: (err: Error) => void): (observable: Observable<T>) => Observable<T>
+}
+
+export interface DoEndOp {
+  <T>(f: () => void, observable: Observable<T>): Observable<T>
+  <T>(f: () => void): (observable: Observable<T>) => Observable<T>
+}
+
+export interface DoLogOp {
+  <T>(label: string | undefined, observable: Observable<T>): Observable<T>
+  <T>(label: string | undefined): (observable: Observable<T>) => Observable<T>
+}
+
+export const doAction: DoActionOp = curry2(_doAction)
+export const doError: DoErrorOp = curry2(_doError)
+export const doEnd: DoEndOp = curry2(_doEnd)
+export const doLog: DoLogOp = curry2(_doLog)
+
+function _doAction<T>(f: (val: T) => void, observable: Observable<T>): Observable<T> {
   const eff = (val: T): T => {
     f(val)
     return val
@@ -18,24 +39,15 @@ export function doAction<T>(f: (val: T) => void, observable: Observable<T>): Obs
   return map(eff, observable)
 }
 
-export function doError<T>(f: (err: Error) => void, observable: Property<T>): Property<T>
-export function doError<T>(f: (err: Error) => void, observable: EventStream<T>): EventStream<T>
-export function doError<T>(f: (err: Error) => void, observable: Observable<T>): Observable<T>
-export function doError<T>(f: (err: Error) => void, observable: Observable<T>): Observable<T> {
+function _doError<T>(f: (err: Error) => void, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new DoError(observable.src, f))
 }
 
-export function doEnd<T>(f: () => void, observable: Property<T>): Property<T>
-export function doEnd<T>(f: () => void, observable: EventStream<T>): EventStream<T>
-export function doEnd<T>(f: () => void, observable: Observable<T>): Observable<T>
-export function doEnd<T>(f: () => void, observable: Observable<T>): Observable<T> {
+function _doEnd<T>(f: () => void, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new DoEnd(observable.src, f))
 }
 
-export function doLog<T>(label: string | undefined, observable: Property<T>): Property<T>
-export function doLog<T>(label: string | undefined, observable: EventStream<T>): EventStream<T>
-export function doLog<T>(label: string | undefined, observable: Observable<T>): Observable<T>
-export function doLog<T>(label: string | undefined, observable: Observable<T>): Observable<T> {
+function _doLog<T>(label: string | undefined, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new DoLog(observable.src, label))
 }
 

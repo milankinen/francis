@@ -2,25 +2,20 @@ import { Source } from "../_core"
 import { Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
 import { sampleWith } from "./sample"
 
-export function filter<T>(
-  predicate: Predicate<T> | Property<any>,
-  stream: EventStream<T>,
-): EventStream<T>
-export function filter<T>(
-  predicate: Predicate<T> | Property<any>,
-  property: Property<T>,
-): Property<T>
-export function filter<T>(
-  predicate: Predicate<T> | Property<any>,
-  observable: Observable<T>,
-): Observable<T>
-export function filter<T>(
+export interface FilterOp {
+  <T>(predicate: Predicate<T> | Property<any>, observable: Observable<T>): Observable<T>
+  <T>(predicate: Predicate<T> | Property<any>): (observable: Observable<T>) => Observable<T>
+}
+
+export const filter: FilterOp = curry2(_filter)
+
+function _filter<T>(
   predicate: Predicate<T> | Property<any>,
   observable: Observable<T>,
 ): Observable<T> {

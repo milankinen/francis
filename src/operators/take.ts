@@ -1,15 +1,18 @@
 import { EndStateAware, Source } from "../_core"
 import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { Operator } from "./_base"
 
-export function take<T>(n: number, stream: EventStream<T>): EventStream<T>
-export function take<T>(n: number, property: Property<T>): Property<T>
-export function take<T>(n: number, observable: Observable<T>): Observable<T>
-export function take<T>(n: number, observable: Observable<T>): Observable<T> {
+export interface TakeOp {
+  <T>(n: number, observable: Observable<T>): Observable<T>
+  <T>(n: number): (observable: Observable<T>) => Observable<T>
+}
+
+export const take: TakeOp = curry2(_take)
+
+function _take<T>(n: number, observable: Observable<T>): Observable<T> {
   return makeStatefulObservable(observable, new Take(observable.src, n))
 }
 

@@ -2,7 +2,7 @@ import { EndStateAware, Source } from "../_core"
 import { Predicate } from "../_interfaces"
 import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
@@ -10,19 +10,14 @@ import { filter } from "./filter"
 import { startWith } from "./startWith"
 import { takeUntil } from "./takeUntil"
 
-export function takeWhile<T>(
-  f: Predicate<T> | Property<boolean>,
-  property: Property<T>,
-): Property<T>
-export function takeWhile<T>(
-  f: Predicate<T> | Property<boolean>,
-  stream: EventStream<T>,
-): EventStream<T>
-export function takeWhile<T>(
-  f: Predicate<T> | Property<boolean>,
-  observable: Observable<T>,
-): Observable<T>
-export function takeWhile<T>(
+export interface TakeWhileOp {
+  <T>(f: Predicate<T> | Property<boolean>, observable: Observable<T>): Observable<T>
+  <T>(f: Predicate<T> | Property<boolean>): (observable: Observable<T>) => Observable<T>
+}
+
+export const takeWhile: TakeWhileOp = curry2(_takeWhile)
+
+function _takeWhile<T>(
   f: Predicate<T> | Property<boolean>,
   observable: Observable<T>,
 ): Observable<T> {

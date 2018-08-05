@@ -1,32 +1,29 @@
 import { NONE, sendEndInTx, sendNextInTx, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { InitialAndChanges } from "./_changes"
 
-export function throttle<T>(delay: number, observable: Property<T>): Property<T>
-export function throttle<T>(delay: number, observable: EventStream<T>): EventStream<T>
-export function throttle<T>(delay: number, observable: Observable<T>): Observable<T>
-export function throttle<T>(delay: number, observable: Observable<T>): Observable<T> {
+export interface ThrottleOp {
+  <T>(delay: number, observable: Observable<T>): Observable<T>
+  <T>(delay: number): (observable: Observable<T>) => Observable<T>
+}
+
+export interface BufferingThrottleOp {
+  <T>(minimumInterval: number, observable: Observable<T>): Observable<T>
+  <T>(minimumInterval: number): (observable: Observable<T>) => Observable<T>
+}
+
+export const throttle: ThrottleOp = curry2(_throttle)
+export const bufferingThrottle: BufferingThrottleOp = curry2(_bufferingThrottle)
+
+function _throttle<T>(delay: number, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new Throttle(observable.src, delay))
 }
 
-export function bufferingThrottle<T>(minimumInterval: number, observable: Property<T>): Property<T>
-export function bufferingThrottle<T>(
-  minimumInterval: number,
-  observable: EventStream<T>,
-): EventStream<T>
-export function bufferingThrottle<T>(
-  minimumInterval: number,
-  observable: Observable<T>,
-): Observable<T>
-export function bufferingThrottle<T>(
-  minimumInterval: number,
-  observable: Observable<T>,
-): Observable<T> {
+function _bufferingThrottle<T>(minimumInterval: number, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new BufferingThrottle(observable.src, minimumInterval))
 }
 

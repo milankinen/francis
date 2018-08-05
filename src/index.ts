@@ -5,6 +5,9 @@ export { Observable } from "./Observable"
 export { EventStream, isEventStream } from "./EventStream"
 export { Property, isProperty } from "./Property"
 
+// utils
+export { pipe } from "./_util"
+
 // factory functions
 export { once, constant } from "./sources/single"
 export { fromArray } from "./sources/fromArray"
@@ -20,6 +23,7 @@ export { repeat } from "./sources/repeat"
 export { repeatedly } from "./sources/repeatedly"
 
 // operators
+export { asEventStream, asProperty } from "./operators/as"
 export { map } from "./operators/map"
 export { mapError } from "./operators/mapError"
 export { mapEnd, EndProjection } from "./operators/mapEnd"
@@ -54,7 +58,7 @@ export {
   flatMapWithConcurrencyLimit,
 } from "./operators/flatMap"
 export { flatMapError } from "./operators/flatMapError"
-export { toProperty } from "./operators/toProperty"
+export { toProperty, toPropertyWith } from "./operators/toProperty"
 export { toEventStream } from "./operators/toEventStream"
 export { changes } from "./operators/changes"
 export { sampleBy, sampleWith } from "./operators/sample"

@@ -1,18 +1,24 @@
 import { Source } from "../_core"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
+import { curry3 } from "../_util"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
 import { Operator } from "./_base"
-import { startWith } from "./startWith"
+import { toPropertyWith } from "./toProperty"
 
-export function slidingWindow<T>(
-  min: number,
-  max: number,
-  observable: Observable<T>,
-): Property<T[]> {
+export interface SlidingWindowOp {
+  <T>(min: number, max: number, observable: Observable<T>): Property<T[]>
+  <T>(min: number): (max: number, observable: Observable<T>) => Property<T[]>
+  <T>(min: number, max: number): (observable: Observable<T>) => Property<T[]>
+  <T>(min: number): (max: number) => (observable: Observable<T>) => Property<T[]>
+}
+
+export const slidingWindow: SlidingWindowOp = curry3(_slidingWindow)
+
+function _slidingWindow<T>(min: number, max: number, observable: Observable<T>): Property<T[]> {
   const sliding = makeProperty(new SlidingWindow(observable.src, min, max, []))
-  return min > 0 ? sliding : startWith([], sliding)
+  return min > 0 ? sliding : toPropertyWith([], sliding)
 }
 
 export abstract class Sliding<A, B> extends Operator<A, B> {

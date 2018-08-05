@@ -1,28 +1,22 @@
 import { Source } from "../_core"
 import { Projection } from "../_interfaces"
-import { toObservable } from "../_interrop"
+import { toObs } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { once } from "../sources/single"
 import { Operator } from "./_base"
 import { flatMap } from "./flatMap"
 
-export function flatMapError<T>(
-  project: Projection<Error, T | Observable<T>>,
-  stream: EventStream<T>,
-): EventStream<T>
-export function flatMapError<T>(
-  project: Projection<Error, T | Observable<T>>,
-  property: Property<T>,
-): Property<T>
-export function flatMapError<T>(
-  project: Projection<Error, T | Observable<T>>,
-  observable: Observable<T>,
-): Observable<T>
-export function flatMapError<T>(
+export interface FlatMapErrorOp {
+  <T>(project: Projection<Error, T | Observable<T>>, observable: Observable<T>): Observable<T>
+  <T>(project: Projection<Error, T | Observable<T>>): (observable: Observable<T>) => Observable<T>
+}
+
+export const flatMapError: FlatMapErrorOp = curry2(_flatMapError)
+
+function _flatMapError<T>(
   project: Projection<Error, T | Observable<T>>,
   observable: Observable<T>,
 ): Observable<T> {
@@ -58,7 +52,7 @@ class ErrM<T> implements M<T> {
   constructor(private e: Error, private p: Projection<Error, T | Observable<T>>) {}
   public of(): Observable<T> {
     const { e, p } = this
-    return toObservable(p(e))
+    return toObs(p(e))
   }
 }
 

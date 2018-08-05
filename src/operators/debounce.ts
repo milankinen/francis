@@ -1,21 +1,27 @@
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { Throttle, ThrottleBase } from "./throttle"
 
-export function debounce<T>(delay: number, observable: Property<T>): Property<T>
-export function debounce<T>(delay: number, observable: EventStream<T>): EventStream<T>
-export function debounce<T>(delay: number, observable: Observable<T>): Observable<T>
-export function debounce<T>(delay: number, observable: Observable<T>): Observable<T> {
+export interface DebounceOp {
+  <T>(delay: number, observable: Observable<T>): Observable<T>
+  <T>(delay: number): (observable: Observable<T>) => Observable<T>
+}
+
+export interface DebounceImmediateOp {
+  <T>(delay: number, observable: Observable<T>): Observable<T>
+  <T>(delay: number): (observable: Observable<T>) => Observable<T>
+}
+
+export const debounce: DebounceOp = curry2(_debounce)
+export const debounceImmediate: DebounceImmediateOp = curry2(_debounceImmediate)
+
+function _debounce<T>(delay: number, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new Debounce(observable.src, delay))
 }
 
-export function debounceImmediate<T>(delay: number, observable: Property<T>): Property<T>
-export function debounceImmediate<T>(delay: number, observable: EventStream<T>): EventStream<T>
-export function debounceImmediate<T>(delay: number, observable: Observable<T>): Observable<T>
-export function debounceImmediate<T>(delay: number, observable: Observable<T>): Observable<T> {
+function _debounceImmediate<T>(delay: number, observable: Observable<T>): Observable<T> {
   return makeObservable(observable, new DebounceImmediate(observable.src, delay))
 }
 

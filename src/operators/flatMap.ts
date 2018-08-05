@@ -1,108 +1,92 @@
 import { __DEVBUILD__, assert } from "../_assert"
 import { NOOP_SUBSCRIPTION, sendEnd, Source, Subscription } from "../_core"
 import { Projection } from "../_interfaces"
-import { toObservable } from "../_interrop"
+import { toObs } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
+import { curry2, curry3 } from "../_util"
 import { Observable } from "../Observable"
-import { Property } from "../Property"
 import { stepIn, stepOut } from "../scheduler/index"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 
-export function flatMapLatest<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  stream: EventStream<A>,
-): EventStream<B>
-export function flatMapLatest<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  property: Property<A>,
-): Property<B>
-export function flatMapLatest<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  observable: Observable<A>,
-): Observable<B>
-export function flatMapLatest<A, B>(
-  project: Projection<A, B | Observable<B>>,
+export type ToFlatten<T> = T | Observable<T>
+
+export interface FlatMapLatestOp {
+  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
+  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+}
+
+export interface FlatMapFirstOp {
+  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
+  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+}
+
+export interface FlatMapOp {
+  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
+  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+}
+
+export interface FlatMapConcatOp {
+  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
+  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+}
+
+export interface FlatMapWithConcurrencyLimitOp {
+  <A, B>(
+    limit: number,
+    project: Projection<A, ToFlatten<B>>,
+    observable: Observable<A>,
+  ): Observable<B>
+  <A, B>(limit: number, project: Projection<A, ToFlatten<B>>): (
+    observable: Observable<A>,
+  ) => Observable<B>
+  <A, B>(limit: number): (
+    project: Projection<A, ToFlatten<B>>,
+    observable: Observable<A>,
+  ) => Observable<B>
+  <A, B>(limit: number): (
+    project: Projection<A, ToFlatten<B>>,
+  ) => (observable: Observable<A>) => Observable<B>
+}
+
+export const flatMapLatest: FlatMapLatestOp = curry2(_flatMapLatest)
+export const flatMapFirst: FlatMapFirstOp = curry2(_flatMapFirst)
+export const flatMap: FlatMapOp = curry2(_flatMap)
+export const flatMapConcat: FlatMapConcatOp = curry2(_flatMapConcat)
+export const flatMapWithConcurrencyLimit: FlatMapWithConcurrencyLimitOp = curry3(
+  _flatMapWithConcurrencyLimit,
+)
+
+function _flatMapLatest<A, B>(
+  project: Projection<A, ToFlatten<B>>,
   observable: Observable<A>,
 ): Observable<B> {
   return makeObservable(observable, new FlatMapLatest(observable.src, project))
 }
 
-export function flatMapFirst<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  stream: EventStream<A>,
-): EventStream<B>
-export function flatMapFirst<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  property: Property<A>,
-): Property<B>
-export function flatMapFirst<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  observable: Observable<A>,
-): Observable<B>
-export function flatMapFirst<A, B>(
+function _flatMapFirst<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
   return makeObservable(observable, new FlatMapFirst(observable.src, project))
 }
 
-export function flatMapConcat<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  stream: EventStream<A>,
-): EventStream<B>
-export function flatMapConcat<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  property: Property<A>,
-): Property<B>
-export function flatMapConcat<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  observable: Observable<A>,
-): Observable<B>
-export function flatMapConcat<A, B>(
+function _flatMapConcat<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  return flatMapWithConcurrencyLimit(1, project, observable)
+  return flatMapWithConcurrencyLimit(1, project, observable as any)
 }
 
-export function flatMap<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  stream: EventStream<A>,
-): EventStream<B>
-export function flatMap<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  property: Property<A>,
-): Property<B>
-export function flatMap<A, B>(
-  project: Projection<A, B | Observable<B>>,
-  observable: Observable<A>,
-): Observable<B>
-export function flatMap<A, B>(
+function _flatMap<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  return flatMapWithConcurrencyLimit(Infinity, project, observable)
+  return flatMapWithConcurrencyLimit(Infinity, project, observable as any)
 }
 
-export function flatMapWithConcurrencyLimit<A, B>(
-  limit: number,
-  project: Projection<A, B | Observable<B>>,
-  stream: EventStream<A>,
-): EventStream<B>
-export function flatMapWithConcurrencyLimit<A, B>(
-  limit: number,
-  project: Projection<A, B | Observable<B>>,
-  property: Property<A>,
-): Property<B>
-export function flatMapWithConcurrencyLimit<A, B>(
-  limit: number,
-  project: Projection<A, B | Observable<B>>,
-  observable: Observable<A>,
-): Observable<B>
-export function flatMapWithConcurrencyLimit<A, B>(
+function _flatMapWithConcurrencyLimit<A, B>(
   limit: number,
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
@@ -223,7 +207,7 @@ abstract class FlatMapSwitchable<A, B> extends FlatMapBase<A, B> {
 
   protected switch(tx: Transaction, val: A): HandleOuterNextResult | null {
     const { isubs, proj } = this
-    const inner = toObservable<B, Observable<B>>(proj(val))
+    const inner = toObs<B, Observable<B>>(proj(val))
     const innerSource = inner.src
     const subscription = (this.isubs = innerSource.subscribe(new Pipe(this), this.ord + 1))
     this.istat = RUNNING
@@ -343,7 +327,7 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     const { proj } = this
     const inner = this.ihead as InnerPipe<A, B>
     this.ihead = inner.t
-    const iobs = toObservable<B, Observable<B>>(proj(inner.v))
+    const iobs = toObs<B, Observable<B>>(proj(inner.v))
     inner.subs = iobs.src.subscribe(inner, this.ord + 1)
     return inner.subs
   }

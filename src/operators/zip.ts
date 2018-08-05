@@ -32,7 +32,7 @@ export function zipAsArray(streams: Array<Observable<any>>): EventStream<any[]> 
     case 0:
       return never<any>()
     case 1:
-      return map(toArray, toEventStream(streams[0]))
+      return map(toArray, toEventStream(streams[0])) as EventStream<[any]>
     default:
       return _when([streams.map(toEventStream), slice], false)
   }
@@ -74,7 +74,7 @@ export function zipWith<T>(
     case 0:
       return never<any>()
     case 1:
-      return map(f, toEventStream(streams[0]))
+      return map(f, toEventStream(streams[0])) as EventStream<any>
     default:
       return _when([streams.map(toEventStream), f], true)
   }

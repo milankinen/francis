@@ -1,4 +1,4 @@
-import { find, isFunction } from "../_util"
+import { curry2, find, isFunction } from "../_util"
 import { EventStream } from "../EventStream"
 import { fromBinder } from "./fromBinder"
 
@@ -9,8 +9,16 @@ const pairs = [
   ["bind", "unbind"],
 ]
 
+export interface FromEventOp {
+  <T>(target: EventTarget, event: string, ...args: any[]): EventStream<T>
+  (target: EventTarget): <T>(event: string, ...args: any[]) => EventStream<T>
+}
+
+export const fromEvent: FromEventOp = curry2(_fromEvent)
+
 // tslint:disable:ban-types
-export function fromEvent<T>(target: EventTarget, event: string, ...args: any[]): EventStream<T> {
+
+function _fromEvent<T>(target: EventTarget, event: string, ...args: any[]): EventStream<T> {
   const anyTarget = target as any
   const [bm, um] =
     find(([b, u]) => isFunction(anyTarget[b]) && isFunction(anyTarget[u]), pairs) ||

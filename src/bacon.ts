@@ -419,33 +419,30 @@ Observable.prototype.skipDuplicates = function<A>(isEqual?: Eq<A>): Observable<A
 Observable.prototype.diff = function<A, D>(start: A, f: F.Delta<A, D>): Observable<D> {
   return F.diff(f, start, this)
 }
-// EventStream specific operators
 
 EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
-  return arguments.length === 0 ? F.toProperty(this) : F.startWith(initialValue, F.toProperty(this))
+  return arguments.length === 0 ? F.toProperty(this) : F.toPropertyWith(initialValue, this)
 }
 
-const esProto = EventStream.prototype as any
-esProto["toEventStream"] = function<A>(): EventStream<A> {
+// tslint:disable-next-line:align whitespace
+;(EventStream.prototype as any).toEventStream = function<A>(): EventStream<A> {
   return this
 }
 
 EventStream.prototype.bufferWithTime = function<A>(delay: number): EventStream<A[]> {
-  return F.bufferWithTime(delay, this)
+  return F.bufferWithTime(delay, this) as EventStream<A[]>
 }
 
 EventStream.prototype.bufferWithCount = function<A>(count: number): EventStream<A[]> {
-  return F.bufferWithCount(count, this)
+  return F.bufferWithCount(count, this) as EventStream<A[]>
 }
 
 EventStream.prototype.bufferWithTimeOrCount = function<A>(
   delay: number,
   count: number,
 ): EventStream<A[]> {
-  return F.bufferWithTimeOrCount(delay, count, this)
+  return F.bufferWithTimeOrCount(delay, count, this) as EventStream<A[]>
 }
-
-// Property specific operators
 
 Property.prototype.sampledBy = function<A, B, C>(
   sampler: Observable<B>,
@@ -457,19 +454,19 @@ Property.prototype.sampledBy = function<A, B, C>(
 }
 
 Property.prototype.sample = function<A>(i: number): EventStream<A> {
-  return F.sampleBy(F.interval(i, null as any), this)
+  return F.sampleBy(F.interval(i, null as any), this) as EventStream<A>
 }
 
 Property.prototype.and = function<A, B>(other: Property<B>): Property<AndResult<A, B>> {
-  return F.and(this, other)
+  return F.and(this, other) as Property<AndResult<A, B>>
 }
 
 Property.prototype.or = function<A, B>(other: Property<B>): Property<OrResult<A, B>> {
-  return F.or(this, other)
+  return F.or(this, other) as Property<OrResult<A, B>>
 }
 
 Property.prototype.not = function<A>(): Property<boolean> {
-  return F.not(this)
+  return F.not(this) as Property<boolean>
 }
 
 const pProto = Property.prototype as any

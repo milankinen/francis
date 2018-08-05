@@ -1,11 +1,19 @@
 import { AnyEvent } from "../_interfaces"
 import { makeEventStream } from "../_obs"
+import { curry2 } from "../_util"
 import { End, isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
 import { identity } from "../operators/_base"
 import { TimerBase } from "./_timer"
 
-export function sequentially<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
+export interface SequentiallyOp {
+  <T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T>
+  (interval: number): <T>(events: Array<T | AnyEvent<T>>) => EventStream<T>
+}
+
+export const sequentially: SequentiallyOp = curry2(_sequentially)
+
+function _sequentially<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
   return makeEventStream(identity(new Sequentially(interval, events)))
 }
 
