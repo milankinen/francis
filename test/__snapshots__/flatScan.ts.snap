@@ -1,0 +1,104 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.flatScan accumulates values with given seed and accumulator function, passing through errors 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Error {
+    "error": "oops",
+  },
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 6,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.flatScan remember it's state and continues from there after re-activation 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 0,
+    },
+    Sync {},
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 3,
+    },
+    End {},
+  ],
+  "sencond": Array [
+    Next {
+      "value": 3,
+    },
+    Sync {},
+  ],
+}
+`;
+
+exports[`EventStream.flatScan yields the seed value immediately 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  End {},
+]
+`;
+
+exports[`Property.flatScan with initial value, starts with f(seed, init),immediately 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 6,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatScan without initial value, starts with seed, immediately 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 5,
+  },
+  End {},
+]
+`;
+
+exports[`Property.flatScan works with synchronously responding empty source 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;

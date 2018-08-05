@@ -1,5 +1,6 @@
 import * as Event from "./Event"
 import { EventStream } from "./EventStream"
+import { Observable } from "./Observable"
 import { Property } from "./Property"
 
 export type Projection<A, B> = (val: A) => B
@@ -7,6 +8,8 @@ export type Projection<A, B> = (val: A) => B
 export type Predicate<A> = (val: A) => boolean
 
 export type Accum<S, T> = (state: S, value: T) => S
+
+export type FlatAccum<S, T> = (state: S, value: T) => S | Observable<S>
 
 export type Dispose = () => void
 

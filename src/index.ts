@@ -45,6 +45,7 @@ export { concat, concatAll } from "./operators/concat"
 export { when } from "./operators/when"
 export { scan } from "./operators/scan"
 export { fold } from "./operators/fold"
+export { flatScan } from "./operators/flatScan"
 export {
   flatMap,
   flatMapConcat,
