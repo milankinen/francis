@@ -24,7 +24,12 @@ export function isArray(x: any): x is Array<any> {
 
 // tslint:disable-next-line:ban-types
 export function isObject(x: any): x is Object {
-  return !!x && typeof x === "object" && !isArray(x)
+  if (!!x && typeof x === "object") {
+    const proto = Object.getPrototypeOf(x)
+    return proto === Object.prototype || proto === null
+  } else {
+    return false
+  }
 }
 
 export function slice<T>(arr: T[]): T[] {
