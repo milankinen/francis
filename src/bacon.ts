@@ -463,6 +463,7 @@ export { interval } from "./sources/interval"
 export { later } from "./sources/later"
 export { never } from "./sources/never"
 export { repeat } from "./sources/repeat"
+export { repeatedly } from "./sources/repeatedly"
 export { sequentially } from "./sources/sequentially"
 export { constant, once } from "./sources/single"
 // classes and interfaces

@@ -1,0 +1,89 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.repeatedly repeats the given event sequence infinitely 1`] = `
+Array [
+  Sync {},
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 3,
+  },
+  Object {
+    "event": Next {
+      "value": 2,
+    },
+    "tick": 6,
+  },
+  Object {
+    "event": Error {
+      "error": "tsers",
+    },
+    "tick": 9,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 12,
+  },
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 15,
+  },
+  Object {
+    "event": Next {
+      "value": 2,
+    },
+    "tick": 18,
+  },
+  Object {
+    "event": Error {
+      "error": "tsers",
+    },
+    "tick": 21,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 24,
+  },
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 27,
+  },
+  Object {
+    "event": Next {
+      "value": 2,
+    },
+    "tick": 30,
+  },
+  Object {
+    "event": Error {
+      "error": "tsers",
+    },
+    "tick": 33,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 36,
+  },
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 39,
+  },
+  Object {
+    "event": End {},
+    "tick": 39,
+  },
+]
+`;

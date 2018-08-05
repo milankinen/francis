@@ -9,9 +9,9 @@ export function sequentially<T>(interval: number, events: Array<T | AnyEvent<T>>
   return makeEventStream(identity(new Sequentially(interval, events)))
 }
 
-class Sequentially<T> extends TimerBase<T> {
-  private i: number
-  constructor(interval: number, private items: Array<T | AnyEvent<T>>) {
+export class Sequentially<T> extends TimerBase<T> {
+  protected i: number
+  constructor(interval: number, protected readonly items: Array<T | AnyEvent<T>>) {
     super(interval)
     this.i = 0
   }
