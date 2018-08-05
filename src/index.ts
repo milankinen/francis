@@ -20,7 +20,7 @@ export { repeat } from "./sources/repeat"
 // operators
 export { map } from "./operators/map"
 export { mapError } from "./operators/mapError"
-export { mapEnd } from "./operators/mapEnd"
+export { mapEnd, EndProjection } from "./operators/mapEnd"
 export { filter } from "./operators/filter"
 export { take } from "./operators/take"
 export { takeUntil } from "./operators/takeUntil"
@@ -31,7 +31,13 @@ export { skipUntil } from "./operators/skipUntil"
 export { skipWhile } from "./operators/skipWhile"
 export { skipErrors } from "./operators/skipErrors"
 export { last } from "./operators/last"
-export { combineAsArray, combineTemplate } from "./operators/combine"
+export {
+  combineAsArray,
+  combineTemplate,
+  combineWith,
+  Combineable,
+  CombinedTemplate,
+} from "./operators/combine"
 export { merge, mergeAll } from "./operators/merge"
 export { concat, concatAll } from "./operators/concat"
 export { when } from "./operators/when"
@@ -49,7 +55,7 @@ export { toEventStream } from "./operators/toEventStream"
 export { changes } from "./operators/changes"
 export { sampleBy, sampleWith } from "./operators/sample"
 export { startWith } from "./operators/startWith"
-export { and, or, not } from "./operators/logic"
+export { and, or, not, AndResult, OrResult } from "./operators/logic"
 export { zipAsArray, zipWith } from "./operators/zip"
 export { update } from "./operators/update"
 export { errors } from "./operators/errors"
