@@ -1,0 +1,135 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.debounce waits for a quiet period before outputing anything 1`] = `
+Array [
+  Object {
+    "event": Error {
+      "error": "tsers",
+    },
+    "tick": 5,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 13,
+  },
+  Object {
+    "event": Next {
+      "value": 5,
+    },
+    "tick": 25,
+  },
+  Object {
+    "event": End {},
+    "tick": 30,
+  },
+]
+`;
+
+exports[`EventStream.debounceImmediate outputs first event immediately, then ignores events for given amount of milliseconds 1`] = `
+Array [
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 2,
+  },
+  Object {
+    "event": Error {
+      "error": "tsers",
+    },
+    "tick": 5,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 8,
+  },
+  Object {
+    "event": Next {
+      "value": 4,
+    },
+    "tick": 17,
+  },
+  Object {
+    "event": End {},
+    "tick": 30,
+  },
+]
+`;
+
+exports[`Property.debounce emits initial event immediately and after that waits for a quiet period before outputing anything 1`] = `
+Array [
+  Object {
+    "event": Next {
+      "value": 0,
+    },
+    "tick": 0,
+  },
+  Sync {},
+  Object {
+    "event": Error {
+      "error": "tsers",
+    },
+    "tick": 5,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 13,
+  },
+  Object {
+    "event": Next {
+      "value": 5,
+    },
+    "tick": 25,
+  },
+  Object {
+    "event": End {},
+    "tick": 30,
+  },
+]
+`;
+
+exports[`Property.debounceImmediate outputs initial and first event immediately, then ignores events for given amount of milliseconds 1`] = `
+Array [
+  Object {
+    "event": Next {
+      "value": 0,
+    },
+    "tick": 0,
+  },
+  Sync {},
+  Object {
+    "event": Next {
+      "value": 1,
+    },
+    "tick": 2,
+  },
+  Object {
+    "event": Error {
+      "error": "tsers",
+    },
+    "tick": 5,
+  },
+  Object {
+    "event": Next {
+      "value": 3,
+    },
+    "tick": 8,
+  },
+  Object {
+    "event": Next {
+      "value": 4,
+    },
+    "tick": 17,
+  },
+  Object {
+    "event": End {},
+    "tick": 30,
+  },
+]
+`;
