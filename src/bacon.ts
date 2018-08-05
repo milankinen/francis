@@ -12,6 +12,7 @@ import {
   Dispose,
   EndHandler,
   EndProjection,
+  Eq,
   ErrorHandler,
   EventStream,
   Handler,
@@ -70,6 +71,7 @@ declare module "./Observable" {
     throttle(delay: number): Observable<A>
     bufferingThrottle(minimumInterval: number): Observable<A>
     slidingWindow(max: number, min?: number): Property<A[]>
+    skipDuplicates(isEqual?: Eq<A>): Observable<A>
   }
 }
 
@@ -108,6 +110,7 @@ declare module "./EventStream" {
     bufferWithTime(delay: number): EventStream<A[]>
     bufferWithCount(count: number): EventStream<A[]>
     bufferWithTimeOrCount(delay: number, count: number): EventStream<A[]>
+    skipDuplicates(isEqual?: Eq<A>): EventStream<A>
   }
 }
 
@@ -152,6 +155,7 @@ declare module "./Property" {
     errors(): Property<A>
     throttle(delay: number): Property<A>
     bufferingThrottle(minimumInterval: number): Property<A>
+    skipDuplicates(isEqual?: Eq<A>): Property<A>
   }
 }
 
@@ -364,6 +368,10 @@ Observable.prototype.slidingWindow = function<A>(max: number, min?: number): Pro
   return F.slidingWindow(min === undefined ? 0 : min, max, this)
 }
 
+Observable.prototype.skipDuplicates = function<A>(isEqual?: Eq<A>): Observable<A> {
+  return isEqual === undefined ? F.skipEquals(this) : F.skipDuplicates(isEqual, this)
+}
+
 // EventStream specific operators
 
 EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
@@ -436,10 +444,10 @@ Property.prototype.changes = function<A>(): EventStream<A> {
 export { End, Error, Next } from "./Event"
 export { EventStream } from "./EventStream"
 export { Observable } from "./Observable"
-export { combineAsArray, combineTemplate, Combineable } from "./operators/combine"
+export { Combineable, combineAsArray, combineTemplate } from "./operators/combine"
+export { update } from "./operators/update"
 export { when } from "./operators/when"
 export { zipAsArray } from "./operators/zip"
-export { update } from "./operators/update"
 export { Property } from "./Property"
 export { fromArray } from "./sources/fromArray"
 export { fromBinder } from "./sources/fromBinder"
@@ -448,9 +456,9 @@ export { fromPoll } from "./sources/fromPoll"
 export { interval } from "./sources/interval"
 export { later } from "./sources/later"
 export { never } from "./sources/never"
+export { repeat } from "./sources/repeat"
 export { sequentially } from "./sources/sequentially"
 export { constant, once } from "./sources/single"
-export { repeat } from "./sources/repeat"
 // classes and interfaces
 export * from "./_interfaces"
 

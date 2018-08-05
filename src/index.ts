@@ -62,6 +62,7 @@ export { errors } from "./operators/errors"
 export { throttle, bufferingThrottle } from "./operators/throttle"
 export { bufferWithTime, bufferWithCount, bufferWithTimeOrCount } from "./operators/buffer"
 export { slidingWindow } from "./operators/slidingWindow"
+export { skipDuplicates, skipEquals, Eq } from "./operators/skipDuplicates"
 
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"

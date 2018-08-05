@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.skipDuplicates allows using custom equality function 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": -1,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipDuplicates drops duplicates 1`] = `
+Array [
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
+
+exports[`EventStream.skipDuplicates works with undefineds 1`] = `
+Array [
+  Next {
+    "value": undefined,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
+
+exports[`Property.skipDuplicates drops duplicates 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Error {
+    "error": "tsers",
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
+
+exports[`Property.skipDuplicates works with undefineds 1`] = `
+Array [
+  Next {
+    "value": undefined,
+  },
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 1,
+  },
+  End {},
+]
+`;
