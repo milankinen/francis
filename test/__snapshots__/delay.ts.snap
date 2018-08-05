@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EventStream.delay delays all events the given amount milliseconds 1`] = `
+Array [
+  Object {
+    "delay": 5,
+    "val": 1,
+  },
+  Object {
+    "delay": 5,
+    "val": 2,
+  },
+  Object {
+    "delay": 5,
+    "val": 3,
+  },
+]
+`;
+
+exports[`Property.delay passes initial event immediately and after that delays all events the given amount milliseconds 1`] = `
+Array [
+  Object {
+    "delay": 0,
+    "val": 0,
+  },
+  Sync {},
+  Object {
+    "delay": 5,
+    "val": 1,
+  },
+  Object {
+    "delay": 5,
+    "val": 2,
+  },
+  Object {
+    "delay": 5,
+    "val": 3,
+  },
+]
+`;

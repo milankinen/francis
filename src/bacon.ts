@@ -72,6 +72,7 @@ declare module "./Observable" {
     throttle(delay: number): Observable<A>
     debounce(delay: number): Observable<A>
     debounceImmediate(delay: number): Observable<A>
+    delay(delay: number): Observable<A>
     bufferingThrottle(minimumInterval: number): Observable<A>
     slidingWindow(max: number, min?: number): Property<A[]>
     skipDuplicates(isEqual?: Eq<A>): Observable<A>
@@ -113,6 +114,7 @@ declare module "./EventStream" {
     throttle(delay: number): EventStream<A>
     debounce(delay: number): EventStream<A>
     debounceImmediate(delay: number): EventStream<A>
+    delay(delay: number): EventStream<A>
     bufferingThrottle(minimumInterval: number): EventStream<A>
     bufferWithTime(delay: number): EventStream<A[]>
     bufferWithCount(count: number): EventStream<A[]>
@@ -165,6 +167,7 @@ declare module "./Property" {
     throttle(delay: number): Property<A>
     debounce(delay: number): Property<A>
     debounceImmediate(delay: number): Property<A>
+    delay(delay: number): Property<A>
     bufferingThrottle(minimumInterval: number): Property<A>
     skipDuplicates(isEqual?: Eq<A>): Property<A>
     diff<D>(start: A, f: F.Delta<A, D>): Property<D>
@@ -389,6 +392,10 @@ Observable.prototype.debounce = function<A>(delay: number): Observable<A> {
 
 Observable.prototype.debounceImmediate = function<A>(delay: number): Observable<A> {
   return F.debounceImmediate(delay, this)
+}
+
+Observable.prototype.delay = function<A>(delay: number): Observable<A> {
+  return F.delay(delay, this)
 }
 
 Observable.prototype.slidingWindow = function<A>(max: number, min?: number): Property<A[]> {
