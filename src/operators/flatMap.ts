@@ -4,7 +4,6 @@ import { Projection } from "../_interfaces"
 import { toObservable } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { MAX_SAFE_INTEGER } from "../_util"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Property } from "../Property"
@@ -85,7 +84,7 @@ export function flatMap<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  return flatMapWithConcurrencyLimit(MAX_SAFE_INTEGER, project, observable)
+  return flatMapWithConcurrencyLimit(Infinity, project, observable)
 }
 
 export function flatMapWithConcurrencyLimit<A, B>(
@@ -110,7 +109,7 @@ export function flatMapWithConcurrencyLimit<A, B>(
 ): Observable<B> {
   if (__DEVBUILD__) {
     assert(
-      parseInt(limit as any, 10) === limit && limit > 0,
+      limit === Infinity || (parseInt(limit as any, 10) === limit && limit > 0),
       "Concurrency limit must be a positive integer",
     )
   }
@@ -274,8 +273,8 @@ class FlatMapFirst<A, B> extends FlatMapSwitchable<A, B> {
 }
 
 class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
-  private itail: InnerPipe<B> | null = null
-  private ihead: InnerPipe<B> | null = null
+  private itail: InnerPipe<A, B> | null = null
+  private ihead: InnerPipe<A, B> | null = null
   private ni: number = 0
 
   constructor(source: Source<A>, proj: Projection<A, B | Observable<B>>, private limit: number) {
@@ -287,11 +286,7 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
   }
 
   protected outerNext(tx: Transaction, val: A): HandleOuterNextResult | null {
-    const project = this.proj
-    const innerObs = toObservable<B, Observable<B>>(project(val))
-    const innerSource = innerObs.src
-    const inner = new InnerPipe(this, innerSource)
-    if (this.append(inner) <= this.limit) {
+    if (this.append(new InnerPipe(this, val)) <= this.limit) {
       const subscription = this.subscribeHead()
       return { subscription, purge: false }
     } else {
@@ -308,7 +303,7 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
   }
 
   protected innerEnd(pipe: Pipe<B>): HandleInnerEndResult {
-    const inner = pipe as InnerPipe<B>
+    const inner = pipe as InnerPipe<A, B>
     const n = --this.ni
     const subs = inner.subs
     inner.subs = NOOP_SUBSCRIPTION
@@ -334,7 +329,7 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     }
   }
 
-  private append(inner: InnerPipe<B>): number {
+  private append(inner: InnerPipe<A, B>): number {
     if (this.itail === null) {
       this.itail = inner
     } else {
@@ -345,17 +340,19 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
   }
 
   private subscribeHead(): Subscription {
-    const inner = this.ihead as InnerPipe<B>
+    const { proj } = this
+    const inner = this.ihead as InnerPipe<A, B>
     this.ihead = inner.t
-    inner.subs = inner.src.subscribe(inner, this.ord + 1)
+    const iobs = toObservable<B, Observable<B>>(proj(inner.v))
+    inner.subs = iobs.src.subscribe(inner, this.ord + 1)
     return inner.subs
   }
 }
 
-class InnerPipe<T> extends Pipe<T> {
-  public t: InnerPipe<T> | null = null
+class InnerPipe<A, B> extends Pipe<B> {
+  public t: InnerPipe<A, B> | null = null
   public subs: Subscription = NOOP_SUBSCRIPTION
-  constructor(dest: PipeSubscriber<T>, public src: Source<T>) {
+  constructor(dest: PipeSubscriber<B>, public v: A) {
     super(dest)
   }
 }
