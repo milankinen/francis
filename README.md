@@ -10,20 +10,19 @@ Won't do operators marked with ~~strikethrough~~
 
 (:warning: = no proper tests written)
 
-- [ ] `changes`
+- [x] `changes`
 - [ ] `withHandler`
 - [x] `toProperty`
 - [x] `and`
 - [x] `or`
 - [x] `concat`
-- [ ] `bufferingThrottle`
+- [x] `bufferingThrottle`
 - [x] `sampledBy`
-- [ ] `sample`
+- [x] `sample`
 - [x] `startWith`
 - [x] `toEventStream`
 - [ ] `toString`
 - [ ] `Desc`
-- [ ] ~~`spy`~~
 - [x] `never`
 - [x] `constant`
 - [x] `when`
@@ -35,20 +34,20 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `fromBinder`
 - [x] `later`
 - [ ] `Bus`
-- [ ] `fromCallback`
-- [ ] `fromNodeCallback`
+- [x] `fromCallback`
+- [x] `fromNodeCallback`
 - [x] `combineTemplate`
 - [x] `fromArray`
 - [ ] `fromESObservable`
-- [ ] `fromEventTarget`
+- [x] `fromEventTarget`
 - [x] `fromEvent` :warning:
 - [x] `fromPoll`
 - [ ] `fromPromise`
 - [x] `interval` :warning:
 - [ ] `$.asEventStream`
 - [x] `mergeAll`
-- [ ] `repeatedly`
-- [ ] `repeat`
+- [x] `repeatedly`
+- [x] `repeat`
 - [ ] `retry`
 - [x] `sequentially`
 - [ ] `try`
@@ -59,15 +58,12 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `onValue`
 - [x] `onError` :warning:
 - [x] `onEnd` :warning:
-- [ ] ~~`name`~~
 - [ ] `withDescription`
-- [ ] ~~`deps`~~
-- [ ] ~~`internalDeps`~~
 - [x] `assign` :warning:
 - [ ] `inspect`
 - [x] `map`
 - [ ] `withStateMachine`
-- [ ] `skipDuplicates`
+- [x] `skipDuplicates`
 - [ ] `awaiting`
 - [x] `combine` :warning:
 - [x] `not`
@@ -75,46 +71,50 @@ Won't do operators marked with ~~strikethrough~~
 - [x] `flatMapWithConcurrencyLimit`
 - [x] `flatMapConcat`
 - [x] `flatMap`
-- [ ] `mapEnd`
-- [ ] `skipErrors`
-- [ ] `takeUntil`
+- [x] `mapEnd`
+- [x] `skipErrors`
+- [x] `takeUntil`
 - [x] `flatMapLatest`
-- [ ] `delay`
-- [ ] `debounce`
-- [ ] `debounceImmediate`
+- [x] `delay`
+- [x] `debounce`
+- [x] `debounceImmediate`
 - [ ] `decode`
 - [x] `scan`
-- [ ] `diff`
+- [x] `diff`
 - [x] `doAction` :warning:
 - [x] `doEnd`
 - [x] `doError`
 - [x] `doLog`
 - [ ] `endOnError`
-- [ ] `errors`
+- [x] `errors`
 - [ ] `toESObservable`
 - [x] `take`
 - [x] `first`
 - [x] `flatMapFirst`
-- [ ] `mapError`
-- [ ] `flatMapError`
-- [ ] `flatScan`
+- [x] `mapError`
+- [x] `flatMapError`
+- [x] `flatScan`
 - [x] `fold`
 - [x] `reduce`
 - [ ] `groupBy`
 - [x] `last`
 - [x] `log`
 - [x] `skip`
-- [ ] `slidingWindow`
-- [ ] `takeWhile`
-- [ ] `throttle`
+- [x] `slidingWindow`
+- [x] `takeWhile`
+- [x] `throttle`
 - [ ] `firstToPromise`
 - [ ] `toPromise`
 - [x] `zip`
-- [ ] `bufferWithTime`
-- [ ] `bufferWithCount`
-- [ ] `bufferWithTimeOrCount`
-- [ ] `buffer`
+- [x] `bufferWithTime`  (no custom defer function support)
+- [x] `bufferWithCount`
+- [x] `bufferWithTimeOrCount` (no custom defer function support)
 - [ ] `holdWhen`
 - [x] `merge`
-- [ ] `skipUntil`
-- [ ] `skipWhile`
+- [x] `skipUntil`
+- [x] `skipWhile`
+
+- [ ] ~~`spy`~~
+- [ ] ~~`name`~~
+- [ ] ~~`deps`~~
+- [ ] ~~`internalDeps`~~
