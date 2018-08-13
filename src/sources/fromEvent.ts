@@ -1,4 +1,5 @@
-import { curry2, find, isFunction } from "../_util"
+import { __DEVBUILD__, assert, GENERIC_ERROR_MSG } from "../_assert"
+import { find, isFunction } from "../_util"
 import { EventStream } from "../EventStream"
 import { fromBinder } from "./fromBinder"
 
@@ -14,11 +15,25 @@ export interface FromEventOp {
   (target: EventTarget): <T>(event: string, ...args: any[]) => EventStream<T>
 }
 
-export const fromEvent: FromEventOp = curry2(_fromEvent)
+export const fromEvent: FromEventOp = ((
+  target: EventTarget,
+  event: string,
+  ...args: any[]
+): any => {
+  switch (arguments.length) {
+    case 0:
+    case 1:
+      // tslint:disable-next-line:no-shadowed-variable
+      return (event: string, ...args: any[]): any => _fromEvent(target, event, args)
+    default:
+      return _fromEvent(target, event, args)
+  }
+}) as any
 
 // tslint:disable:ban-types
 
-function _fromEvent<T>(target: EventTarget, event: string, ...args: any[]): EventStream<T> {
+function _fromEvent<T>(target: EventTarget, event: string, args: any[]): EventStream<T> {
+  assert(target !== undefined, __DEVBUILD__ ? "Event target must be defined" : GENERIC_ERROR_MSG)
   const anyTarget = target as any
   const [bm, um] =
     find(([b, u]) => isFunction(anyTarget[b]) && isFunction(anyTarget[u]), pairs) ||
