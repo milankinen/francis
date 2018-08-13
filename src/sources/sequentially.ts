@@ -4,7 +4,6 @@ import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
 import { End, isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
-import { identity } from "../operators/_base"
 import { TimerBase } from "./_timer"
 
 export interface SequentiallyOp {
@@ -17,7 +16,7 @@ export const sequentially: SequentiallyOp = curry2(_sequentially)
 function _sequentially<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
   checkNaturalInt(interval)
   checkArray(events)
-  return makeEventStream(identity(new Sequentially(interval, events)))
+  return makeEventStream(new Sequentially(interval, events))
 }
 
 export class Sequentially<T> extends TimerBase<T> {

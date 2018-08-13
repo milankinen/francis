@@ -4,7 +4,6 @@ import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
 import { isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
-import { identity } from "../operators/_base"
 import { Sequentially } from "./sequentially"
 
 export interface RepeatedlyOp {
@@ -17,7 +16,7 @@ export const repeatedly: RepeatedlyOp = curry2(_repeatedly)
 function _repeatedly<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
   checkNaturalInt(interval)
   checkArray(events)
-  return makeEventStream(identity(new Repeatedly(interval, events)))
+  return makeEventStream(new Repeatedly(interval, events))
 }
 
 class Repeatedly<T> extends Sequentially<T> {

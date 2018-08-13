@@ -1,6 +1,5 @@
 import { NONE, NOOP_SUBSCRIBER, NOOP_SUBSCRIPTION, Source, Subscriber, Subscription } from "./_core"
 import { Transaction } from "./_tx"
-import { Operator } from "./operators/_base"
 
 export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
   public readonly weight: number
@@ -10,7 +9,7 @@ export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
   protected active: boolean = false
   protected msc: MulticastSubscriber<T> = NONE
 
-  constructor(protected source: Operator<any, T>) {
+  constructor(protected source: Source<T>) {
     this.weight = source.weight
   }
 

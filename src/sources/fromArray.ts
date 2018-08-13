@@ -2,12 +2,11 @@ import { checkArray } from "../_check"
 import { Subscriber } from "../_core"
 import { makeEventStream } from "../_obs"
 import { EventStream } from "../EventStream"
-import { identity } from "../operators/_base"
 import { Activation, Root } from "./_base"
 
 export function fromArray<T>(events: T[]): EventStream<T> {
   checkArray(events)
-  return makeEventStream(identity(new FromArray(events)))
+  return makeEventStream(new FromArray(events))
 }
 
 class FromArray<T> extends Root<T> {

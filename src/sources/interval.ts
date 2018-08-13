@@ -4,7 +4,6 @@ import { curry2 } from "../_util"
 import { AnyEvent } from "../bacon"
 import { Next } from "../Event"
 import { EventStream } from "../EventStream"
-import { identity } from "../operators/_base"
 import { TimerBase } from "./_timer"
 
 export interface IntervalOp {
@@ -16,7 +15,7 @@ export const interval: IntervalOp = curry2(_interval)
 
 function _interval<T>(period: number, value: T): EventStream<T> {
   checkNaturalInt(period)
-  return makeEventStream(identity(new Interval(period, [new Next(value)])))
+  return makeEventStream(new Interval(period, [new Next(value)]))
 }
 
 class Interval<T> extends TimerBase<T> {

@@ -4,12 +4,12 @@ import {
   Invokeable,
   NOOP_SUBSCRIBER,
   sendEndInTx,
+  Source,
   Subscriber,
   Subscription,
 } from "./_core"
 import { Dispatcher } from "./_dispatcher"
 import { Observable } from "./Observable"
-import { Operator } from "./operators/_base"
 import { scheduleActivationTask } from "./scheduler/index"
 
 export class EventStream<A> extends Observable<A> {
@@ -28,9 +28,9 @@ export class EventStreamDispatcher<T> extends Dispatcher<T> {
 }
 
 export class StatfulEventStreamDispatcher<T> extends Dispatcher<T> {
-  protected source!: Operator<any, T> & EndStateAware
+  protected source!: Source<T> & EndStateAware
 
-  constructor(op: Operator<any, T> & EndStateAware) {
+  constructor(op: Source<T> & EndStateAware) {
     super(op)
   }
 

@@ -4,7 +4,6 @@ import { curry2 } from "../_util"
 import { AnyEvent } from "../bacon"
 import { isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
-import { identity } from "../operators/_base"
 import { TimerBase } from "./_timer"
 
 export interface FromPollOp {
@@ -17,7 +16,7 @@ export const fromPoll: FromPollOp = curry2(_fromPoll)
 function _fromPoll<T>(interval: number, f: () => T | AnyEvent<T>): EventStream<T> {
   checkNaturalInt(interval)
   checkFunction(f)
-  return makeEventStream(identity(new FromPoll(interval, f)))
+  return makeEventStream(new FromPoll(interval, f))
 }
 
 class FromPoll<T> extends TimerBase<T> {
