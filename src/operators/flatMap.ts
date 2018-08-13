@@ -1,5 +1,5 @@
 import { checkFunction, checkPositiveInt } from "../_check"
-import { NOOP_SUBSCRIPTION, sendEnd, Source, Subscription } from "../_core"
+import { NOOP_SUBSCRIPTION, Source, Subscription } from "../_core"
 import { Projection } from "../_interfaces"
 import { toObs } from "../_interrop"
 import { makeObservable } from "../_obs"
@@ -134,9 +134,12 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
       // using outer tx as primary tx allows us to "break out" from inner transactions
       // and wait for join => we can achieve transaction semantics from inner+outer emissions
       const otx = this.otx
-      this.otx = tx
-      activateInnerSubscription(subscription)
-      this.otx = otx
+      try {
+        this.otx = tx
+        activateInnerSubscription(subscription)
+      } finally {
+        this.otx = otx
+      }
     }
   }
 
@@ -179,7 +182,7 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
   private joinInnerEnd(tx: Transaction, sender: Pipe<B>): void {
     const { ended, subscription } = this.innerEnd(sender)
     if (ended && this.outerEnded) {
-      sendEnd(tx, this.sink)
+      this.sink.end(tx)
     } else if (subscription !== null) {
       activateInnerSubscription(subscription)
     }

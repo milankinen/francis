@@ -43,38 +43,35 @@ export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscript
 
 export function sendNextInTx<T>(subscriber: Subscriber<T>, val: T): void {
   const tx = new Transaction()
-  sendNext(tx, subscriber, val)
-  tx.executePending()
+  try {
+    subscriber.next(tx, val)
+    tx.executePending()
+  } catch (ex) {
+    tx.abort()
+    throw ex
+  }
 }
 
 export function sendEndInTx(subscriber: Subscriber<any>): void {
   const tx = new Transaction()
-  sendEnd(tx, subscriber)
-  tx.executePending()
+  try {
+    subscriber.end(tx)
+    tx.executePending()
+  } catch (ex) {
+    tx.abort()
+    throw ex
+  }
 }
 
 export function sendErrorInTx(subscriber: Subscriber<any>, err: Error): void {
   const tx = new Transaction()
-  sendError(tx, subscriber, err)
-  tx.executePending()
-}
-
-export function sendNext<T>(tx: Transaction, s: Subscriber<T>, val: T): void {
   try {
-    s.next(tx, val)
-  } catch (err) {
-    s.error(tx, err)
+    subscriber.error(tx, err)
+    tx.executePending()
+  } catch (ex) {
+    tx.abort()
+    throw ex
   }
-}
-
-export function sendError<T>(tx: Transaction, s: Subscriber<T>, err: Error): void {
-  // TODO: try-catch
-  s.error(tx, err)
-}
-
-export function sendEnd<T>(tx: Transaction, s: Subscriber<T>): void {
-  // TODO: try-catch
-  s.end(tx)
 }
 
 export interface InvokeableWithParam<P> {

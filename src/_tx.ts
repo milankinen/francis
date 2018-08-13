@@ -1,6 +1,7 @@
 export interface Operation {
   priority: number
   exec(tx: Transaction): void
+  abort(): void
 }
 
 export class Transaction {
@@ -33,6 +34,17 @@ export class Transaction {
       let op: Operation | undefined
       while ((op = q[this.cursor++]) !== undefined) {
         op.exec(this)
+      }
+      --this.cursor
+    }
+  }
+
+  public abort(): void {
+    if (this.has === true) {
+      const { q } = this
+      let op: Operation | undefined
+      while ((op = q[this.cursor++]) !== undefined) {
+        op.abort()
       }
       --this.cursor
     }

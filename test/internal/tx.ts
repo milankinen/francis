@@ -43,4 +43,7 @@ class TestOp implements Operation {
   public exec(tx: Transaction): void {
     this.executionQueue.push(this.id)
   }
+  public abort(): void {
+    throw new Error("Aborted")
+  }
 }

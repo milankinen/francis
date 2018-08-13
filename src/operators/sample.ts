@@ -3,7 +3,6 @@ import {
   NONE,
   NOOP_SUBSCRIBER,
   NOOP_SUBSCRIPTION,
-  sendNext,
   Source,
   Subscriber,
   Subscription,
@@ -111,7 +110,7 @@ class Sample<S, V, R> extends JoinOperator<S, R> implements PipeSubscriber<V> {
       const project = this.p
       const result = project(this.val, this.sample)
       this.sample = NONE
-      sendNext(tx, this.sink, result)
+      this.sink.next(tx, result)
     } else {
       this.sample = NONE
     }

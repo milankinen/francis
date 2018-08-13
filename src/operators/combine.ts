@@ -1,5 +1,5 @@
 import { __DEVBUILD__, assert } from "../_assert"
-import { NONE, sendNext } from "../_core"
+import { NONE } from "../_core"
 import { toObs } from "../_interrop"
 import { isObservable, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
@@ -195,7 +195,7 @@ class Combine<A, B> extends JoinOperator<Indexed<A>, B> implements IndexedEndSub
     if (this.has === true) {
       const { f } = this
       this.has = false
-      sendNext(tx, this.sink, f(this.vals))
+      this.sink.next(tx, f(this.vals))
     }
     super.join(tx)
   }

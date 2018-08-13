@@ -1,14 +1,4 @@
-import {
-  NONE,
-  NOOP_SUBSCRIBER,
-  NOOP_SUBSCRIPTION,
-  sendEnd,
-  sendError,
-  sendNext,
-  Source,
-  Subscriber,
-  Subscription,
-} from "./_core"
+import { NONE, NOOP_SUBSCRIBER, NOOP_SUBSCRIPTION, Source, Subscriber, Subscription } from "./_core"
 import { Transaction } from "./_tx"
 import { Operator } from "./operators/_base"
 
@@ -138,7 +128,7 @@ class MulticastSubscriber<T> implements Subscriber<T> {
   public next(tx: Transaction, val: T): void {
     let head = this.h
     while (head !== null) {
-      head.a && sendNext(tx, head.s, val)
+      head.a && head.s.next(tx, val)
       head = head.t
     }
   }
@@ -146,7 +136,7 @@ class MulticastSubscriber<T> implements Subscriber<T> {
   public error(tx: Transaction, err: Error): void {
     let head = this.h
     while (head !== null) {
-      head.a && sendError(tx, head.s, err)
+      head.a && head.s.error(tx, err)
       head = head.t
     }
   }
@@ -154,7 +144,7 @@ class MulticastSubscriber<T> implements Subscriber<T> {
   public end(tx: Transaction): void {
     let head = this.h
     while (head !== null) {
-      head.a && sendEnd(tx, head.s)
+      head.a && head.s.end(tx)
       head = head.t
     }
   }

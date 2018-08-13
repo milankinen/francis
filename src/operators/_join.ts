@@ -25,6 +25,13 @@ export abstract class JoinOperator<A, B> extends Operator<A, B> {
     this.join(tx)
   }
 
+  public abortJoin(): void {
+    this.forked = false
+    this.hasErr && ((this.hasErr = false) || this.errs.clear())
+    this.head = this.tail = null
+    this.n = 0
+  }
+
   public join(tx: Transaction): void {
     const n = this.n
     let head = this.head
@@ -51,13 +58,6 @@ export abstract class JoinOperator<A, B> extends Operator<A, B> {
 
   protected isForked(): boolean {
     return this.forked
-  }
-
-  protected abortJoin(): void {
-    this.forked = false
-    this.hasErr && ((this.hasErr = false) || this.errs.clear())
-    this.head = this.tail = null
-    this.n = 0
   }
 
   protected forkNext(tx: Transaction, val: B): void {
@@ -124,6 +124,10 @@ class Join implements Operation {
 
   public exec(tx: Transaction): void {
     this.target.startJoin(tx)
+  }
+
+  public abort(): void {
+    this.target.abortJoin()
   }
 }
 

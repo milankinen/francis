@@ -55,7 +55,7 @@ class Merge<T> extends MultiSource<T> {
     }
   }
 
-  private clear(): void {
+  public clear(): void {
     this.errs = new Set()
     this.eq = []
     this.j = false
@@ -66,5 +66,9 @@ class MergeJoin<T> implements Operation {
   constructor(public readonly priority: number, private m: Merge<T>) {}
   public exec(tx: Transaction): void {
     this.m.join(tx)
+  }
+
+  public abort(): void {
+    this.m.clear()
   }
 }
