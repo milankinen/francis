@@ -1,3 +1,4 @@
+import { checkArray, checkFunction } from "../_check"
 import { slice } from "../_util"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
@@ -28,11 +29,12 @@ export function zipAsArray<A, B, C, D, E, F>(
   ],
 ): EventStream<[A, B, C, D, E, F]>
 export function zipAsArray(streams: Array<Observable<any>>): EventStream<any[]> {
+  checkArray(streams)
   switch (streams.length) {
     case 0:
       return never<any>()
     case 1:
-      return map(toArray, toEventStream(streams[0])) as EventStream<[any]>
+      return map(x => [x], toEventStream(streams[0])) as EventStream<[any]>
     default:
       return _when([streams.map(toEventStream), slice], false)
   }
@@ -70,6 +72,8 @@ export function zipWith<T>(
   f: (...args: any[]) => T,
   streams: Array<Observable<any>>,
 ): EventStream<T> {
+  checkArray(streams)
+  checkFunction(f)
   switch (streams.length) {
     case 0:
       return never<any>()
@@ -78,8 +82,4 @@ export function zipWith<T>(
     default:
       return _when([streams.map(toEventStream), f], true)
   }
-}
-
-function toArray<T>(x: T): [T] {
-  return [x]
 }

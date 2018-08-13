@@ -1,3 +1,4 @@
+import { checkFunction } from "../_check"
 import { Source } from "../_core"
 import { Projection } from "../_interfaces"
 import { toObs } from "../_interrop"
@@ -20,6 +21,7 @@ function _flatMapError<T>(
   project: Projection<Error, T | Observable<T>>,
   observable: Observable<T>,
 ): Observable<T> {
+  checkFunction(project)
   return flatMap<M<T>, T>(unpack, makeObservable(observable, new MapM(observable.src, project)))
 }
 

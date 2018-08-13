@@ -1,3 +1,4 @@
+import { checkFunction, checkObservable, checkProperty } from "../_check"
 import {
   NONE,
   NOOP_SUBSCRIBER,
@@ -58,6 +59,9 @@ function _sampleF<S, V, R>(
   project: (value: V, sample: S) => R,
   value: Property<V>,
 ): Observable<R> {
+  checkObservable(sampler)
+  checkFunction(project)
+  checkProperty(value)
   return makeObservable(sampler, new Sample(value.src, sampler.src, project))
 }
 

@@ -1,3 +1,4 @@
+import { checkObservable } from "../_check"
 import { NOOP_SUBSCRIBER, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -16,6 +17,7 @@ export interface SkipUntilOp {
 export const skipUntil: SkipUntilOp = curry2(_skipUntil)
 
 function _skipUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
+  checkObservable(trigger)
   return makeObservable(observable, new SkipUntil(toEventStream(trigger).src, observable.src))
 }
 

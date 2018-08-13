@@ -1,3 +1,4 @@
+import { checkProperty } from "../_check"
 import { InvokeableWithParam, invokeWith, Subscriber, Subscription } from "../_core"
 import { makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
@@ -7,6 +8,7 @@ import { scheduleActivationTask } from "../scheduler/index"
 import { Changes } from "./_changes"
 
 export function changes<T>(property: Observable<T>): EventStream<T> {
+  checkProperty(property)
   return makeEventStream(new ChangesAsEventStream(property.src))
 }
 

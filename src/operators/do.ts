@@ -1,3 +1,4 @@
+import { checkFunction } from "../_check"
 import { Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -32,6 +33,7 @@ export const doEnd: DoEndOp = curry2(_doEnd)
 export const doLog: DoLogOp = curry2(_doLog)
 
 function _doAction<T>(f: (val: T) => void, observable: Observable<T>): Observable<T> {
+  checkFunction(f)
   const eff = (val: T): T => {
     f(val)
     return val
@@ -40,10 +42,12 @@ function _doAction<T>(f: (val: T) => void, observable: Observable<T>): Observabl
 }
 
 function _doError<T>(f: (err: Error) => void, observable: Observable<T>): Observable<T> {
+  checkFunction(f)
   return makeObservable(observable, new DoError(observable.src, f))
 }
 
 function _doEnd<T>(f: () => void, observable: Observable<T>): Observable<T> {
+  checkFunction(f)
   return makeObservable(observable, new DoEnd(observable.src, f))
 }
 

@@ -1,7 +1,7 @@
-import { assert } from "../_assert"
+import { checkProperty } from "../_check"
 import { curry2 } from "../_util"
 import { Observable } from "../Observable"
-import { isProperty, Property } from "../Property"
+import { Property } from "../Property"
 import { _combine } from "./combine"
 import { map } from "./map"
 
@@ -25,34 +25,18 @@ export const and: AndOp = curry2(_and)
 export const or: OrOp = curry2(_or)
 
 export function not<A>(a: Observable<A>): Observable<boolean> {
-  checkProp(a)
-  return map(notOp, a)
+  checkProperty(a)
+  return map(x => !x, a)
 }
 
 function _and<A, B>(a: Property<A>, b: Property<B>): Property<AndResult<A, B>> {
-  checkProp(a)
-  checkProp(b)
-  return _combine(andOp, [a, b] as any) as any
+  checkProperty(a)
+  checkProperty(b)
+  return _combine(xs => xs[0] && xs[1], [a, b] as any) as any
 }
 
 function _or<A, B>(a: Property<A>, b: Property<B>): Property<OrResult<A, B>> {
-  checkProp(a)
-  checkProp(b)
-  return _combine(orOp, [a, b] as any) as any
-}
-
-function andOp(vals: any[]): any {
-  return vals[0] && vals[1]
-}
-
-function orOp(vals: any[]): any {
-  return vals[0] || vals[1]
-}
-
-function notOp(val: any): boolean {
-  return !val
-}
-
-function checkProp(x: any): void {
-  assert(isProperty(x), "All operands must be Properties")
+  checkProperty(a)
+  checkProperty(b)
+  return _combine(xs => xs[0] || xs[1], [a, b] as any) as any
 }

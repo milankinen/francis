@@ -1,3 +1,4 @@
+import { checkNaturalInt } from "../_check"
 import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
 import { AnyEvent } from "../bacon"
@@ -14,6 +15,7 @@ export interface IntervalOp {
 export const interval: IntervalOp = curry2(_interval)
 
 function _interval<T>(period: number, value: T): EventStream<T> {
+  checkNaturalInt(period)
   return makeEventStream(identity(new Interval(period, [new Next(value)])))
 }
 

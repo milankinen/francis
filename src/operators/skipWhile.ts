@@ -1,3 +1,4 @@
+import { checkFunctionOrProperty } from "../_check"
 import { Source } from "../_core"
 import { Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
@@ -21,6 +22,7 @@ function _skipWhile<T>(
   f: Predicate<T> | Property<boolean>,
   observable: Observable<T>,
 ): Observable<T> {
+  checkFunctionOrProperty(f)
   return isProperty(f)
     ? skipUntil(filter(x => !x, startWith(true, f)), observable)
     : makeObservable(observable, new SkipWhile(observable.src, f))

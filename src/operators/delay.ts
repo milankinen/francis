@@ -1,3 +1,4 @@
+import { checkNaturalInt } from "../_check"
 import { sendEndInTx, sendNextInTx, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -14,6 +15,7 @@ export interface DelayOp {
 export const delay: DelayOp = curry2(_delay)
 
 function _delay<T>(time: number, observable: Observable<T>): Observable<T> {
+  checkNaturalInt(time)
   return makeObservable(observable, new Delay(observable.src, time))
 }
 

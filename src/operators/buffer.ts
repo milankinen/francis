@@ -1,3 +1,4 @@
+import { checkEventStream, checkNaturalInt, checkPositiveInt } from "../_check"
 import { sendNextInTx, Source } from "../_core"
 import { makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
@@ -29,10 +30,14 @@ export const bufferWithCount: BufferWithCountOp = curry2(_bufferWithCount)
 export const bufferWithTimeOrCount: BufferWithTimeOrCountOp = curry3(_bufferWithTimeOrCount)
 
 function _bufferWithTime<T>(delay: number, stream: EventStream<T>): EventStream<T[]> {
+  checkNaturalInt(delay)
+  checkEventStream(stream)
   return makeEventStream(new Buffer(stream.src, Infinity, delay))
 }
 
 function _bufferWithCount<T>(count: number, stream: EventStream<T>): EventStream<T[]> {
+  checkPositiveInt(count)
+  checkEventStream(stream)
   return makeEventStream(new Buffer(stream.src, count, -1))
 }
 
@@ -41,6 +46,9 @@ function _bufferWithTimeOrCount<T>(
   count: number,
   stream: EventStream<T>,
 ): EventStream<T[]> {
+  checkNaturalInt(delay)
+  checkPositiveInt(count)
+  checkEventStream(stream)
   return makeEventStream(new Buffer(stream.src, count, delay))
 }
 

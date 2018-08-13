@@ -1,3 +1,4 @@
+import { checkFunction } from "../_check"
 import { FlatAccum } from "../_interfaces"
 import { toObs } from "../_interrop"
 import { curry3, pipe } from "../_util"
@@ -17,6 +18,7 @@ export interface FlatScanOp {
 export const flatScan: FlatScanOp = curry3(_flatScan)
 
 function _flatScan<S, T>(seed: S, acc: FlatAccum<S, T>, observable: Observable<T>): Property<S> {
+  checkFunction(acc)
   let s = seed
   // prettier-ignore
   return pipe(observable,

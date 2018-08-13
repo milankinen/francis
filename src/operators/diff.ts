@@ -1,3 +1,4 @@
+import { checkFunction } from "../_check"
 import { Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -17,6 +18,7 @@ export interface DiffOp {
 export const diff: DiffOp = curry3(_diff)
 
 function _diff<T, D>(f: Delta<T, D>, start: T, observable: Observable<T>): Observable<D> {
+  checkFunction(f)
   return makeObservable(observable, new Diff(observable.src, f, start))
 }
 

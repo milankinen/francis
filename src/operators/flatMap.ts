@@ -1,4 +1,4 @@
-import { __DEVBUILD__, assert } from "../_assert"
+import { checkFunction, checkPositiveInt } from "../_check"
 import { NOOP_SUBSCRIPTION, sendEnd, Source, Subscription } from "../_core"
 import { Projection } from "../_interfaces"
 import { toObs } from "../_interrop"
@@ -62,6 +62,7 @@ function _flatMapLatest<A, B>(
   project: Projection<A, ToFlatten<B>>,
   observable: Observable<A>,
 ): Observable<B> {
+  checkFunction(project)
   return makeObservable(observable, new FlatMapLatest(observable.src, project))
 }
 
@@ -69,6 +70,7 @@ function _flatMapFirst<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
+  checkFunction(project)
   return makeObservable(observable, new FlatMapFirst(observable.src, project))
 }
 
@@ -76,14 +78,14 @@ function _flatMapConcat<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  return flatMapWithConcurrencyLimit(1, project, observable as any)
+  return _flatMapWithConcurrencyLimitNoCheck(1, project, observable as any)
 }
 
 function _flatMap<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  return flatMapWithConcurrencyLimit(Infinity, project, observable as any)
+  return _flatMapWithConcurrencyLimitNoCheck(Infinity, project, observable as any)
 }
 
 function _flatMapWithConcurrencyLimit<A, B>(
@@ -91,12 +93,16 @@ function _flatMapWithConcurrencyLimit<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  if (__DEVBUILD__) {
-    assert(
-      limit === Infinity || (parseInt(limit as any, 10) === limit && limit > 0),
-      "Concurrency limit must be a positive integer",
-    )
-  }
+  checkPositiveInt(limit)
+  checkFunction(project)
+  return _flatMapWithConcurrencyLimitNoCheck(limit, project, observable)
+}
+
+function _flatMapWithConcurrencyLimitNoCheck<A, B>(
+  limit: number,
+  project: Projection<A, B | Observable<B>>,
+  observable: Observable<A>,
+): Observable<B> {
   return makeObservable(observable, new FlatMapConcurrent(observable.src, project, limit))
 }
 

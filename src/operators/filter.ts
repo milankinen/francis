@@ -1,3 +1,4 @@
+import { checkFunctionOrProperty } from "../_check"
 import { Source } from "../_core"
 import { Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
@@ -19,6 +20,7 @@ function _filter<T>(
   predicate: Predicate<T> | Property<any>,
   observable: Observable<T>,
 ): Observable<T> {
+  checkFunctionOrProperty(predicate)
   const op: Operator<any, T> = isProperty<any>(predicate)
     ? new FilterSampled(sampleWith(observable, (v, s) => [v, s], predicate).src)
     : new Filter(observable.src, predicate)

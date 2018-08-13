@@ -1,3 +1,4 @@
+import { checkNaturalInt } from "../_check"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -18,10 +19,12 @@ export const debounce: DebounceOp = curry2(_debounce)
 export const debounceImmediate: DebounceImmediateOp = curry2(_debounceImmediate)
 
 function _debounce<T>(delay: number, observable: Observable<T>): Observable<T> {
+  checkNaturalInt(delay)
   return makeObservable(observable, new Debounce(observable.src, delay))
 }
 
 function _debounceImmediate<T>(delay: number, observable: Observable<T>): Observable<T> {
+  checkNaturalInt(delay)
   return makeObservable(observable, new DebounceImmediate(observable.src, delay))
 }
 

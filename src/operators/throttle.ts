@@ -1,3 +1,4 @@
+import { checkNaturalInt } from "../_check"
 import { NONE, sendEndInTx, sendNextInTx, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -20,10 +21,12 @@ export const throttle: ThrottleOp = curry2(_throttle)
 export const bufferingThrottle: BufferingThrottleOp = curry2(_bufferingThrottle)
 
 function _throttle<T>(delay: number, observable: Observable<T>): Observable<T> {
+  checkNaturalInt(delay)
   return makeObservable(observable, new Throttle(observable.src, delay))
 }
 
 function _bufferingThrottle<T>(minimumInterval: number, observable: Observable<T>): Observable<T> {
+  checkNaturalInt(minimumInterval)
   return makeObservable(observable, new BufferingThrottle(observable.src, minimumInterval))
 }
 

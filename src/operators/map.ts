@@ -1,3 +1,4 @@
+import { checkFunctionOrProperty } from "../_check"
 import { Source } from "../_core"
 import { Projection } from "../_interfaces"
 import { makeObservable } from "../_obs"
@@ -19,6 +20,7 @@ function _map<A, B>(
   project: Projection<A, B> | Property<B>,
   observable: Observable<A>,
 ): Observable<B> {
+  checkFunctionOrProperty(project)
   return isProperty(project)
     ? sampleBy(observable, project)
     : makeObservable(observable, new Map(observable.src, project))

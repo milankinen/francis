@@ -1,4 +1,5 @@
-import { __DEVBUILD__, assert } from "../_assert"
+import { __DEVBUILD__, assert, GENERIC_ERROR_MSG } from "../_assert"
+import { checkFunction } from "../_check"
 import {
   NONE,
   NOOP_SUBSCRIBER,
@@ -9,7 +10,7 @@ import {
 } from "../_core"
 import { isObservable, makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
-import { isArray, isFunction } from "../_util"
+import { isArray } from "../_util"
 import { EventStream, isEventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
@@ -31,20 +32,17 @@ export function extractPatternsAndBuffers(
   patternsAndHandlers: any[],
   spreadHandlerArgs: boolean,
 ): [Pattern[], Buffer[], Buffered[]] {
-  if (__DEVBUILD__) {
-    assert(
-      patternsAndHandlers.length > 0 && patternsAndHandlers.length % 2 === 0,
-      "Expecting arguments in the form (Observable+,function)+",
-    )
-  }
-
+  assert(
+    patternsAndHandlers.length > 0 && patternsAndHandlers.length % 2 === 0,
+    __DEVBUILD__ ? "Expecting arguments in the form (Observable+,function)+" : GENERIC_ERROR_MSG,
+  )
   const patterns = Array<Pattern>(patternsAndHandlers.length / 2)
   const idxLookup = new Map<Observable<any>, number>()
   for (let i = 0; i < patternsAndHandlers.length; i += 2) {
     const pattern = patternsAndHandlers[i] as Array<Observable<any>>
     const f = patternsAndHandlers[i + 1] as PatternHandler
     const handler = spreadHandlerArgs ? (args: any[]) => f(...args) : f
-    assert(isFunction(f), "Handler must be a function")
+    checkFunction(f)
     assertPattern(pattern)
     const nIdx: any = {}
     const aheads = Array<number[]>(pattern.length)
@@ -320,12 +318,18 @@ interface BufferNode {
 }
 
 function assertPattern(pattern: any[]) {
-  assert(isArray(pattern), "Pattern must be an array [Observable+]")
+  assert(
+    isArray(pattern),
+    __DEVBUILD__ ? "Pattern must be an array [Observable+]" : GENERIC_ERROR_MSG,
+  )
   let hasStream = false
   for (let i = 0; i < pattern.length; i++) {
     const x = pattern[i]
-    assert(isObservable(x), "All pattern components must be Observables")
+    assert(
+      isObservable(x),
+      __DEVBUILD__ ? "All pattern components must be Observables" : GENERIC_ERROR_MSG,
+    )
     hasStream = hasStream || isEventStream(x)
   }
-  assert(hasStream, "At least one EventStream required")
+  assert(hasStream, __DEVBUILD__ ? "At least one EventStream required" : GENERIC_ERROR_MSG)
 }

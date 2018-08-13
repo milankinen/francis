@@ -1,3 +1,4 @@
+import { checkObservable } from "../_check"
 import { invoke, Invokeable, sendNextInTx, Source, Subscriber, Subscription } from "../_core"
 import { makeEventStream, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
@@ -16,6 +17,7 @@ export interface StartWithOp {
 export const startWith: StartWithOp = curry2(_startWith)
 
 function _startWith<T>(value: T, observable: Observable<T>): Observable<T> {
+  checkObservable(observable)
   return isProperty<T>(observable)
     ? _startWithP(value, observable)
     : _startWithE(value, observable as EventStream<T>)

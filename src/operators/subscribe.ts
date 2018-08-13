@@ -1,3 +1,4 @@
+import { checkFunction } from "../_check"
 import {
   AnyEvent,
   Dispose,
@@ -45,6 +46,7 @@ export const onError: OnErrorOp = curry2(_onError)
 export const onEnd: OnEndOp = curry2(_onEnd)
 
 function _subscribe<T>(f: Handler<T>, observable: Observable<T>): Dispose {
+  checkFunction(f)
   const s = new Subscribe(f)
   runEffects(s, observable)
   return function dispose(): void {

@@ -1,9 +1,11 @@
+import { checkFunction } from "../_check"
 import { AnyEvent, AsyncCallback, AsyncNodeCallback } from "../_interfaces"
 import * as Event from "../Event"
 import { EventStream } from "../EventStream"
 import { fromBinder } from "./fromBinder"
 
 export function fromCallback<T>(f: AsyncCallback<T>, ...args: any[]): EventStream<T> {
+  checkFunction(f)
   f = bind(f, args)
   return fromBinder<T>(sink => {
     const callback = (result: T | AnyEvent<T>) => {
@@ -14,6 +16,7 @@ export function fromCallback<T>(f: AsyncCallback<T>, ...args: any[]): EventStrea
 }
 
 export function fromNodeCallback<T>(f: AsyncNodeCallback<T>, ...args: any[]): EventStream<T> {
+  checkFunction(f)
   f = bind(f, args)
   return fromBinder<T>(sink => {
     const callback = (error: Error | null, result?: T | AnyEvent<T>) => {

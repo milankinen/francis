@@ -1,3 +1,4 @@
+import { checkFunction } from "../_check"
 import { Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -24,6 +25,7 @@ export function skipEquals<T>(observable: Observable<T>): Observable<T> {
 }
 
 function _skipDuplicates<T>(isEqual: Eq<T>, observable: Observable<T>): Observable<T> {
+  checkFunction(isEqual)
   return makeObservable(observable, new SkipDuplicates(observable.src, isEqual))
 }
 

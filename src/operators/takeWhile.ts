@@ -1,3 +1,4 @@
+import { checkFunctionOrProperty } from "../_check"
 import { EndStateAware, Source } from "../_core"
 import { Predicate } from "../_interfaces"
 import { makeStatefulObservable } from "../_obs"
@@ -21,6 +22,7 @@ function _takeWhile<T>(
   f: Predicate<T> | Property<boolean>,
   observable: Observable<T>,
 ): Observable<T> {
+  checkFunctionOrProperty(f)
   return isProperty(f)
     ? takeUntil(filter(x => !x, startWith(true, f)), observable)
     : makeStatefulObservable(observable, new TakeWhile(observable.src, f))

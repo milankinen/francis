@@ -1,3 +1,4 @@
+import { checkArray, checkNaturalInt } from "../_check"
 import { AnyEvent } from "../_interfaces"
 import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
@@ -14,6 +15,8 @@ export interface RepeatedlyOp {
 export const repeatedly: RepeatedlyOp = curry2(_repeatedly)
 
 function _repeatedly<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
+  checkNaturalInt(interval)
+  checkArray(events)
   return makeEventStream(identity(new Repeatedly(interval, events)))
 }
 

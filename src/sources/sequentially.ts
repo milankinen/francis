@@ -1,3 +1,4 @@
+import { checkArray, checkNaturalInt } from "../_check"
 import { AnyEvent } from "../_interfaces"
 import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
@@ -14,6 +15,8 @@ export interface SequentiallyOp {
 export const sequentially: SequentiallyOp = curry2(_sequentially)
 
 function _sequentially<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
+  checkNaturalInt(interval)
+  checkArray(events)
   return makeEventStream(identity(new Sequentially(interval, events)))
 }
 

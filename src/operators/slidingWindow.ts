@@ -1,3 +1,4 @@
+import { checkNaturalInt, checkObservable, checkPositiveInt } from "../_check"
 import { Source } from "../_core"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
@@ -17,6 +18,9 @@ export interface SlidingWindowOp {
 export const slidingWindow: SlidingWindowOp = curry3(_slidingWindow)
 
 function _slidingWindow<T>(min: number, max: number, observable: Observable<T>): Property<T[]> {
+  checkObservable(observable)
+  checkNaturalInt(min)
+  checkPositiveInt(max)
   const sliding = makeProperty(new SlidingWindow(observable.src, min, max, []))
   return min > 0 ? sliding : toPropertyWith([], sliding)
 }

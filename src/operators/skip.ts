@@ -1,3 +1,4 @@
+import { checkNaturalInt } from "../_check"
 import { Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -13,6 +14,7 @@ export interface SkipOp {
 export const skip: SkipOp = curry2(_skip)
 
 function _skip<T>(n: number, observable: Observable<T>): Observable<T> {
+  checkNaturalInt(n)
   return makeObservable(observable, new Skip(observable.src, n))
 }
 

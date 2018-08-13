@@ -1,4 +1,5 @@
-import { __DEVBUILD__, assert } from "../_assert"
+import { __DEVBUILD__ } from "../_assert"
+import { checkObservable } from "../_check"
 import {
   EndStateAware,
   invoke,
@@ -10,9 +11,8 @@ import {
   Subscriber,
   Subscription,
 } from "../_core"
-import { isObservable, makeStatefulEventStream } from "../_obs"
+import { makeStatefulEventStream } from "../_obs"
 import { Transaction } from "../_tx"
-import { every } from "../_util"
 import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { scheduleActivationTask } from "../scheduler/index"
@@ -25,7 +25,7 @@ export function makeMultiSourceStream<T>(
   ctor: MultiSourceCtor<T>,
 ): EventStream<T> {
   if (__DEVBUILD__) {
-    assert(every(isObservable, observables), "All elements must be observables")
+    observables.forEach(checkObservable)
   }
   if (observables.length === 0) {
     observables = [never()]

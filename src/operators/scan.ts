@@ -1,3 +1,4 @@
+import { checkFunction, checkObservable } from "../_check"
 import { sendNextInTx, Source } from "../_core"
 import { Accum } from "../_interfaces"
 import { makeProperty } from "../_obs"
@@ -17,6 +18,8 @@ export interface ScanOp {
 export const scan: ScanOp = curry3(_scan)
 
 function _scan<S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S> {
+  checkObservable(observable)
+  checkFunction(acc)
   return makeProperty(new Scan(observable.src, acc, seed))
 }
 

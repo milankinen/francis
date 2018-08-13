@@ -1,3 +1,4 @@
+import { checkFunction, checkNaturalInt } from "../_check"
 import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
 import { AnyEvent } from "../bacon"
@@ -14,6 +15,8 @@ export interface FromPollOp {
 export const fromPoll: FromPollOp = curry2(_fromPoll)
 
 function _fromPoll<T>(interval: number, f: () => T | AnyEvent<T>): EventStream<T> {
+  checkNaturalInt(interval)
+  checkFunction(f)
   return makeEventStream(identity(new FromPoll(interval, f)))
 }
 

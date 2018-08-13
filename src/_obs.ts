@@ -1,3 +1,4 @@
+import { checkObservable } from "./_check"
 import { EndStateAware } from "./_core"
 import {
   EventStream,
@@ -10,6 +11,7 @@ import { Operator } from "./operators/_base"
 import { isProperty, Property, PropertyDispatcher } from "./Property"
 
 export function makeObservable<T>(parent: Observable<any>, op: Operator<any, T>): Observable<T> {
+  checkObservable(parent)
   return isProperty(parent) ? makeProperty(op) : makeEventStream(op)
 }
 
@@ -17,6 +19,7 @@ export function makeStatefulObservable<T>(
   parent: Observable<any>,
   op: Operator<any, T> & EndStateAware,
 ): Observable<T> {
+  checkObservable(parent)
   return isProperty(parent) ? makeProperty(op) : makeStatefulEventStream(op)
 }
 

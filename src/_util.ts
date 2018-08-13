@@ -17,6 +17,20 @@ export function isFunction(x: any): x is Function {
   return !!(x && x.constructor && x.call && x.apply)
 }
 
+export function isNaN(x: any): boolean {
+  return x !== x
+}
+
+export function isNumber(x: any): x is number {
+  return typeof x === "number" && !isNaN(x)
+}
+
+export const isInteger: (x: any) => x is number =
+  (Number.isInteger as any) ||
+  ((x: any): boolean => {
+    return isNumber(x) && x !== Infinity && x !== -Infinity && Math.floor(x) === x
+  })
+
 // tslint:disable-next-line:array-type
 export function isArray(x: any): x is Array<any> {
   return !!x && x.constructor === Array

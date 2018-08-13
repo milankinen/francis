@@ -1,3 +1,4 @@
+import { checkObservable } from "../_check"
 import { EndStateAware, NOOP_SUBSCRIBER, Source } from "../_core"
 import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -16,6 +17,7 @@ export interface TakeUntilOp {
 export const takeUntil: TakeUntilOp = curry2(_takeUntil)
 
 function _takeUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
+  checkObservable(trigger)
   return makeStatefulObservable(
     observable,
     new TakeUntil(toEventStream(trigger).src, observable.src),
