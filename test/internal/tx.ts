@@ -12,12 +12,12 @@ describe("Transaction queue", () => {
     tx.queue(op(4, "d4"))
     tx.queue(op(3, "e3"))
     tx.queue(op(1, "f1"))
-    tx.executePending()
+    tx.consume()
     q.push("--- 2 ---")
     tx.queue(op(1, "g1"))
     tx.queue(op(3, "h3"))
     tx.queue(op(0, "i0"))
-    tx.executePending()
+    tx.consume()
     expect(q).toEqual([
       "--- 1 ---",
       "f1",

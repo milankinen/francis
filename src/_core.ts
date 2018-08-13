@@ -41,35 +41,42 @@ export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscript
   public reorder(order: number): void {}
 }()
 
+// this global tx will be changed when stepping in/out between scheduling frames
+let TX = new Transaction()
+
+export function setTx(tx: Transaction): void {
+  TX = tx
+}
+
 export function sendNextInTx<T>(subscriber: Subscriber<T>, val: T): void {
-  const tx = new Transaction()
   try {
-    subscriber.next(tx, val)
-    tx.executePending()
+    TX.begin()
+    subscriber.next(TX, val)
+    TX.consume()
   } catch (ex) {
-    tx.abort()
+    TX.abort()
     throw ex
   }
 }
 
 export function sendEndInTx(subscriber: Subscriber<any>): void {
-  const tx = new Transaction()
   try {
-    subscriber.end(tx)
-    tx.executePending()
+    TX.begin()
+    subscriber.end(TX)
+    TX.consume()
   } catch (ex) {
-    tx.abort()
+    TX.abort()
     throw ex
   }
 }
 
 export function sendErrorInTx(subscriber: Subscriber<any>, err: Error): void {
-  const tx = new Transaction()
   try {
-    subscriber.error(tx, err)
-    tx.executePending()
+    TX.begin()
+    subscriber.error(TX, err)
+    TX.consume()
   } catch (ex) {
-    tx.abort()
+    TX.abort()
     throw ex
   }
 }

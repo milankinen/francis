@@ -1,3 +1,4 @@
+import { setTx } from "../_core"
 import { SchedulingContext } from "./SchedulingContext"
 
 export { SchedulingContext } from "./SchedulingContext"
@@ -15,16 +16,19 @@ export interface OnTimeout {
 }
 
 const context: SchedulingContext = new SchedulingContext()
+setTx(context.getRootTx())
 
 // use these wrapper functions instead so that bundlers can optimize
 // bundle size more effeciently
 
 export function stepIn(): void {
-  context.stepIn()
+  const tx = context.stepIn()
+  setTx(tx)
 }
 
 export function stepOut(): void {
-  context.stepOut()
+  const tx = context.stepOut()
+  setTx(tx)
 }
 
 export function handleActivations(): void {

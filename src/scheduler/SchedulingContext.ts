@@ -1,4 +1,5 @@
 import { __DEVELOPER__, logAndThrow } from "../_assert"
+import { Transaction } from "../_tx"
 import { isFunction } from "../_util"
 import { OnTimeout, Task, Timeout } from "./index"
 
@@ -6,25 +7,32 @@ const scheduleMicroTask = createMicroTaskScheduler()
 
 export class SchedulingContext {
   private top: SchedulerFrame
+  private root: SchedulerFrame
 
   constructor() {
-    this.top = new RootFrame(this)
+    this.root = this.top = new RootFrame()
   }
 
   public hasActivations(): boolean {
     return this.top.hasActivations()
   }
 
+  public getRootTx(): Transaction {
+    return this.root.tx
+  }
+
   public abort(): void {
     this.top.abort()
   }
 
-  public stepIn(): void {
+  public stepIn(): Transaction {
     this.top = this.top.stepIn()
+    return this.top.tx
   }
 
-  public stepOut(): void {
+  public stepOut(): Transaction {
     this.top = this.top.stepOut()
+    return this.top.tx
   }
 
   public handleActivations(): void {
@@ -39,10 +47,10 @@ export class SchedulingContext {
     return new BasicTimeout(setTimeout(() => onTimeout.due(), delay))
   }
 
-  public onActivationsEmpty(): void {}
 }
 
 interface SchedulerFrame {
+  readonly tx: Transaction
   hasActivations(): boolean
   scheduleActivation(task: Task): void
   handleActivations(): void
@@ -52,6 +60,8 @@ interface SchedulerFrame {
 }
 
 abstract class BaseFrame implements SchedulerFrame {
+  public readonly tx: Transaction = new Transaction()
+
   private activations: Task[] = []
   private cursor: number = 0
 
@@ -90,7 +100,7 @@ class RootFrame extends BaseFrame {
   // usually < 10 is sufficient
   private inner: InnerFrame = new InnerFrame(this, 100)
 
-  constructor(private owner: SchedulingContext) {
+  constructor() {
     super()
   }
 
@@ -100,7 +110,6 @@ class RootFrame extends BaseFrame {
       scheduleMicroTask(() => {
         this.scheduled = false
         this.runActivations()
-        this.owner.onActivationsEmpty()
       })
     }
   }
