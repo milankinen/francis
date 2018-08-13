@@ -15,11 +15,11 @@ export interface FromEventOp {
   (target: EventTarget): <T>(event: string, ...args: any[]) => EventStream<T>
 }
 
-export const fromEvent: FromEventOp = ((
-  target: EventTarget,
-  event: string,
-  ...args: any[]
-): any => {
+export const fromEvent: FromEventOp = _fromEventCurried as any
+
+// tslint:disable:ban-types
+
+function _fromEventCurried(target: EventTarget, event: string, ...args: any[]): any {
   switch (arguments.length) {
     case 0:
     case 1:
@@ -28,9 +28,7 @@ export const fromEvent: FromEventOp = ((
     default:
       return _fromEvent(target, event, args)
   }
-}) as any
-
-// tslint:disable:ban-types
+}
 
 function _fromEvent<T>(target: EventTarget, event: string, args: any[]): EventStream<T> {
   assert(target !== undefined, __DEVBUILD__ ? "Event target must be defined" : GENERIC_ERROR_MSG)
