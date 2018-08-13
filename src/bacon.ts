@@ -495,20 +495,45 @@ export { zipAsArray } from "./operators/zip"
 export { Property } from "./Property"
 export { fromArray } from "./sources/fromArray"
 export { fromBinder } from "./sources/fromBinder"
-export { fromEvent } from "./sources/fromEvent"
 export { fromCallback, fromNodeCallback } from "./sources/fromCallback"
-export { fromPoll } from "./sources/fromPoll"
-export { interval } from "./sources/interval"
-export { later } from "./sources/later"
 export { never } from "./sources/never"
 export { repeat } from "./sources/repeat"
-export { repeatedly } from "./sources/repeatedly"
-export { sequentially } from "./sources/sequentially"
 export { constant, once } from "./sources/single"
 // classes and interfaces
 export * from "./_interfaces"
 
 // tslint:disable:no-shadowed-variable
+
+export function later<T>(delay: number): EventStream<undefined>
+export function later<T>(delay: number, value: T): EventStream<T>
+export function later<T>(delay: number, value?: T): EventStream<any> {
+  return F.later(delay, value)
+}
+
+export function interval<T>(period: number): EventStream<undefined>
+export function interval<T>(period: number, value: T): EventStream<T>
+export function interval<T>(period: number, value?: T): EventStream<any> {
+  return F.interval(period, value)
+}
+
+export function fromEvent<T>(target: EventTarget, event: string, ...args: any[]): EventStream<T> {
+  return F.fromEvent(target, event, ...args)
+}
+
+export function fromPoll<T>(interval: number, f: () => T | F.AnyEvent<T>): EventStream<T> {
+  return F.fromPoll(interval, f)
+}
+
+export function repeatedly<T>(interval: number, events: Array<T | F.AnyEvent<T>>): EventStream<T> {
+  return F.repeatedly(interval, events)
+}
+
+export function sequentially<T>(
+  interval: number,
+  events: Array<T | F.AnyEvent<T>>,
+): EventStream<T> {
+  return F.sequentially(interval, events)
+}
 
 export function zipWith<A, T>(f: (a: A) => T, streams: [Observable<A>]): EventStream<T>
 export function zipWith<A, B, T>(
