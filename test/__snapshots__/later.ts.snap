@@ -2,19 +2,32 @@
 
 exports[`F.later can be called without value 1`] = `
 Array [
-  Next {
-    "value": undefined,
+  Sync {},
+  Object {
+    "event": Next {
+      "value": undefined,
+    },
+    "tick": 10,
   },
-  End {},
+  Object {
+    "event": End {},
+    "tick": 10,
+  },
 ]
 `;
 
 exports[`F.later delays the given value and ends 1`] = `
 Array [
   Sync {},
-  Next {
-    "value": "tsers",
+  Object {
+    "event": Next {
+      "value": "tsers",
+    },
+    "tick": 10,
   },
-  End {},
+  Object {
+    "event": End {},
+    "tick": 10,
+  },
 ]
 `;

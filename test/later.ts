@@ -1,32 +1,23 @@
 import * as F from "../bacon"
-import { Sync } from "./_base"
+import { run, Sync } from "./_base"
 
 describe("F.later", () => {
-  it("delays the given value and ends", done => {
-    const rec = [] as any[]
-    const t = Date.now()
-    F.later(10, "tsers").subscribe(e => {
-      rec.push(e)
-      if (e.isEnd) {
-        expect(rec).toMatchSnapshot()
-        expect(Date.now() - t).toBeGreaterThanOrEqual(10)
-        done()
-      }
+  it("delays the given value and ends", () => {
+    const recording = run((record, _, now) => {
+      const t = now()
+      F.later(10, "tsers").subscribe(event => record({ tick: now() - t, event }))
+      record(Sync)
     })
-    rec.push(Sync)
+    expect(recording).toMatchSnapshot()
   })
 
-  it("can be called without value", done => {
-    const rec = [] as any[]
-    const t = Date.now()
-    F.later(10).subscribe(e => {
-      rec.push(e)
-      if (e.isEnd) {
-        expect(rec).toMatchSnapshot()
-        expect(Date.now() - t).toBeGreaterThanOrEqual(10)
-        done()
-      }
+  it("can be called without value", () => {
+    const recording = run((record, _, now) => {
+      const t = now()
+      F.later(10).subscribe(event => record({ tick: now() - t, event }))
+      record(Sync)
     })
+    expect(recording).toMatchSnapshot()
   })
 
   it("requires that delay is given and it's a number", () => {
