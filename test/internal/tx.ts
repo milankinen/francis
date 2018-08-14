@@ -4,7 +4,7 @@ describe("Transaction queue", () => {
   it("higher priority operations are queued first", () => {
     const q = [] as string[]
     const op = (prio: number, id: string) => new TestOp(prio, id, q)
-    const tx = new Transaction()
+    const tx = new Transaction(null)
     q.push("--- 1 ---")
     tx.queue(op(2, "a2"))
     tx.queue(op(3, "b3"))

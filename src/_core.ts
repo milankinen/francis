@@ -1,4 +1,5 @@
-import { Transaction } from "./_tx"
+import { __DEVELOPER__, assert, logAndThrow } from "./_assert"
+import { Operation, Transaction } from "./_tx"
 import { Task } from "./scheduler/index"
 
 export interface Subscriber<T> {
@@ -42,10 +43,23 @@ export const NOOP_SUBSCRIPTION = new class NoopSubscription implements Subscript
 }()
 
 // this global tx will be changed when stepping in/out between scheduling frames
-let TX = new Transaction()
+let TX: Transaction = new class PlaceholderTx extends Transaction {
+  constructor() {
+    super(null)
+  }
+  public begin(): void {
+    if (__DEVELOPER__) {
+      logAndThrow("** BUG ** SchedulingContext should reset the root transaction")
+    }
+  }
+}()
 
 export function setTx(tx: Transaction): void {
   TX = tx
+}
+
+export function isInTx(): boolean {
+  return TX.running
 }
 
 export function sendNextInTx<T>(subscriber: Subscriber<T>, val: T): void {
@@ -79,6 +93,30 @@ export function sendErrorInTx(subscriber: Subscriber<any>, err: Error): void {
     TX.abort()
     throw ex
   }
+}
+
+let preQueueToTxAssert = (maxDepth: number): void => {}
+if (__DEVELOPER__) {
+  preQueueToTxAssert = (maxDepth: number) => {
+    assert(maxDepth >= 0, "** BUG ** maxDepth must be >= 0")
+  }
+}
+
+let postQueueToTxAssert = (tx: Transaction): void => {}
+if (__DEVELOPER__) {
+  postQueueToTxAssert = (tx: Transaction) => {
+    assert(tx.running, "** BUG ** tried to queue operation to inactive tx")
+  }
+}
+
+export function queueToTx(op: Operation, maxDepth: number): void {
+  preQueueToTxAssert(maxDepth)
+  let tx = TX
+  while (tx.depth > maxDepth) {
+    tx = tx.parent as Transaction
+  }
+  tx.queue(op)
+  postQueueToTxAssert(tx)
 }
 
 export interface InvokeableWithParam<P> {

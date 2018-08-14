@@ -60,10 +60,14 @@ interface SchedulerFrame {
 }
 
 abstract class BaseFrame implements SchedulerFrame {
-  public readonly tx: Transaction = new Transaction()
+  public readonly tx: Transaction
 
   private activations: Task[] = []
   private cursor: number = 0
+
+  constructor(parent: SchedulerFrame | null) {
+    this.tx = new Transaction(parent !== null ? parent.tx : null)
+  }
 
   public abstract handleActivations(): void
   public abstract stepIn(): SchedulerFrame
@@ -101,7 +105,7 @@ class RootFrame extends BaseFrame {
   private inner: InnerFrame = new InnerFrame(this, 100)
 
   constructor() {
-    super()
+    super(null)
   }
 
   public handleActivations(): void {
@@ -129,7 +133,7 @@ class InnerFrame extends BaseFrame {
   private inner: InnerFrame | null
 
   constructor(private parent: SchedulerFrame, rec: number) {
-    super()
+    super(parent)
     this.inner = rec > 0 ? new InnerFrame(this, rec - 1) : null
   }
 

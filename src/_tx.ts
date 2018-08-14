@@ -1,4 +1,4 @@
-import { __DEVELOPER__, assert, GENERIC_ERROR_MSG } from "./_assert"
+import { __DEVELOPER__, assert } from "./_assert"
 
 export interface Operation {
   priority: number
@@ -6,25 +6,27 @@ export interface Operation {
   abort(): void
 }
 
-const beginAssert = __DEVELOPER__
-  ? (tx: Transaction): void =>
-      assert(
-        !tx.running,
-        __DEVELOPER__
-          ? "** BUG ** Trying to emit multiple events within same transaction"
-          : GENERIC_ERROR_MSG,
-      )
-  : (_: Transaction): void => {}
+let preBeginAssert = (_: Transaction): void => {}
+if (__DEVELOPER__) {
+  preBeginAssert = (tx: Transaction): void => {
+    assert(!tx.running, "** BUG ** Trying to emit multiple events within same transaction")
+  }
+}
 
 export class Transaction {
+  public readonly depth: number
   public running: boolean = false
   private has: boolean = false
   private q: Operation[] = []
   private n: number = 0
   private cursor: number = 0
 
+  constructor(public readonly parent: Transaction | null) {
+    this.depth = parent !== null ? parent.depth + 1 : 0
+  }
+
   public begin(): void {
-    beginAssert(this)
+    preBeginAssert(this)
     this.running = true
   }
 
