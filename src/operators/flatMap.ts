@@ -108,14 +108,24 @@ function _flatMapWithConcurrencyLimitNoCheck<A, B>(
 
 abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubscriber<B> {
   protected outerEnded: boolean = false
-  private otx: Transaction | null = null
+  protected otx: Transaction | null = null
 
   constructor(source: Source<A>, protected readonly proj: Projection<A, B | Observable<B>>) {
     super(source)
   }
 
+  public abstract next(tx: Transaction, val: A): void
+
+  public abstract innerEnd(sender: Pipe<B>): boolean
+
+  public abstract isInnerEnded(): boolean
+
+  public abstract disposeInner(): void
+
+  public abstract reorderInner(order: number): void
+
   public reorder(order: number): void {
-    this.innerReorder(order)
+    this.reorderInner(order)
     super.reorder(order)
   }
 
@@ -124,25 +134,6 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
     this.disposeInner()
     this.disposeOuter()
     super.dispose()
-  }
-
-  public next(tx: Transaction, val: A): void {
-    const result = this.outerNext(tx, val)
-    if (result !== null) {
-      const { purge, subscription } = result
-      purge && this.abortJoin()
-      // using outer tx as primary tx allows us to "break out" from inner transactions
-      // and wait for join => we can achieve transaction semantics from inner+outer emissions
-      const otx = this.otx
-      try {
-        this.otx = tx
-        stepIn()
-        subscription.activate(true)
-      } finally {
-        stepOut()
-        this.otx = otx
-      }
-    }
   }
 
   public end(tx: Transaction): void {
@@ -167,31 +158,29 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
     this.forkCustom(this.otx || tx, sender)
   }
 
+  protected inInnerCtx(f: any, tx: Transaction, args: any[]): void {
+    const otx = this.otx
+    this.otx = tx
+    try {
+      stepIn()
+      f.apply(this, args)
+    } finally {
+      try {
+        stepOut()
+      } finally {
+        this.otx = otx
+      }
+    }
+  }
+
   protected joinCustom(tx: Transaction, sender: any): void {
     this.joinInnerEnd(tx, sender)
   }
 
-  protected abstract disposeInner(): void
-
-  protected abstract isInnerEnded(): boolean
-
-  protected abstract innerEnd(sender: Pipe<B>): HandleInnerEndResult
-
-  protected abstract innerReorder(order: number): void
-
-  protected abstract outerNext(tx: Transaction, val: A): HandleOuterNextResult | null
-
   private joinInnerEnd(tx: Transaction, sender: Pipe<B>): void {
-    const { ended, subscription } = this.innerEnd(sender)
-    if (ended && this.outerEnded) {
+    const innerEnded = this.innerEnd(sender)
+    if (innerEnded && this.outerEnded) {
       this.sink.end(tx)
-    } else if (subscription !== null) {
-      try {
-        stepIn()
-        subscription.activate(true)
-      } finally {
-        stepOut()
-      }
     }
   }
 
@@ -214,31 +203,23 @@ abstract class FlatMapSwitchable<A, B> extends FlatMapBase<A, B> {
   protected isubs: Subscription = NOOP_SUBSCRIPTION
   protected istat: IStatus = IDLE
 
-  protected switch(tx: Transaction, val: A): HandleOuterNextResult | null {
-    const { isubs, proj } = this
-    const inner = toObs<B, Observable<B>>(proj(val))
-    const innerSource = inner.src
-    const subscription = (this.isubs = innerSource.subscribe(new Pipe(this), this.ord + 1))
-    this.istat = RUNNING
-    isubs.dispose()
-    return { subscription, purge: true }
+  public abstract next(tx: Transaction, val: A): void
+
+  public innerEnd(sender: Pipe<B>): boolean {
+    this.disposeInner()
+    this.istat = ENDED
+    return true
   }
 
-  protected isInnerEnded(): boolean {
+  public isInnerEnded(): boolean {
     return this.istat !== RUNNING
   }
 
-  protected innerReorder(order: number): void {
+  public reorderInner(order: number): void {
     this.isubs.reorder(order + 1)
   }
 
-  protected innerEnd(sender: Pipe<B>): HandleInnerEndResult {
-    this.disposeInner()
-    this.istat = ENDED
-    return { ended: true, subscription: null }
-  }
-
-  protected disposeInner(): void {
+  public disposeInner(): void {
     const isRunning = this.istat === RUNNING
     this.istat = IDLE
     if (isRunning) {
@@ -247,20 +228,33 @@ abstract class FlatMapSwitchable<A, B> extends FlatMapBase<A, B> {
       isubs.dispose()
     }
   }
+
+  protected switch(tx: Transaction, val: A): void {
+    this.inInnerCtx(this.doSwitch, tx, [val])
+  }
+
+  private doSwitch(val: A): void {
+    const { isubs, proj } = this
+    const inner = toObs<B, Observable<B>>(proj(val))
+    const innerSource = inner.src
+    const subscription = (this.isubs = innerSource.subscribe(new Pipe(this), this.ord + 1))
+    this.istat = RUNNING
+    isubs.dispose()
+    this.abortJoin()
+    subscription.activate(true)
+  }
 }
 
 class FlatMapLatest<A, B> extends FlatMapSwitchable<A, B> {
-  protected outerNext(tx: Transaction, val: A): HandleOuterNextResult | null {
-    return this.switch(tx, val)
+  public next(tx: Transaction, val: A): void {
+    this.switch(tx, val)
   }
 }
 
 class FlatMapFirst<A, B> extends FlatMapSwitchable<A, B> {
-  protected outerNext(tx: Transaction, val: A): HandleOuterNextResult | null {
-    if (this.istat !== RUNNING) {
-      return this.switch(tx, val)
-    } else {
-      return null
+  public next(tx: Transaction, val: A): void {
+    if (this.isInnerEnded()) {
+      this.switch(tx, val)
     }
   }
 }
@@ -274,28 +268,13 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     super(source, proj)
   }
 
-  protected isInnerEnded(): boolean {
-    return this.ni === 0
-  }
-
-  protected outerNext(tx: Transaction, val: A): HandleOuterNextResult | null {
+  public next(tx: Transaction, val: A): void {
     if (this.append(new InnerPipe(this, val)) <= this.limit) {
-      const subscription = this.subscribeHead()
-      return { subscription, purge: false }
-    } else {
-      return null
+      this.inInnerCtx(this.subscribeHead, tx, [])
     }
   }
 
-  protected innerReorder(order: number): void {
-    let inner = this.ihead
-    while (inner !== null) {
-      inner.subs.reorder(order)
-      inner = inner.t
-    }
-  }
-
-  protected innerEnd(pipe: Pipe<B>): HandleInnerEndResult {
+  public innerEnd(pipe: Pipe<B>): boolean {
     const inner = pipe as InnerPipe<A, B>
     const n = --this.ni
     const subs = inner.subs
@@ -303,14 +282,26 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     inner.t = null
     subs.dispose()
     if (this.ihead !== null) {
-      const subscription = this.subscribeHead()
-      return { ended: false, subscription }
+      this.inInnerCtx(this.subscribeHead, this.otx as Transaction, [])
+      return false
     } else {
-      return { ended: n === 0, subscription: null }
+      return n === 0
     }
   }
 
-  protected disposeInner(): void {
+  public isInnerEnded(): boolean {
+    return this.ni === 0
+  }
+
+  public reorderInner(order: number): void {
+    let inner = this.ihead
+    while (inner !== null) {
+      inner.subs.reorder(order)
+      inner = inner.t
+    }
+  }
+
+  public disposeInner(): void {
     let inner = this.itail
     this.itail = this.ihead = null
     this.ni = 0
@@ -332,13 +323,13 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     return ++this.ni
   }
 
-  private subscribeHead(): Subscription {
+  private subscribeHead(): void {
     const { proj } = this
     const inner = this.ihead as InnerPipe<A, B>
     this.ihead = inner.t
     const iobs = toObs<B, Observable<B>>(proj(inner.v))
     inner.subs = iobs.src.subscribe(inner, this.ord + 1)
-    return inner.subs
+    inner.subs.activate(true)
   }
 }
 
@@ -348,14 +339,4 @@ class InnerPipe<A, B> extends Pipe<B> {
   constructor(dest: PipeSubscriber<B>, public v: A) {
     super(dest)
   }
-}
-
-interface HandleOuterNextResult {
-  subscription: Subscription
-  purge: boolean
-}
-
-interface HandleInnerEndResult {
-  ended: boolean
-  subscription: Subscription | null
 }
