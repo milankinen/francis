@@ -136,8 +136,10 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
       const otx = this.otx
       try {
         this.otx = tx
-        activateInnerSubscription(subscription)
+        stepIn()
+        subscription.activate(true)
       } finally {
+        stepOut()
         this.otx = otx
       }
     }
@@ -184,7 +186,12 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
     if (ended && this.outerEnded) {
       this.sink.end(tx)
     } else if (subscription !== null) {
-      activateInnerSubscription(subscription)
+      try {
+        stepIn()
+        subscription.activate(true)
+      } finally {
+        stepOut()
+      }
     }
   }
 
@@ -193,13 +200,6 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
     this.subs = NOOP_SUBSCRIPTION
     subs.dispose()
   }
-}
-
-function activateInnerSubscription(subscription: Subscription) {
-  stepIn()
-  const initialNeeded = true
-  subscription.activate(initialNeeded)
-  stepOut()
 }
 
 enum IStatus {
