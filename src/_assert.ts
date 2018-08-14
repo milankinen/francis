@@ -1,6 +1,7 @@
 export const __DEVBUILD__: boolean = process.env.NODE_ENV !== "production"
 
-export const __DEVELOPER__: boolean = (global as any).__FRANCIS_DEV__ === 1
+export const __DEVELOPER__: boolean =
+  process.env.NODE_ENV !== "production" && (global as any).__FRANCIS_DEV__ === 1
 
 export const GENERIC_ERROR_MSG =
   "Assertion failed, use development build to get better error message"
