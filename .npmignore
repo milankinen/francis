@@ -1,0 +1,8 @@
+test
+build
+perf
+ref
+node_modules
+.vscode
+.idea
+*.iml

@@ -1,6 +1,6 @@
 {
   "name": "francis",
-  "version": "2.0.0-alpha7",
+  "version": "2.0.0-alpha7b",
   "description": "Bacon++",
   "author": "Matti Lankinen <m.lankinen@iki.fi>",
   "license": "MIT",
@@ -29,7 +29,7 @@
     "ncu": "ncu -u -a && ncu -u -a --packageFile perf/package.json",
     "test": "jest",
     "test:ci": "jest --runInBand",
-    "prepublish": "npm t && npm run lint && npm run build && npm publish"
+    "prepublishOnly": "npm t && npm run lint && npm run build"
   },
   "devDependencies": {
     "@types/jest": "^23.1.4",
