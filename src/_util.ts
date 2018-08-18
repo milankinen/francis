@@ -65,6 +65,13 @@ export function find<T>(pred: (x: T) => boolean, xs: T[]): T | undefined {
   return undefined
 }
 
+export function findIndex<T>(pred: (x: T) => boolean, xs: T[]): number {
+  for (let i = 0, n = xs.length; i < n; i++) {
+    if (pred(xs[i])) return i
+  }
+  return -1
+}
+
 export function constantly<T>(x: T): () => T {
   return () => x
 }

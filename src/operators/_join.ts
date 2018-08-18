@@ -1,4 +1,5 @@
 import { Source } from "../_core"
+import { Set } from "../_polyfill"
 import { priorityOf } from "../_priority"
 import { Operation, Transaction } from "../_tx"
 import { EventType, Operator } from "./_base"

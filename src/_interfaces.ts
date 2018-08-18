@@ -3,6 +3,10 @@ import { EventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import { Property } from "./Property"
 
+export type JSMap<K, V> = Map<K, V>
+
+export type JSSet<V> = Set<V>
+
 export type Projection<A, B> = (val: A) => B
 
 export type Predicate<A> = (val: A) => boolean

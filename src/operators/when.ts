@@ -9,6 +9,7 @@ import {
   Subscription,
 } from "../_core"
 import { isObservable, makeEventStream } from "../_obs"
+import { Map } from "../_polyfill"
 import { Transaction } from "../_tx"
 import { isArray } from "../_util"
 import { EventStream, isEventStream } from "../EventStream"
@@ -62,7 +63,7 @@ export function extractPatternsAndBuffers(
 
   const sources = Array<Buffered>(idxLookup.size)
   const buffers = Array<Buffer>(idxLookup.size)
-  idxLookup.forEach((idx, obs) => {
+  idxLookup.forEach((idx: number, obs: Observable<any>) => {
     const buffer = isEventStream(obs) ? new StreamBuffer() : new PropertyBuffer()
     sources[idx] = new Buffered(obs.src, buffer)
     buffers[idx] = buffer
