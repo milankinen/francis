@@ -189,6 +189,7 @@ export class Buffered implements Subscriber<any>, Source<Buffer>, Subscription {
   }
 }
 
+// TODO: flatten to constants
 enum PeekResult {
   //  value can be pop now
   READY = 2,

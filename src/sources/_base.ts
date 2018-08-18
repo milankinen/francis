@@ -25,6 +25,7 @@ export abstract class Root<T> implements Source<T> {
 }
 
 export abstract class Activation<T, R extends Root<T>> implements Task, Subscription {
+  // todo: remove obsolete real
   // the real subscriber
   protected readonly real: Subscriber<T>
   protected readonly owner: R

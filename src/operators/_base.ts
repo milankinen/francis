@@ -1,6 +1,7 @@
 import { NOOP_SUBSCRIBER, NOOP_SUBSCRIPTION, Source, Subscriber, Subscription } from "../_core"
 import { Transaction } from "../_tx"
 
+// TODO: flatten to constants
 export enum EventType {
   NEXT = 1,
   ERROR = 2,

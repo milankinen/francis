@@ -191,6 +191,7 @@ abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubsc
   }
 }
 
+// TODO: flatten to constants
 enum IStatus {
   IDLE = 0,
   RUNNING = 1,
