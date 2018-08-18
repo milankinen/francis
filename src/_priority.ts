@@ -1,4 +1,5 @@
 import { __DEVELOPER__, logAndThrow } from "./_assert"
+import { MAX_SAFE_INTEGER } from "./_util"
 
 /*
  * Numbers are implemented as 64bit floating points in JavaScript: this means
@@ -31,6 +32,8 @@ export type Priority = number
 export const MAX_ORDER = (1 << ORDER_BITS) - 1
 
 export const MAX_WEIGHT = (1 << WEIGHT_BITS) - 1
+
+export const MAX_PRIORITY = MAX_SAFE_INTEGER
 
 export function priorityOf(order: number, weight: number): Priority {
   return (MAX_ORDER - order) * ORDER_MULTIPLIER + weight

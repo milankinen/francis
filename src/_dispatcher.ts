@@ -1,5 +1,6 @@
 import { NONE, NOOP_SUBSCRIBER, NOOP_SUBSCRIPTION, Source, Subscriber, Subscription } from "./_core"
 import { Transaction } from "./_tx"
+import { MAX_SAFE_INTEGER } from "./_util"
 
 export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
   public readonly weight: number
@@ -32,10 +33,10 @@ export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
   public dispose(node: MCSNode<T>): void {
     const { sink, msc } = this
     if (sink === msc) {
-      const { order, next } = msc.remove(node)
+      const { order, next } = this.removeNode(node)
       this.sink = next
       if (order !== this.ord) {
-        this.subs.reorder((this.ord = order))
+        this.reorderAfterRemoval(order)
       }
     } else {
       const { subs } = this
@@ -64,6 +65,14 @@ export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
 
   public end(tx: Transaction): void {
     this.sink.end(tx)
+  }
+
+  protected removeNode(node: MCSNode<T>): { order: number; next: Subscriber<T> } {
+    return this.msc.removeReturnMaxOrder(node)
+  }
+
+  protected reorderAfterRemoval(order: number): void {
+    this.subs.reorder((this.ord = order))
   }
 
   protected firstSubscribe(subscriber: Subscriber<T>, order: number): Subscription {
@@ -106,9 +115,8 @@ class MulticastSubscriber<T> implements Subscriber<T> {
     this.h = node
   }
 
-  public remove(node: MCSNode<T>): { order: number; next: Subscriber<T> } {
-    node.h !== null ? (node.h.t = node.t) : (this.h = node.t)
-    node.t !== null ? (node.t.h = node.h) : (this.t = node.h)
+  public removeReturnMaxOrder(node: MCSNode<T>): { order: number; next: Subscriber<T> } {
+    const next = this.remove(node)
     let head = this.h
     let order = -1
     while (head !== null) {
@@ -117,9 +125,24 @@ class MulticastSubscriber<T> implements Subscriber<T> {
       }
       head = head.t
     }
-    head = this.h as MCSNode<T>
     return {
-      next: head.t !== null ? this : head.s,
+      next,
+      order,
+    }
+  }
+
+  public removeReturnMinOrder(node: MCSNode<T>): { order: number; next: Subscriber<T> } {
+    const next = this.remove(node)
+    let head = this.h
+    let order = MAX_SAFE_INTEGER
+    while (head !== null) {
+      if (head.o < order) {
+        order = head.o
+      }
+      head = head.t
+    }
+    return {
+      next,
       order,
     }
   }
@@ -147,6 +170,13 @@ class MulticastSubscriber<T> implements Subscriber<T> {
       head = head.t
     }
   }
+
+  private remove(node: MCSNode<T>): Subscriber<T> {
+    node.h !== null ? (node.h.t = node.t) : (this.h = node.t)
+    node.t !== null ? (node.t.h = node.h) : (this.t = node.h)
+    const head = this.h as MCSNode<T>
+    return head.t !== null ? this : head.s
+  }
 }
 
 function mcsNode<T>(subscriber: Subscriber<T>, order: number): MCSNode<T> {
@@ -159,7 +189,7 @@ function mcsNode<T>(subscriber: Subscriber<T>, order: number): MCSNode<T> {
   }
 }
 
-interface MCSNode<T> {
+export interface MCSNode<T> {
   s: Subscriber<T> // subscriber
   o: number // order
   a: boolean // active/inactive

@@ -64,11 +64,7 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
     // no-op
   }
 
-  protected abstract start(): void
-
-  protected abstract stop(): void
-
-  protected send(event: T | AnyEvent<T>): void {
+  public send(event: T | AnyEvent<T>): void {
     if (isEvent(event)) {
       if (isNext(event)) {
         this.sendNext(event.value)
@@ -85,6 +81,10 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
       sendNextInTx(this.subscriber, event)
     }
   }
+
+  protected abstract start(): void
+
+  protected abstract stop(): void
 
   protected sendNext(val: T): void {
     sendNextInTx(this.subscriber, val)

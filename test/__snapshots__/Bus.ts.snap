@@ -1,0 +1,148 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.Bus allows pushing events after subscription 1`] = `
+Array [
+  Next {
+    "value": "LOL",
+  },
+  Error {
+    "error": [Error: Tsers!],
+  },
+  Next {
+    "value": "BAL",
+  },
+  End {},
+  Sync {},
+]
+`;
+
+exports[`F.Bus does not emit events after end event 1`] = `
+Array [
+  End {},
+  Sync {},
+]
+`;
+
+exports[`F.Bus does not remember pushed events before subscription 1`] = `
+Array [
+  Next {
+    "value": "lol",
+  },
+  Next {
+    "value": "bal",
+  },
+  End {},
+  Sync {},
+]
+`;
+
+exports[`F.Bus emits its end state to late subscribers 1`] = `
+Object {
+  "first": Array [
+    End {},
+  ],
+  "second": Array [
+    End {},
+  ],
+}
+`;
+
+exports[`F.Bus works inside flatMap* 1`] = `
+Array [
+  Next {
+    "value": 0,
+  },
+  Sync {},
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 6,
+  },
+]
+`;
+
+exports[`F.Bus works with higher order looped streams 1`] = `
+Array [
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 20,
+  },
+  Next {
+    "value": 20,
+  },
+  Next {
+    "value": 20,
+  },
+  Next {
+    "value": 20,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 40,
+  },
+  Next {
+    "value": 40,
+  },
+  Next {
+    "value": 40,
+  },
+  Next {
+    "value": 40,
+  },
+  Next {
+    "value": 6,
+  },
+  Next {
+    "value": 6,
+  },
+  Next {
+    "value": 60,
+  },
+  Next {
+    "value": 60,
+  },
+  Next {
+    "value": 60,
+  },
+  Next {
+    "value": 60,
+  },
+]
+`;
+
+exports[`F.Bus works with looped streams 1`] = `
+Array [
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 20,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 40,
+  },
+  Next {
+    "value": 6,
+  },
+  Next {
+    "value": 60,
+  },
+]
+`;
