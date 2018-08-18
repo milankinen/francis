@@ -1,4 +1,4 @@
-import * as F from "../bacon"
+import * as F from "../src/bacon"
 import { recordActivationAndDispose, run, Sync } from "./_base"
 
 describe("EventStream.skipUntil", () => {

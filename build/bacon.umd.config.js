@@ -1,5 +1,6 @@
 import cjs from "rollup-plugin-commonjs"
 import buble from "rollup-plugin-buble"
+import babel from "rollup-plugin-babel"
 import replace from "rollup-plugin-replace"
 
 export default {
@@ -21,5 +22,11 @@ export default {
     }),
     cjs(),
     buble(),
+    babel({
+      babelrc: false,
+      presets: [],
+      plugins: ["annotate-pure-calls"],
+      exclude: "node_modules/**",
+    }),
   ],
 }

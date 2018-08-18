@@ -1,4 +1,4 @@
-import * as F from "../bacon"
+import * as F from "../src/bacon"
 import { run } from "./_base"
 
 describe("Observable.onValue", () => {

@@ -1,13 +1,14 @@
 import cjs from "rollup-plugin-commonjs"
 import buble from "rollup-plugin-buble"
+import babel from "rollup-plugin-babel"
 import replace from "rollup-plugin-replace"
 
 export default {
   input: "lib/index.js",
   output: {
     name: "Francis",
-    format: "umd",
-    file: "dist/francis.js",
+    format: "esm",
+    file: "dist/francis.esm.js",
   },
   plugins: [
     replace({
@@ -20,6 +21,16 @@ export default {
       },
     }),
     cjs(),
-    buble(),
+    buble({
+      transforms: {
+        modules: false,
+      },
+    }),
+    babel({
+      babelrc: false,
+      presets: [],
+      plugins: ["annotate-pure-calls"],
+      exclude: "node_modules/**",
+    }),
   ],
 }

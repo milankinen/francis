@@ -1,5 +1,5 @@
-import * as F from "../bacon"
 import { identity } from "../src/_util"
+import * as F from "../src/bacon"
 import { run, Sync } from "./_base"
 
 describe("F.mergeAll", () => {

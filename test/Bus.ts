@@ -1,4 +1,4 @@
-import * as F from "../bacon"
+import * as F from "../src/bacon"
 import { byLabel, labeled, run, Sync } from "./_base"
 
 describe("F.Bus", () => {
