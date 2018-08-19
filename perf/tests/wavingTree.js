@@ -1,3 +1,5 @@
+const { range } = require("../_util")
+
 const STEP = Math.PI / 5
 
 const oscillate = ticks => {
@@ -31,4 +33,9 @@ const tree = (B, ticks, depth) => {
   return B.combineAsArray(branch(root, 0, ticks, depth))
 }
 
-module.exports = { tree }
+const treeTest = (B, depth) => {
+  const ticks = B.fromArray(range(10))
+  return tree(B, ticks, depth)
+}
+
+module.exports = { tree, treeTest }

@@ -7,17 +7,26 @@
   "license": "MIT",
   "keywords": [],
   "scripts": {
-    "start": "",
+    "sysinfo": "node sysinfo.js",
+    "prestart": "npm run sysinfo",
+    "start": "node index.js",
+    "mem:francis": "echo '=== francis memory usage ===' && NO_BACON=1 SHOW_MEMORY_USAGE=1 node index.js",
+    "mem:bacon": "echo '=== bacon.js memory usage ===' && NO_FRANCIS=1 SHOW_MEMORY_USAGE=1 node index.js",
+    "premem": "npm run sysinfo",
+    "mem": "npm run mem:francis && npm run mem:bacon",
     "visualize": "cd visualization && parcel index.html --open"
   },
   "dependencies": {
+    "@airbnb/node-memwatch": "^1.0.2",
     "baconjs": "^2.0.7",
     "benchmark": "^2.1.4",
     "fpsmeter": "^0.3.1",
     "francis": "^2.0.0-alpha7b",
     "kefir": "^3.8.3",
     "parcel-bundler": "^1.9.7",
+    "pretty-bytes": "^5.1.0",
     "rxjs": "^6.2.1",
-    "rxjs-compat": "^6.2.1"
+    "rxjs-compat": "^6.2.1",
+    "systeminformation": "^3.42.9"
   }
 }

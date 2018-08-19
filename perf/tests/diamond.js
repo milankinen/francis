@@ -1,3 +1,5 @@
+const { range } = require("../_util")
+
 const diamond = (B, ticks, layers, margin) => {
   const layer = (srcs, y) => {
     const nodes = []
@@ -18,4 +20,9 @@ const diamond = (B, ticks, layers, margin) => {
   return B.combineAsArray([...roots, ...layer(roots, 0)])
 }
 
-module.exports = { diamond }
+const diamondTest = (B, layers) => {
+  const ticks = B.fromArray(range(1000))
+  return diamond(B, ticks, layers, 10)
+}
+
+module.exports = { diamond, diamondTest }
