@@ -1,0 +1,53 @@
+<html>
+
+<body>
+  <h2>
+    Test:
+    <select id="test">
+      <option value="tree">Waving tree</option>
+      <option value="diamond">Diamond</option>
+      <option value="dragdrop">Drag'n'Drop</option>
+    </select>
+    Library:
+    <select id="lib">
+      <option value="francis">Francis</option>
+      <option value="bacon">Bacon</option>
+    </select>
+  </h2>
+
+  <hr>
+
+  <div id="fps" style="position:relative;"></div>
+
+  <div data-test="tree" style="display: none;">
+    <canvas id="tree-canvas" width="500" height="500"></canvas>
+    <div>
+      Depth:
+      <input type="range" min="2" max="15" value="5" id="tree-depth">
+      <span id="tree-depth-label"></span>
+    </div>
+  </div>
+
+  <div data-test="diamond" style="display: none;">
+    <canvas id="diamond-canvas" width="600" height="600"></canvas>
+    <div>
+      Layers:
+      <input type="range" min="50" max="200" value="70" step="10" id="diamond-layers">
+      <span id="diamond-layers-label"></span>
+    </div>
+  </div>
+
+  <div data-test="dragdrop" style="display: none;">
+    <canvas id="dragdrop-canvas" width="650" height="650"></canvas>
+    <div>
+      Num dots:
+      <input type="range" min="20" max="60" value="30" step="1" id="dragdrop-n">
+      <span id="dragdrop-n-label"></span>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+  <script src="./index.js"></script>
+</body>
+
+</html>

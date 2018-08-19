@@ -7,18 +7,17 @@
   "license": "MIT",
   "keywords": [],
   "scripts": {
-    "tree": "cd tree && parcel index.html"
-  },
-  "devDependencies": {
-    "baconjs": "^2.0.7",
-    "benchmark": "^2.1.4",
-    "rxjs": "^6.2.1",
-    "xstream": "^11.7.0"
+    "start": "",
+    "visualize": "cd visualization && parcel index.html --open"
   },
   "dependencies": {
+    "baconjs": "^2.0.7",
+    "benchmark": "^2.1.4",
     "fpsmeter": "^0.3.1",
+    "francis": "^2.0.0-alpha7b",
     "kefir": "^3.8.3",
     "parcel-bundler": "^1.9.7",
+    "rxjs": "^6.2.1",
     "rxjs-compat": "^6.2.1"
   }
 }
