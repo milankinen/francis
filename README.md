@@ -5,8 +5,8 @@
 [![Bundle size (minified + gzip)](https://img.shields.io/bundlephobia/minzip/francis.svg?style=flat-square)](https://bundlephobia.com/result?p=francis)
 [![Dependencies](https://david-dm.org/milankinen/francis.svg?style=flat-square)](https://github.com/milankinen/francis/blob/master/package.json)
 
-Francis is a reactive programming library for JavaScript, inspired by
-[Bacon.js](https://github.com/baconjs/bacon.js) and [most](https://github.com/cujojs/most)
+Francis is a reactive programming library for TypeScript and JavaScript, inspired by
+[Bacon.js](https://github.com/baconjs/bacon.js) and [most](https://github.com/cujojs/most),
 with focus on developer friendly stream semantics, high performance and functional usage.
 
 ```typescript
@@ -26,12 +26,19 @@ F.pipe(
 
 ## Oh why?
 
-**Bacon is really great**, especially its atomic updates. That said, it consumes a lot
-of memory and performs poorly compared to other stream libraries. **And that is where
-Francis steps in:** by being completely written with TypeScript, having a functional-first
-API and borrowing some concepts from [most](https://github.com/cujojs/most), it
-provides the same stream semantics as Bacon, [improved performance](perf#latest-test-results)
-and lower memory consumption. And being typed and 100% tree shakeable, of course.
+**Bacon is really great**, especially its transactions and atomic updates. That said, it consumes
+a lot of memory and loses in performance compared to other stream libraries (especially when using
+higher order observables such as `flatMap`). **And that is where Francis steps in:** by being
+completely written with TypeScript, having a functional-first API and borrowing some concepts
+from [most](https://github.com/cujojs/most), it provides the same stream semantics as Bacon,
+[improved performance](perf#latest-test-results) and lower memory consumption. And of course being
+typed and 100% tree shakeable.
+
+## Installation
+
+```bash
+npm install --save francis
+```
 
 ## API
 
@@ -48,17 +55,20 @@ casted with `asProperty`/`asEventStream` is correct return type is needed.
 
 `TODO...`
 
-## `francis/bacon`
+## Object oriented API
 
-Because the stream semantics are same, Francis also provides a drop-in module for
-`baconjs`. This module implements Bacon's [function construction rules](https://github.com/baconjs/bacon.js#function-construction-rules)
+For those prefering object oriented API, Francis provides `francis/bacon` module which
+adds observable methods to `EventStream` and `Property` prototypes. Because the stream
+semantics are almost same in Bacon and Francis, `francis/bacon` can also be used as a
+a drop-in replacement module for `baconjs` (see the differences below). This module
+also implements Bacon's [function construction rules](https://github.com/baconjs/bacon.js#function-construction-rules)
 and other JS-related API changes. The required change in codebase is:
 
 ```diff
--import Bacon from "baconjs"
-+import Bacon from "francis/bacon"
+-import B from "baconjs"
++import B from "francis/bacon"
 
-Bacon.once("Bacon")
+B.once("Bacon")
   .map(x => "Hello " + x + "!")
   .map(".toUpperCase")
   .onValue(console.log)
@@ -66,19 +76,19 @@ Bacon.once("Bacon")
 
 ### Differences to Bacon
 
-Although the public semantics are same, Francis does not 100% implement Bacon. These are
-the differences between Francis and Bacon:
-
 * Francis does not distinguish `Initial` and `Next` events. If your code uses (or assumes)
   `Bacon.Initial`, it will break
 
 * Francis does not have `bus.plug(...)` because it leaves streams open forever when
-  used with `bus.plug(bus.map().etc().etc())` (this may change in future though)
+  plugging bus to itself
+
+* Francis does not support `eventTransformer` for `from*` observable factory functions
+  (at least yet)
 
 * Due to internal optimizations, latest subscribers receive their emit first from the
   upstream whereas in Bacon the order is opposite. In transactions, this is not the issue
-  because of atomic updates but if your code relies on this undocumented feature, it will
-  break. For example:
+  due to atomic updates but if your code otherwise relies on this undocumented feature,
+  it will break. For example:
 
 ```js
 const msg = F.once("tsers")
@@ -119,6 +129,7 @@ The following operators are yet to be implemented:
 - [ ] `firstToPromise`
 - [ ] `toPromise`
 - [ ] `holdWhen`
+- [ ] `bufferWithTime(f)`
 
 ## License
 
