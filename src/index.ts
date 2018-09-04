@@ -1,6 +1,7 @@
 // interfaces and classes
 export * from "./Event"
 export * from "./_interfaces"
+export { isObservable } from "./_obs"
 export { Observable } from "./Observable"
 export { EventStream, isEventStream } from "./EventStream"
 export { Property, isProperty } from "./Property"
