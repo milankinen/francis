@@ -4,8 +4,8 @@ import { Transaction } from "./_tx"
 import { Observable } from "./Observable"
 
 export class Property<A> extends Observable<A> {
-  constructor(src: PropertyDispatcher<A>) {
-    super(src)
+  constructor(d: PropertyDispatcher<A>) {
+    super(d)
   }
 }
 

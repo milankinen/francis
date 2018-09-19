@@ -14,7 +14,7 @@ import {
 import { makeStatefulEventStream } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { scheduleActivationTask } from "../scheduler/index"
 import { never } from "../sources/never"
 import { Identity } from "./_base"
@@ -31,7 +31,7 @@ export function makeMultiSourceStream<T>(
     observables = [never()]
   }
   return makeStatefulEventStream(
-    new MSIdentity(new ctor(observables.map(o => toEventStream(o).src))),
+    new MSIdentity(new ctor(observables.map(o => dispatcherOf(toEventStream(o))))),
   )
 }
 

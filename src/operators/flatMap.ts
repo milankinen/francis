@@ -5,7 +5,7 @@ import { toObs } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2, curry3 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { stepIn, stepOut } from "../scheduler/index"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
@@ -63,7 +63,7 @@ function _flatMapLatest<A, B>(
   observable: Observable<A>,
 ): Observable<B> {
   checkFunction(project)
-  return makeObservable(observable, new FlatMapLatest(observable.src, project))
+  return makeObservable(observable, new FlatMapLatest(dispatcherOf(observable), project))
 }
 
 function _flatMapFirst<A, B>(
@@ -71,7 +71,7 @@ function _flatMapFirst<A, B>(
   observable: Observable<A>,
 ): Observable<B> {
   checkFunction(project)
-  return makeObservable(observable, new FlatMapFirst(observable.src, project))
+  return makeObservable(observable, new FlatMapFirst(dispatcherOf(observable), project))
 }
 
 function _flatMapConcat<A, B>(
@@ -103,7 +103,7 @@ function _flatMapWithConcurrencyLimitNoCheck<A, B>(
   project: Projection<A, B | Observable<B>>,
   observable: Observable<A>,
 ): Observable<B> {
-  return makeObservable(observable, new FlatMapConcurrent(observable.src, project, limit))
+  return makeObservable(observable, new FlatMapConcurrent(dispatcherOf(observable), project, limit))
 }
 
 abstract class FlatMapBase<A, B> extends JoinOperator<A, B> implements PipeSubscriber<B> {
@@ -237,7 +237,7 @@ abstract class FlatMapSwitchable<A, B> extends FlatMapBase<A, B> {
   private doSwitch(val: A): void {
     const { isubs, proj } = this
     const inner = toObs<B, Observable<B>>(proj(val))
-    const innerSource = inner.src
+    const innerSource = dispatcherOf(inner)
     const subscription = (this.isubs = innerSource.subscribe(new Pipe(this), this.ord + 1))
     this.istat = RUNNING
     isubs.dispose()
@@ -329,7 +329,7 @@ class FlatMapConcurrent<A, B> extends FlatMapBase<A, B> {
     const inner = this.ihead as InnerPipe<A, B>
     this.ihead = inner.t
     const iobs = toObs<B, Observable<B>>(proj(inner.v))
-    inner.subs = iobs.src.subscribe(inner, this.ord + 1)
+    inner.subs = dispatcherOf(iobs).subscribe(inner, this.ord + 1)
     inner.subs.activate(true)
   }
 }

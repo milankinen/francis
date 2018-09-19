@@ -2,7 +2,7 @@ import { checkNaturalInt } from "../_check"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Throttle, ThrottleBase } from "./throttle"
 
 export interface DebounceOp {
@@ -20,12 +20,12 @@ export const debounceImmediate: DebounceImmediateOp = curry2(_debounceImmediate)
 
 function _debounce<T>(delay: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(delay)
-  return makeObservable(observable, new Debounce(observable.src, delay))
+  return makeObservable(observable, new Debounce(dispatcherOf(observable), delay))
 }
 
 function _debounceImmediate<T>(delay: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(delay)
-  return makeObservable(observable, new DebounceImmediate(observable.src, delay))
+  return makeObservable(observable, new DebounceImmediate(dispatcherOf(observable), delay))
 }
 
 class Debounce<T> extends Throttle<T> {

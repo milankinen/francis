@@ -4,7 +4,7 @@ import { Accum } from "../_interfaces"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry3 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Property } from "../Property"
 import { Operator } from "./_base"
 
@@ -20,7 +20,7 @@ export const scan: ScanOp = curry3(_scan)
 function _scan<S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S> {
   checkObservable(observable)
   checkFunction(acc)
-  return makeProperty(new Scan(observable.src, acc, seed))
+  return makeProperty(new Scan(dispatcherOf(observable), acc, seed))
 }
 
 class Scan<T, S> extends Operator<T, S> {

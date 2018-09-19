@@ -3,7 +3,7 @@ import { NONE, sendEndInTx, sendNextInTx, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { InitialAndChanges } from "./_changes"
 
@@ -22,12 +22,15 @@ export const bufferingThrottle: BufferingThrottleOp = curry2(_bufferingThrottle)
 
 function _throttle<T>(delay: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(delay)
-  return makeObservable(observable, new Throttle(observable.src, delay))
+  return makeObservable(observable, new Throttle(dispatcherOf(observable), delay))
 }
 
 function _bufferingThrottle<T>(minimumInterval: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(minimumInterval)
-  return makeObservable(observable, new BufferingThrottle(observable.src, minimumInterval))
+  return makeObservable(
+    observable,
+    new BufferingThrottle(dispatcherOf(observable), minimumInterval),
+  )
 }
 
 export abstract class ThrottleBase<T> extends InitialAndChanges<T> implements OnTimeout {

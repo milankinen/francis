@@ -2,7 +2,7 @@ import { checkObservable } from "../_check"
 import { InvokeableWithParam, invokeWith, Source, Subscriber, Subscription } from "../_core"
 import { makeEventStream } from "../_obs"
 import { EventStream, isEventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Property } from "../Property"
 import { scheduleActivationTask } from "../scheduler/index"
 import { Identity } from "./_base"
@@ -11,7 +11,7 @@ export function toEventStream<T>(observable: Observable<T>): EventStream<T> {
   checkObservable(observable)
   return isEventStream<T>(observable)
     ? observable
-    : makeEventStream(new ToEventStream((observable as Property<T>).src))
+    : makeEventStream(new ToEventStream(dispatcherOf(observable as Property<T>)))
 }
 
 export class ToEventStream<T> extends Identity<T> {

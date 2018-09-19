@@ -4,7 +4,7 @@ import { Projection } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
 import { sampleBy } from "./sample"
@@ -23,7 +23,7 @@ function _map<A, B>(
   checkFunctionOrProperty(project)
   return isProperty(project)
     ? sampleBy(observable, project)
-    : makeObservable(observable, new Map(observable.src, project))
+    : makeObservable(observable, new Map(dispatcherOf(observable), project))
 }
 
 class Map<A, B> extends Operator<A, B> {

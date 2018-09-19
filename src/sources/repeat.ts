@@ -3,7 +3,7 @@ import { Source, Subscriber, Subscription } from "../_core"
 import { isObservable, makeStatefulEventStream } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { MSIdentity, MultiSourceNode } from "../operators/_multisource"
 import { Concat } from "../operators/concat"
 import { never } from "./never"
@@ -19,7 +19,7 @@ class Repeat<T> extends Concat<T> {
   private i: number = 0
 
   constructor(private g: Generator<T>) {
-    super([never().src])
+    super([dispatcherOf(never())])
   }
 
   // repeat is kind of simplified flatMap so we must do order+1 to all inner observables
@@ -36,7 +36,7 @@ class Repeat<T> extends Concat<T> {
     const { g } = this
     const next = g(this.i++)
     if (isObservable(next)) {
-      this.addAfter(node, next.src)
+      this.addAfter(node, dispatcherOf(next))
     }
     super.mEnd(tx, node)
   }

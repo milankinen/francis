@@ -4,7 +4,7 @@ import { Predicate } from "../_interfaces"
 import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
 import { filter } from "./filter"
@@ -25,7 +25,7 @@ function _takeWhile<T>(
   checkFunctionOrProperty(f)
   return isProperty(f)
     ? takeUntil(filter(x => !x, startWith(true, f)), observable)
-    : makeStatefulObservable(observable, new TakeWhile(observable.src, f))
+    : makeStatefulObservable(observable, new TakeWhile(dispatcherOf(observable), f))
 }
 
 class TakeWhile<T> extends Operator<T, T> implements EndStateAware {

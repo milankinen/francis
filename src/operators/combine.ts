@@ -4,7 +4,7 @@ import { toObs } from "../_interrop"
 import { isObservable, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { isArray, isObject, slice } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Property } from "../Property"
 import { constant } from "../sources/single"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
@@ -141,7 +141,7 @@ export function _combine<A, B>(
   } else {
     const sources = Array(n)
     while (n--) {
-      sources[n] = toObs(observables[n]).src
+      sources[n] = dispatcherOf(toObs(observables[n]))
     }
     return makeProperty(new Combine<A, B>(new IndexedSource(sources), f))
   }

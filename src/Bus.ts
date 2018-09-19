@@ -18,6 +18,12 @@ import { Operation, Transaction } from "./_tx"
 import { curry2 } from "./_util"
 import * as Event from "./Event"
 import { EventStream, StatfulEventStreamDispatcher } from "./EventStream"
+import { dispatcherOf } from "./Observable"
+
+export interface PushOp {
+  <T>(bus: Bus<T>, event: T | AnyEvent<T>): void
+  <T>(bus: Bus<T>): (event: T | AnyEvent<T>) => void
+}
 
 export interface PushNextOp {
   <T>(bus: Bus<T>, val: T): void
@@ -29,6 +35,7 @@ export interface PushErrorOp {
   (bus: Bus<any>): (err: Error) => void
 }
 
+export const push: PushOp = curry2(_push)
 export const pushNext: PushNextOp = curry2(_pushNext)
 export const pushError: PushErrorOp = curry2(_pushError)
 
@@ -36,40 +43,33 @@ export function pushEnd(bus: Bus<any>): void {
   if (__DEVBUILD__) {
     checkBus(bus)
   }
-  bus.end()
+  busDispatcher(bus).sendEnd()
+}
+
+function _push<T>(bus: Bus<T>, event: T | AnyEvent<T>): void {
+  if (__DEVBUILD__) {
+    checkBus(bus)
+  }
+  busDispatcher(bus).send(event)
 }
 
 function _pushNext<T>(bus: Bus<T>, val: T): void {
   if (__DEVBUILD__) {
     checkBus(bus)
   }
-  bus.push(val)
+  busDispatcher(bus).sendNext(val)
 }
 
 function _pushError(bus: Bus<any>, err: Error): void {
   if (__DEVBUILD__) {
     checkBus(bus)
   }
-  bus.error(err)
+  busDispatcher(bus).sendError(err)
 }
 
 export class Bus<T> extends EventStream<T> {
-  public src!: BusDispatcher<T>
-
   constructor() {
     super(new BusDispatcher(new BusSource()))
-  }
-
-  public push(event: T | AnyEvent<T>): void {
-    this.src.send(event)
-  }
-
-  public end(): void {
-    this.src.sendEnd()
-  }
-
-  public error(err: Error): void {
-    this.src.sendError(err)
   }
 }
 
@@ -207,4 +207,8 @@ class SendEndOp<T> extends SendOp<T, null> {
 function checkBus(x: any): void {
   const ok = x instanceof Bus
   assert(ok, __DEVBUILD__ ? (!ok ? `Expected a Bus but got ${x}` : "") : GENERIC_ERROR_MSG)
+}
+
+function busDispatcher<T>(bus: Bus<T>): BusDispatcher<T> {
+  return dispatcherOf(bus) as BusDispatcher<T>
 }

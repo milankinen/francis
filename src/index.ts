@@ -4,7 +4,7 @@ export * from "./_interfaces"
 export { Observable } from "./Observable"
 export { EventStream, isEventStream } from "./EventStream"
 export { Property, isProperty } from "./Property"
-export { Bus, pushNext, pushError, pushEnd } from "./Bus"
+export { Bus, push, pushNext, pushError, pushEnd } from "./Bus"
 
 // utils
 export { pipe } from "./_util"

@@ -3,7 +3,7 @@ import { EndStateAware, Source } from "../_core"
 import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Operator } from "./_base"
 
 export interface TakeOp {
@@ -15,7 +15,7 @@ export const take: TakeOp = curry2(_take)
 
 function _take<T>(n: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(n)
-  return makeStatefulObservable(observable, new Take(observable.src, n))
+  return makeStatefulObservable(observable, new Take(dispatcherOf(observable), n))
 }
 
 class Take<T> extends Operator<T, T> implements EndStateAware {

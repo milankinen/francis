@@ -5,7 +5,7 @@ import { toObs } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { once } from "../sources/single"
 import { Operator } from "./_base"
 import { flatMap } from "./flatMap"
@@ -22,7 +22,10 @@ function _flatMapError<T>(
   observable: Observable<T>,
 ): Observable<T> {
   checkFunction(project)
-  return flatMap<M<T>, T>(unpack, makeObservable(observable, new MapM(observable.src, project)))
+  return flatMap<M<T>, T>(
+    unpack,
+    makeObservable(observable, new MapM(dispatcherOf(observable), project)),
+  )
 }
 
 class MapM<T> extends Operator<T, M<T>> {

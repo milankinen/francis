@@ -4,7 +4,7 @@ import { Projection } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Identity } from "./_base"
 
 export interface MapErrorOp {
@@ -16,7 +16,7 @@ export const mapError: MapErrorOp = curry2(_mapError)
 
 function _mapError<T>(project: Projection<Error, T>, observable: Observable<T>): Observable<T> {
   checkFunction(project)
-  return makeObservable(observable, new MapError(observable.src, project))
+  return makeObservable(observable, new MapError(dispatcherOf(observable), project))
 }
 
 class MapError<T> extends Identity<T> {

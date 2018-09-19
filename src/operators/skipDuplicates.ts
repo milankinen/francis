@@ -4,7 +4,7 @@ import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
 import { EventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Property } from "../Property"
 import { Sliding } from "./slidingWindow"
 
@@ -26,7 +26,7 @@ export function skipEquals<T>(observable: Observable<T>): Observable<T> {
 
 function _skipDuplicates<T>(isEqual: Eq<T>, observable: Observable<T>): Observable<T> {
   checkFunction(isEqual)
-  return makeObservable(observable, new SkipDuplicates(observable.src, isEqual))
+  return makeObservable(observable, new SkipDuplicates(dispatcherOf(observable), isEqual))
 }
 
 class SkipDuplicates<T> extends Sliding<T, T> {

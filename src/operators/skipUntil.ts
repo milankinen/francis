@@ -3,7 +3,7 @@ import { NOOP_SUBSCRIBER, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 import { SVSource } from "./sample"
@@ -18,7 +18,10 @@ export const skipUntil: SkipUntilOp = curry2(_skipUntil)
 
 function _skipUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
   checkObservable(trigger)
-  return makeObservable(observable, new SkipUntil(toEventStream(trigger).src, observable.src))
+  return makeObservable(
+    observable,
+    new SkipUntil(dispatcherOf(toEventStream(trigger)), dispatcherOf(observable)),
+  )
 }
 
 class SkipUntil<T> extends JoinOperator<T, T> implements PipeSubscriber<any> {

@@ -4,7 +4,7 @@ import { Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
 import { sampleWith } from "./sample"
@@ -22,8 +22,8 @@ function _filter<T>(
 ): Observable<T> {
   checkFunctionOrProperty(predicate)
   const op: Operator<any, T> = isProperty<any>(predicate)
-    ? new FilterSampled(sampleWith(observable, (v, s) => [v, s], predicate).src)
-    : new Filter(observable.src, predicate)
+    ? new FilterSampled(dispatcherOf(sampleWith(observable, (v, s) => [v, s], predicate)))
+    : new Filter(dispatcherOf(observable), predicate)
   return makeObservable(observable, op)
 }
 

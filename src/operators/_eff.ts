@@ -1,12 +1,12 @@
 import { checkObservable } from "../_check"
 import { NOOP_SUBSCRIPTION, Subscriber, Subscription } from "../_core"
 import { Transaction } from "../_tx"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { handleActivations } from "../scheduler/index"
 
 export function runEffects<T>(eff: Eff<T>, observable: Observable<T>): void {
   checkObservable(observable)
-  const subs = observable.src.subscribe(eff, 0)
+  const subs = dispatcherOf(observable).subscribe(eff, 0)
   const initialNeeded = true
   eff.setSubscription(subs)
   subs.activate(initialNeeded)

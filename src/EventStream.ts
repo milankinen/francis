@@ -13,8 +13,8 @@ import { Observable } from "./Observable"
 import { scheduleActivationTask } from "./scheduler/index"
 
 export class EventStream<A> extends Observable<A> {
-  constructor(src: EventStreamDispatcher<A>) {
-    super(src)
+  constructor(d: EventStreamDispatcher<A>) {
+    super(d)
   }
 }
 

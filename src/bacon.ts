@@ -9,6 +9,7 @@ import * as F from "./index"
 import {
   Accum,
   AndResult,
+  Bus,
   Dispose,
   EndHandler,
   EndProjection,
@@ -176,11 +177,15 @@ declare module "./Property" {
   }
 }
 
+declare module "./Bus" {
+  interface Bus<T> {
+    push(event: T | F.AnyEvent<T>): void
+    end(): void
+    error(err: Error): void
+  }
+}
+
 export type SampleFn<V, S, R> = (value: V, sample: S) => R
-
-/* tslint:disable:no-string-literal */
-
-// Observable operators (common for both EventStream and Property)
 
 Observable.prototype.subscribe = function<A>(handler: Handler<A>, ...rest: any[]): Dispose {
   return F.subscribe(toFunction(handler, rest), this)
@@ -470,7 +475,7 @@ Property.prototype.not = function<A>(): Property<boolean> {
 }
 
 const pProto = Property.prototype as any
-pProto["toProperty"] = function<A>(initialValue?: A): Property<A> {
+pProto.toProperty = function<A>(initialValue?: A): Property<A> {
   assert(arguments.length === 0, "No arguments supported")
   return this
 }
@@ -481,6 +486,18 @@ Property.prototype.toEventStream = function<A>(): EventStream<A> {
 
 Property.prototype.changes = function<A>(): EventStream<A> {
   return F.changes(this)
+}
+
+Bus.prototype.push = function<T>(event: T | F.AnyEvent<T>): void {
+  F.push(this, event)
+}
+
+Bus.prototype.error = function<T>(err: Error): void {
+  F.pushError(this, err)
+}
+
+Bus.prototype.end = function<T>(): void {
+  F.pushEnd(this)
 }
 
 // static operators

@@ -3,7 +3,7 @@ import { EndStateAware, NOOP_SUBSCRIBER, Source } from "../_core"
 import { makeStatefulObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 import { SVSource } from "./sample"
@@ -20,7 +20,7 @@ function _takeUntil<T>(trigger: Observable<any>, observable: Observable<T>): Obs
   checkObservable(trigger)
   return makeStatefulObservable(
     observable,
-    new TakeUntil(toEventStream(trigger).src, observable.src),
+    new TakeUntil(dispatcherOf(toEventStream(trigger)), dispatcherOf(observable)),
   )
 }
 

@@ -4,7 +4,7 @@ import { makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2, curry3 } from "../_util"
 import { EventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { Operator } from "./_base"
 
@@ -32,13 +32,13 @@ export const bufferWithTimeOrCount: BufferWithTimeOrCountOp = curry3(_bufferWith
 function _bufferWithTime<T>(delay: number, stream: EventStream<T>): EventStream<T[]> {
   checkNaturalInt(delay)
   checkEventStream(stream)
-  return makeEventStream(new Buffer(stream.src, Infinity, delay))
+  return makeEventStream(new Buffer(dispatcherOf(stream), Infinity, delay))
 }
 
 function _bufferWithCount<T>(count: number, stream: EventStream<T>): EventStream<T[]> {
   checkPositiveInt(count)
   checkEventStream(stream)
-  return makeEventStream(new Buffer(stream.src, count, -1))
+  return makeEventStream(new Buffer(dispatcherOf(stream), count, -1))
 }
 
 function _bufferWithTimeOrCount<T>(
@@ -49,7 +49,7 @@ function _bufferWithTimeOrCount<T>(
   checkNaturalInt(delay)
   checkPositiveInt(count)
   checkEventStream(stream)
-  return makeEventStream(new Buffer(stream.src, count, delay))
+  return makeEventStream(new Buffer(dispatcherOf(stream), count, delay))
 }
 
 class Buffer<T> extends Operator<T, T[]> implements OnTimeout {

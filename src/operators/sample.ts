@@ -10,7 +10,7 @@ import {
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2, curry3 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Property } from "../Property"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
@@ -61,7 +61,7 @@ function _sampleF<S, V, R>(
   checkObservable(sampler)
   checkFunction(project)
   checkProperty(value)
-  return makeObservable(sampler, new Sample(value.src, sampler.src, project))
+  return makeObservable(sampler, new Sample(dispatcherOf(value), dispatcherOf(sampler), project))
 }
 
 class Sample<S, V, R> extends JoinOperator<S, R> implements PipeSubscriber<V> {

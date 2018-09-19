@@ -3,7 +3,7 @@ import { Source } from "../_core"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry3 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Property } from "../Property"
 import { Operator } from "./_base"
 import { toPropertyWith } from "./toProperty"
@@ -21,7 +21,7 @@ function _slidingWindow<T>(min: number, max: number, observable: Observable<T>):
   checkObservable(observable)
   checkNaturalInt(min)
   checkPositiveInt(max)
-  const sliding = makeProperty(new SlidingWindow(observable.src, min, max, []))
+  const sliding = makeProperty(new SlidingWindow(dispatcherOf(observable), min, max, []))
   return min > 0 ? sliding : toPropertyWith([], sliding)
 }
 

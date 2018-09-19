@@ -3,13 +3,13 @@ import { InvokeableWithParam, invokeWith, Subscriber, Subscription } from "../_c
 import { makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { scheduleActivationTask } from "../scheduler/index"
 import { Changes } from "./_changes"
 
 export function changes<T>(property: Observable<T>): EventStream<T> {
   checkProperty(property)
-  return makeEventStream(new ChangesAsEventStream(property.src))
+  return makeEventStream(new ChangesAsEventStream(dispatcherOf(property)))
 }
 
 class ChangesAsEventStream<T> extends Changes<T> {

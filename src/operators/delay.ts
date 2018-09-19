@@ -3,7 +3,7 @@ import { sendEndInTx, sendNextInTx, Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { InitialAndChanges } from "./_changes"
 
@@ -16,7 +16,7 @@ export const delay: DelayOp = curry2(_delay)
 
 function _delay<T>(time: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(time)
-  return makeObservable(observable, new Delay(observable.src, time))
+  return makeObservable(observable, new Delay(dispatcherOf(observable), time))
 }
 
 class Delay<T> extends InitialAndChanges<T> {

@@ -4,7 +4,7 @@ import { Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
 import { filter } from "./filter"
@@ -25,7 +25,7 @@ function _skipWhile<T>(
   checkFunctionOrProperty(f)
   return isProperty(f)
     ? skipUntil(filter(x => !x, startWith(true, f)), observable)
-    : makeObservable(observable, new SkipWhile(observable.src, f))
+    : makeObservable(observable, new SkipWhile(dispatcherOf(observable), f))
 }
 
 class SkipWhile<T> extends Operator<T, T> {

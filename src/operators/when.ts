@@ -13,7 +13,7 @@ import { Map } from "../_polyfill"
 import { Transaction } from "../_tx"
 import { isArray } from "../_util"
 import { EventStream, isEventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Indexed, IndexedEndSubscriber, IndexedSource } from "./_indexed"
 import { JoinOperator } from "./_join"
 
@@ -65,7 +65,7 @@ export function extractPatternsAndBuffers(
   const buffers = Array<Buffer>(idxLookup.size)
   idxLookup.forEach((idx: number, obs: Observable<any>) => {
     const buffer = isEventStream(obs) ? new StreamBuffer() : new PropertyBuffer()
-    sources[idx] = new Buffered(obs.src, buffer)
+    sources[idx] = new Buffered(dispatcherOf(obs), buffer)
     buffers[idx] = buffer
   })
 

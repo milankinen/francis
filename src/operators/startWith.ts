@@ -4,7 +4,7 @@ import { makeEventStream, makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
 import { EventStream } from "../EventStream"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { scheduleActivationTask } from "../scheduler/index"
 import { Identity, Operator } from "./_base"
@@ -24,11 +24,11 @@ function _startWith<T>(value: T, observable: Observable<T>): Observable<T> {
 }
 
 export function _startWithE<T>(value: T, stream: EventStream<T>): EventStream<T> {
-  return makeEventStream(new StartWithE(stream.src, value))
+  return makeEventStream(new StartWithE(dispatcherOf(stream), value))
 }
 
 export function _startWithP<T>(value: T, property: Property<T>): Property<T> {
-  return makeProperty(new StartWithP(property.src, value))
+  return makeProperty(new StartWithP(dispatcherOf(property), value))
 }
 
 class StartWithP<T> extends Operator<T, T> {

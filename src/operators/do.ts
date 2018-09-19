@@ -3,7 +3,7 @@ import { Source } from "../_core"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { Observable } from "../Observable"
+import { dispatcherOf, Observable } from "../Observable"
 import { Identity } from "./_base"
 import { map } from "./map"
 
@@ -43,16 +43,16 @@ function _doAction<T>(f: (val: T) => void, observable: Observable<T>): Observabl
 
 function _doError<T>(f: (err: Error) => void, observable: Observable<T>): Observable<T> {
   checkFunction(f)
-  return makeObservable(observable, new DoError(observable.src, f))
+  return makeObservable(observable, new DoError(dispatcherOf(observable), f))
 }
 
 function _doEnd<T>(f: () => void, observable: Observable<T>): Observable<T> {
   checkFunction(f)
-  return makeObservable(observable, new DoEnd(observable.src, f))
+  return makeObservable(observable, new DoEnd(dispatcherOf(observable), f))
 }
 
 function _doLog<T>(label: string | undefined, observable: Observable<T>): Observable<T> {
-  return makeObservable(observable, new DoLog(observable.src, label))
+  return makeObservable(observable, new DoLog(dispatcherOf(observable), label))
 }
 
 class DoError<T> extends Identity<T> {
