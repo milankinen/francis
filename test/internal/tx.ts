@@ -1,7 +1,7 @@
 import { Operation, Transaction } from "../../src/_tx"
 
 describe("Transaction queue", () => {
-  it("higher priority operations are queued first", () => {
+  it("lower value priority operations are queued first", () => {
     const q = [] as string[]
     const op = (prio: number, id: string) => new TestOp(prio, id, q)
     const tx = new Transaction(null)
