@@ -1,7 +1,7 @@
 import { checkFunction, checkNaturalInt } from "../_check"
+import { AnyEvent } from "../_interfaces"
 import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
-import { AnyEvent } from "../bacon"
 import { isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
 import { TimerBase } from "./_timer"
