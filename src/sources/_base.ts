@@ -25,15 +25,12 @@ export abstract class Root<T> implements Source<T> {
 }
 
 export abstract class Activation<T, R extends Root<T>> implements Task, Subscription {
-  // todo: remove obsolete real
-  // the real subscriber
-  protected readonly real: Subscriber<T>
   protected readonly owner: R
   protected active: boolean = true
   protected subscriber: Subscriber<T>
 
   constructor(owner: R, subscriber: Subscriber<T>) {
-    this.real = this.subscriber = subscriber
+    this.subscriber = subscriber
     this.owner = owner
   }
 
