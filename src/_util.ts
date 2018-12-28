@@ -2,6 +2,19 @@ export type JSError = Error
 
 export const MAX_SAFE_INTEGER = 9007199254740991
 
+export function is(x: any, cls: any): boolean {
+  const p = cls.prototype
+  x = Object.getPrototypeOf(x)
+  while (true) {
+    if (x === null) {
+      return false
+    } else if (x === p) {
+      return true
+    }
+    x = Object.getPrototypeOf(x)
+  }
+}
+
 export function noop(): void {
   /* no-op */
 }

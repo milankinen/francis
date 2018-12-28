@@ -205,7 +205,7 @@ class SendEndOp<T> extends SendOp<T, null> {
 }
 
 function checkBus(x: any): void {
-  const ok = x instanceof Bus
+  const ok = is(x, Bus)
   assert(ok, __DEVBUILD__ ? (!ok ? `Expected a Bus but got ${x}` : "") : GENERIC_ERROR_MSG)
 }
 

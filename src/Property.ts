@@ -1,6 +1,7 @@
 import { NONE, NOOP_SUBSCRIBER, sendEndInTx, sendNextInTx, Subscriber, Subscription } from "./_core"
 import { Dispatcher } from "./_dispatcher"
 import { Transaction } from "./_tx"
+import { is } from "./_util"
 import { Observable } from "./Observable"
 
 export class Property<A> extends Observable<A> {
@@ -10,7 +11,7 @@ export class Property<A> extends Observable<A> {
 }
 
 export function isProperty<T>(x: any): x is Property<T> {
-  return x && x instanceof Property
+  return is(x, Property)
 }
 
 export class PropertyDispatcher<T> extends Dispatcher<T> {

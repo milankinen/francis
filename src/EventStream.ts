@@ -9,6 +9,7 @@ import {
   Subscription,
 } from "./_core"
 import { Dispatcher } from "./_dispatcher"
+import { is } from "./_util"
 import { Observable } from "./Observable"
 import { scheduleActivationTask } from "./scheduler/index"
 
@@ -19,7 +20,7 @@ export class EventStream<A> extends Observable<A> {
 }
 
 export function isEventStream<T>(x: any): x is EventStream<T> {
-  return x && x instanceof EventStream
+  return is(x, EventStream)
 }
 
 export class EventStreamDispatcher<T> extends Dispatcher<T> {
@@ -28,14 +29,12 @@ export class EventStreamDispatcher<T> extends Dispatcher<T> {
 }
 
 export class StatfulEventStreamDispatcher<T> extends Dispatcher<T> {
-  protected source!: Source<T> & EndStateAware
-
   constructor(op: Source<T> & EndStateAware) {
     super(op)
   }
 
   public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
-    return this.source.isEnded()
+    return ((this.source as any) as EndStateAware).isEnded()
       ? new StreamEndedSubscription(subscriber)
       : super.subscribe(subscriber, order)
   }
