@@ -81,3 +81,6 @@ export { diff, Delta } from "./operators/diff"
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"
 export { log } from "./operators/log"
 export { doAction, doError, doEnd, doLog } from "./operators/do"
+
+// experimental
+export * from "./proxied/index"
