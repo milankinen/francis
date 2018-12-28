@@ -1,13 +1,9 @@
 import { JSMap, JSSet } from "./_interfaces"
 import { findIndex } from "./_util"
 
-interface MapCtor {
-  new <K, V>(): JSMap<K, V>
-}
+type MapCtor = new <K, V>() => JSMap<K, V>
 
-interface SetCtor {
-  new <V>(): JSSet<V>
-}
+type SetCtor = new <V>() => JSSet<V>
 
 export const Map: MapCtor = getMapOrPolyfill()
 
@@ -64,6 +60,7 @@ function getSetOrPolyfill(): any {
 
 function getJsSetClass(): any {
   try {
+    // tslint:disable-next-line:function-constructor
     return new Function("new Set();return Set;").apply(null)
   } catch {
     return null
@@ -72,6 +69,7 @@ function getJsSetClass(): any {
 
 function getJsMapClass(): any {
   try {
+    // tslint:disable-next-line:function-constructor
     return new Function("new Map();return Map;").apply(null)
   } catch {
     return null

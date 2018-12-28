@@ -102,10 +102,9 @@ export abstract class Dispatcher<T> implements Subscriber<T>, Source<T> {
 
 class MulticastSubscriber<T> implements Subscriber<T> {
   private h: MCSNode<T> | null
-  private t: MCSNode<T> | null
 
   constructor(head: MCSNode<T>) {
-    this.h = this.t = head
+    this.h = head
   }
 
   public add(node: MCSNode<T>): void {
@@ -173,7 +172,7 @@ class MulticastSubscriber<T> implements Subscriber<T> {
 
   private remove(node: MCSNode<T>): Subscriber<T> {
     node.h !== null ? (node.h.t = node.t) : (this.h = node.t)
-    node.t !== null ? (node.t.h = node.h) : (this.t = node.h)
+    node.t !== null ? (node.t.h = node.h) : void 0
     const head = this.h as MCSNode<T>
     return head.t !== null ? this : head.s
   }

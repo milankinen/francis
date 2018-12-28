@@ -35,9 +35,7 @@ export function makeMultiSourceStream<T>(
   )
 }
 
-export interface MultiSourceCtor<T> {
-  new (sources: Array<Source<T>>): MultiSource<T> & EndStateAware
-}
+export type MultiSourceCtor<T> = new (sources: Array<Source<T>>) => MultiSource<T> & EndStateAware
 
 export class MSIdentity<T> extends Identity<T> implements EndStateAware {
   protected source!: MultiSource<T>

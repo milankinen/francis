@@ -100,7 +100,8 @@ class DoLog<T> extends Identity<T> {
   }
 
   private log(...msgs: any[]): void {
+    const args: any[] = this.label === undefined ? msgs : [this.label, ...msgs]
     // tslint:disable-next-line:no-console
-    console.log.apply(console, this.label === undefined ? msgs : [this.label, ...msgs])
+    console.log(...args)
   }
 }

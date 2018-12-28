@@ -27,5 +27,6 @@ export function fromNodeCallback<T>(f: AsyncNodeCallback<T>, ...args: any[]): Ev
 }
 
 function bind<T, F extends AsyncCallback<T> | AsyncNodeCallback<T>>(f: F, args: any[]): F {
-  return args.length > 0 ? f.bind(null, ...args) : f
+  const fn = f as any
+  return args.length > 0 ? fn.bind(null, ...args) : f
 }

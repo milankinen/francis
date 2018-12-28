@@ -61,7 +61,9 @@ export function combineAsArray<T>(...observables: any[]): Property<T[]> {
 export type CombinedTemplate<O> = {
   [K in keyof O]: O[K] extends Observable<infer I>
     ? I
-    : O[K] extends Record<any, any> ? CombinedTemplate<O[K]> : O[K]
+    : O[K] extends Record<any, any>
+    ? CombinedTemplate<O[K]>
+    : O[K]
 }
 
 export function combineTemplate<T>(template: T): Observable<CombinedTemplate<T>> {
@@ -88,6 +90,7 @@ export function combineTemplate<T>(template: T): Observable<CombinedTemplate<T>>
   if (observables.length === 0) {
     return constant(template) as any
   } else {
+    // tslint:disable-next-line:function-constructor
     const createPlainObject: any = new Function("o", "c", `return ${collected};`)
     const fn = (combined: any[]) => createPlainObject(combined, constants)
     return _combine(fn, observables) as any

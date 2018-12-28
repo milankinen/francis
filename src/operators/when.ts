@@ -219,11 +219,13 @@ export class Pattern {
   constructor(ah: number[][], public f: PatternHandler) {
     // pre-compile peek and pop functions with inlined indices so that engine
     // can optimize and inline them
+    // tslint:disable-next-line:function-constructor
     this.ppeek = new Function(
       "b",
       "p",
       `return ${ah.map(([bIdx, n]) => `p(b[${bIdx}],${n})`).join("*")};`,
     ) as PatternPeek
+    // tslint:disable-next-line:function-constructor
     this.ppop = new Function(
       "b",
       "p",

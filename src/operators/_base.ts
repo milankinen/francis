@@ -95,19 +95,17 @@ export class LinkedPipe<T> extends Pipe<T> {
 
 export class LinkedPipeList<T> {
   public size: number
-  private t: LinkedPipe<T> | null
   private h: LinkedPipe<T> | null
 
   constructor(subscribers: Array<PipeSubscriber<T>>) {
     this.size = subscribers.length
     if (subscribers.length === 0) {
-      this.t = this.h = null
+      this.h = null
     } else {
       let tail = (this.h = new LinkedPipe(subscribers[0], null, null))
       for (let i = 0; i < this.size; i++) {
         tail = tail.t = new LinkedPipe(subscribers[i], tail, null)
       }
-      this.t = tail
     }
   }
 
@@ -116,7 +114,7 @@ export class LinkedPipeList<T> {
   }
 
   public append(subscriber: PipeSubscriber<T>): LinkedPipe<T> {
-    const node = (this.t = new LinkedPipe(subscriber, this.h, null))
+    const node = new LinkedPipe(subscriber, this.h, null)
     this.h === null && (this.h = node)
     ++this.size
     return node
@@ -124,12 +122,12 @@ export class LinkedPipeList<T> {
 
   public remove(node: LinkedPipe<T>): void {
     node.h !== null ? (node.h.t = node.t) : (this.h = node.t)
-    node.t !== null ? (node.t.h = node.h) : (this.t = node.h)
+    node.t !== null ? (node.t.h = node.h) : void 0
     --this.size
   }
 
   public clear(): void {
-    this.h = this.t = null
+    this.h = null
     this.size = 0
   }
 }
