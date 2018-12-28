@@ -14,7 +14,6 @@ import { scheduleActivationTask, Task } from "../scheduler/index"
 
 export abstract class Root<T> implements Source<T> {
   public readonly weight: number = 1
-  public ended: boolean = false
   constructor(public readonly sync: boolean) {}
 
   public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
@@ -36,11 +35,7 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
 
   public run(): void {
     if (this.active) {
-      if (this.owner.ended) {
-        sendEndInTx(this.subscriber)
-      } else {
-        this.start()
-      }
+      this.start()
     }
   }
 
@@ -93,7 +88,6 @@ export abstract class Activation<T, R extends Root<T>> implements Task, Subscrip
   }
 
   protected sendEnd(): void {
-    this.owner.ended = true
     sendEndInTx(this.subscriber)
   }
 }

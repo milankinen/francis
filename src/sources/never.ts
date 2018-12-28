@@ -7,7 +7,7 @@ export function never<T>(): EventStream<T> {
   return makeEventStream(new Never<T>())
 }
 
-class Never<T> extends Root<T> {
+export class Never<T> extends Root<T> {
   constructor() {
     super(false)
   }

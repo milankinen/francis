@@ -1,7 +1,6 @@
 import { __DEVBUILD__ } from "../_assert"
 import { checkObservable } from "../_check"
 import {
-  EndStateAware,
   invoke,
   InvokeableWithoutParam,
   NOOP_SUBSCRIBER,
@@ -11,13 +10,12 @@ import {
   Subscriber,
   Subscription,
 } from "../_core"
-import { makeStatefulEventStream } from "../_obs"
+import { makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { dispatcherOf, Observable } from "../Observable"
 import { scheduleActivationTask } from "../scheduler/index"
 import { never } from "../sources/never"
-import { Identity } from "./_base"
 import { toEventStream } from "./toEventStream"
 
 export function makeMultiSourceStream<T>(
@@ -30,27 +28,12 @@ export function makeMultiSourceStream<T>(
   if (observables.length === 0) {
     observables = [never()]
   }
-  return makeStatefulEventStream(
-    new MSIdentity(new ctor(observables.map(o => dispatcherOf(toEventStream(o))))),
-  )
+  return makeEventStream(new ctor(observables.map(o => dispatcherOf(toEventStream(o)))))
 }
 
-export type MultiSourceCtor<T> = new (sources: Array<Source<T>>) => MultiSource<T> & EndStateAware
+export type MultiSourceCtor<T> = new (sources: Array<Source<T>>) => MultiSource<T>
 
-export class MSIdentity<T> extends Identity<T> implements EndStateAware {
-  protected source!: MultiSource<T>
-
-  constructor(source: MultiSource<T>) {
-    super(source)
-  }
-
-  public isEnded(): boolean {
-    return this.source.isEnded()
-  }
-}
-
-export abstract class MultiSource<T>
-  implements Source<T>, Subscription, InvokeableWithoutParam, EndStateAware {
+export abstract class MultiSource<T> implements Source<T>, Subscription, InvokeableWithoutParam {
   public readonly weight: number
   protected head: MultiSourceNode<T> | null
   protected sink: Subscriber<T> = NOOP_SUBSCRIBER
@@ -63,10 +46,6 @@ export abstract class MultiSource<T>
     for (let i = 1; i < sources.length; i++) {
       tail = tail.t = new MultiSourceNode(this, sources[i], tail, null)
     }
-  }
-
-  public isEnded(): boolean {
-    return this.head === null
   }
 
   public subscribe(subscriber: Subscriber<T>, order: number): Subscription {

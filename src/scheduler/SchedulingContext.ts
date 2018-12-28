@@ -46,7 +46,6 @@ export class SchedulingContext {
   public scheduleTimeout(onTimeout: OnTimeout, delay: number): Timeout {
     return new BasicTimeout(setTimeout(() => onTimeout.due(), delay))
   }
-
 }
 
 interface SchedulerFrame {
@@ -186,6 +185,7 @@ function createMicroTaskScheduler(): MicroTaskScheduler {
     options.reduce((p, o) => p || tryCreate(o), null)
 
   const makeNextTickScheduler = () => {
+    // tslint:disable-next-line:function-constructor
     return new Function(
       "return (typeof process.nextTick==='function')?(function nextTick(t){return process.nextTick(t);}):null;",
     ).apply(null) as any
@@ -199,6 +199,7 @@ function createMicroTaskScheduler(): MicroTaskScheduler {
   }
 
   const makeSetImmediateScheduler = () => {
+    // tslint:disable-next-line:function-constructor
     return new Function(
       "return (typeof setImmediate==='function')?(function immediate(t){return setImmediate(t);}):null;",
     ).apply(null) as any

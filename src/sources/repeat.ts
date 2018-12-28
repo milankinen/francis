@@ -1,10 +1,10 @@
 import { checkFunction } from "../_check"
 import { Source, Subscriber, Subscription } from "../_core"
-import { isObservable, makeStatefulEventStream } from "../_obs"
+import { isObservable, makeEventStream } from "../_obs"
 import { Transaction } from "../_tx"
 import { EventStream } from "../EventStream"
 import { dispatcherOf, Observable } from "../Observable"
-import { MSIdentity, MultiSourceNode } from "../operators/_multisource"
+import { MultiSourceNode } from "../operators/_multisource"
 import { Concat } from "../operators/concat"
 import { never } from "./never"
 
@@ -12,7 +12,7 @@ export type Generator<T> = (i: number) => Observable<T> | "" | false | null | un
 
 export function repeat<T>(generator: Generator<T>): EventStream<T> {
   checkFunction(generator)
-  return makeStatefulEventStream(new MSIdentity(new Repeat(generator)))
+  return makeEventStream(new Repeat(generator))
 }
 
 class Repeat<T> extends Concat<T> {

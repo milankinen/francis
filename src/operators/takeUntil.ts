@@ -1,6 +1,6 @@
 import { checkObservable } from "../_check"
-import { EndStateAware, NOOP_SUBSCRIBER, Source } from "../_core"
-import { makeStatefulObservable } from "../_obs"
+import { NOOP_SUBSCRIBER, Source } from "../_core"
+import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
 import { dispatcherOf, Observable } from "../Observable"
@@ -18,23 +18,18 @@ export const takeUntil: TakeUntilOp = curry2(_takeUntil)
 
 function _takeUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
   checkObservable(trigger)
-  return makeStatefulObservable(
+  return makeObservable(
     observable,
     new TakeUntil(dispatcherOf(toEventStream(trigger)), dispatcherOf(observable)),
   )
 }
 
-class TakeUntil<T> extends JoinOperator<T, T> implements PipeSubscriber<any>, EndStateAware {
+class TakeUntil<T> extends JoinOperator<T, T> implements PipeSubscriber<any> {
   protected source!: SVSource<T, any>
-  private ended: boolean = false
 
   constructor(vSrc: Source<any>, sSrc: Source<T>) {
     super(new SVSource(vSrc, sSrc, NOOP_SUBSCRIBER))
     this.source.vDest = new Pipe(this)
-  }
-
-  public isEnded(): boolean {
-    return this.ended
   }
 
   public next(tx: Transaction, val: T): void {
@@ -42,7 +37,6 @@ class TakeUntil<T> extends JoinOperator<T, T> implements PipeSubscriber<any>, En
   }
 
   public pipedNext(sender: Pipe<any>, tx: Transaction, v: any): void {
-    this.ended = true
     this.source.disposeValue()
     this.sink.end(tx)
   }
