@@ -15,8 +15,8 @@ export function isProperty<T>(x: any): x is Property<T> {
 }
 
 export class PropertyDispatcher<T> extends Dispatcher<T> {
-  private val: T = NONE
-  private ended: boolean = false
+  protected val: T = NONE
+  protected ended: boolean = false
 
   public subscribe(subscriber: Subscriber<T>, order: number): Subscription {
     return this.ended === true

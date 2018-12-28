@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.Atom emits only real changes to the derived states 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Sync {},
+]
+`;
+
+exports[`F.Atom emits only real changes to the root state 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Sync {},
+]
+`;
+
+exports[`F.Atom emits the state changes to subscribers 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Sync {},
+  Next {
+    "value": "TSERS",
+  },
+  Next {
+    "value": "lolbal",
+  },
+]
+`;
+
+exports[`F.Atom follows transaction semantics when combining derived state 1`] = `
+Array [
+  Next {
+    "value": Object {
+      "derived": "tsers",
+      "root": Object {
+        "msg": "tsers",
+        "num": 123,
+      },
+    },
+  },
+  Sync {},
+  Next {
+    "value": Object {
+      "derived": "tsers!",
+      "root": Object {
+        "msg": "tsers!",
+        "num": 123,
+      },
+    },
+  },
+  Next {
+    "value": Object {
+      "derived": "lolbal",
+      "root": Object {
+        "msg": "lolbal",
+        "num": 123,
+      },
+    },
+  },
+]
+`;
+
+exports[`F.Atom works even if the state is modified during the transaction 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  Next {
+    "value": "TSERS",
+  },
+]
+`;

@@ -5,6 +5,7 @@ export { Observable } from "./Observable"
 export { EventStream, isEventStream } from "./EventStream"
 export { Property, isProperty } from "./Property"
 export { Bus, push, pushNext, pushError, pushEnd } from "./Bus"
+export { Atom, Lens, atom, set, get, modify, view } from "./Atom"
 
 // utils
 export { pipe } from "./_util"
