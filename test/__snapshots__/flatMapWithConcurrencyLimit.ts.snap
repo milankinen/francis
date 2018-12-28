@@ -36,6 +36,7 @@ Array [
   Next {
     "value": 3,
   },
+  End {},
 ]
 `;
 
