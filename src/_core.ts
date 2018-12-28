@@ -1,4 +1,5 @@
 import { __DEVELOPER__, assert, logAndThrow } from "./_assert"
+import { MAX_PRIORITY } from "./_priority"
 import { Operation, Transaction } from "./_tx"
 import { Task } from "./scheduler/index"
 
@@ -95,28 +96,14 @@ export function sendErrorInTx(subscriber: Subscriber<any>, err: Error): void {
   }
 }
 
-let preQueueToTxAssert = (maxDepth: number): void => {}
-if (__DEVELOPER__) {
-  preQueueToTxAssert = (maxDepth: number) => {
-    assert(maxDepth >= 0, "** BUG ** maxDepth must be >= 0")
+export function queueToEndOfTx(op: Operation): void {
+  if (__DEVELOPER__) {
+    assert(TX.running, "** BUG ** No transaction running")
+    assert(op.priority === MAX_PRIORITY, "** BUG ** End-of-tx operations must have MAX_PRIORITY")
   }
-}
-
-let postQueueToTxAssert = (tx: Transaction): void => {}
-if (__DEVELOPER__) {
-  postQueueToTxAssert = (tx: Transaction) => {
-    assert(tx.running, "** BUG ** tried to queue operation to inactive tx")
-  }
-}
-
-export function queueToTx(op: Operation, maxDepth: number): void {
-  preQueueToTxAssert(maxDepth)
   let tx = TX
-  while (tx.depth > maxDepth) {
-    tx = tx.parent as Transaction
-  }
+  while (tx.parent !== null) tx = tx.parent
   tx.queue(op)
-  postQueueToTxAssert(tx)
 }
 
 export interface InvokeableWithParam<P> {
