@@ -1,7 +1,7 @@
-import { Observable as Obs } from "../Observable"
-import { EventStream as Stream } from "../EventStream"
-import { Property as Prop } from "../Property"
 import { Atom as A } from "../Atom"
+import { EventStream as Stream } from "../EventStream"
+import { Observable as Obs } from "../Observable"
+import { Property as Prop } from "../Property"
 
 // tslint:disable:max-line-length member-ordering unified-signatures array-type no-namespace
 
