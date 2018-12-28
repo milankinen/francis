@@ -16,6 +16,28 @@ Array [
 ]
 `;
 
+exports[`F.Bus disposes plugged inputs on bus.end() 1`] = `
+Array [
+  Sync {},
+  Next {
+    "value": 1,
+  },
+  Next {
+    "value": 2,
+  },
+  Next {
+    "value": 3,
+  },
+  Next {
+    "value": 4,
+  },
+  Next {
+    "value": 10,
+  },
+  End {},
+]
+`;
+
 exports[`F.Bus does not emit events after end event 1`] = `
 Array [
   End {},

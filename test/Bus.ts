@@ -98,4 +98,37 @@ describe("F.Bus", () => {
     })
     expect(recording).toMatchSnapshot()
   })
+
+  it("disposes plugged inputs on bus.end()", () => {
+    const recording = run((record, wait) => {
+      const bus = new F.Bus<number>()
+      bus.plug(F.fromArray([1, 2]))
+      bus.subscribe(record)
+      bus.plug(F.fromArray([3, 4]).delay(5))
+      record(Sync)
+      wait(10, () => {
+        bus.push(10)
+        bus.end()
+      })
+    })
+    expect(recording).toMatchSnapshot()
+  })
+
+  it("does not activate plugged inputs if bus is not activated", () => {
+    const recording = run(record => {
+      const bus = new F.Bus<number>()
+      bus.plug(F.fromBinder(_ => record("ACTIVATE")))
+    })
+    expect(recording).toEqual([])
+  })
+
+  it("returns an unplug function for plugged inputs", () => {
+    const recording = run(record => {
+      const bus = new F.Bus<string>()
+      const unplug = bus.plug(F.later(100, "tsers"))
+      bus.subscribe(record)
+      unplug()
+    })
+    expect(recording).toEqual([])
+  })
 })

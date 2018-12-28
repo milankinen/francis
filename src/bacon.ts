@@ -182,6 +182,7 @@ declare module "./Bus" {
     push(event: T | F.AnyEvent<T>): void
     end(): void
     error(err: Error): void
+    plug(obs: Observable<T>): F.Dispose
   }
 }
 
@@ -498,6 +499,10 @@ Bus.prototype.error = function<T>(err: Error): void {
 
 Bus.prototype.end = function<T>(): void {
   F.pushEnd(this)
+}
+
+Bus.prototype.plug = function<T>(obs: Observable<T>): F.Dispose {
+  return F.plug(this, obs)
 }
 
 // static operators
