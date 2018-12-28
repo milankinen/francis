@@ -4,7 +4,7 @@ export const MAX_SAFE_INTEGER = 9007199254740991
 
 export function is(x: any, cls: any): boolean {
   const p = cls.prototype
-  x = Object.getPrototypeOf(x)
+  x = !!x ? Object.getPrototypeOf(x) : null
   while (true) {
     if (x === null) {
       return false
