@@ -13,6 +13,8 @@
     "no-empty": false,
     "prefer-for-of": false,
     "no-unused-expression": false,
-    "trailing-comma": false
+    "trailing-comma": false,
+    "class-name": false,
+    "object-literal-sort-keys": false
   }
 }
