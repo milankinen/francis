@@ -17,6 +17,12 @@ export function makeProperty<T>(source: Source<T>): Property<T> {
   return new Property(new PropertyDispatcher(source))
 }
 
+/**
+ * Test whether the given value is Francis observable or not
+ * @param x - Value to be tested
+ * @returns `true` if value extends observable, otherwise `false`
+ * @public
+ */
 export function isObservable<T>(x: any): x is Observable<T> {
   return isEventStream(x) || isProperty(x)
 }

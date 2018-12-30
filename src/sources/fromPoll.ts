@@ -6,12 +6,25 @@ import { isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
 import { TimerBase } from "./_timer"
 
-export interface FromPollOp {
-  <T>(interval: number, f: () => T | AnyEvent<T>): EventStream<T>
+/**
+ * Polls given function with given interval. Function should return plain values
+ * or `F.Event` objects. Polling occurs only when there are subscribers to the stream.
+ * Polling ends permanently when `f` returns `F.End`.
+ *
+ * @param interval - Polling interval in milliseconds
+ * @param f - Function that will be called on each tick
+ *
+ * @example
+ *
+ * const nowEverySec = F.fromPoll(1000, () => Date.now())
+ *
+ * @public
+ */
+export const fromPoll: CurriedFromPoll = curry2(_fromPoll)
+interface CurriedFromPoll {
+  <ValueType>(interval: number, f: () => ValueType | AnyEvent<ValueType>): EventStream<ValueType>
   (interval: number): <T>(f: () => T | AnyEvent<T>) => EventStream<T>
 }
-
-export const fromPoll: FromPollOp = curry2(_fromPoll)
 
 function _fromPoll<T>(interval: number, f: () => T | AnyEvent<T>): EventStream<T> {
   checkNaturalInt(interval)

@@ -6,12 +6,27 @@ import { isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
 import { Sequentially } from "./sequentially"
 
-export interface RepeatedlyOp {
-  <T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T>
-  (interval: number): <T>(events: Array<T | AnyEvent<T>>) => EventStream<T>
+/**
+ * Repeats given elements indefinitely with the given interval.
+ *
+ * @param interval - Interval in milliseconds
+ * @param events - Event sequence to repeat indefinitely
+ *
+ * @example
+ *
+ * const lolbal = F.repeatedly(10, ["lol", "bal"])
+ *
+ * @public
+ */
+export const repeatedly: CurriedRepeatedly = curry2(_repeatedly)
+interface CurriedRepeatedly {
+  <ValueType>(interval: number, events: Array<ValueType | AnyEvent<ValueType>>): EventStream<
+    ValueType
+  >
+  (interval: number): <ValueType>(
+    events: Array<ValueType | AnyEvent<ValueType>>,
+  ) => EventStream<ValueType>
 }
-
-export const repeatedly: RepeatedlyOp = curry2(_repeatedly)
 
 function _repeatedly<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
   checkNaturalInt(interval)

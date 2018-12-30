@@ -6,12 +6,29 @@ import { End, isEvent, Next } from "../Event"
 import { EventStream } from "../EventStream"
 import { TimerBase } from "./_timer"
 
-export interface SequentiallyOp {
-  <T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T>
-  (interval: number): <T>(events: Array<T | AnyEvent<T>>) => EventStream<T>
+/**
+ * Creates an EventStream containing the given values emitted
+ * with the given interval.
+ *
+ * @param interval - Interval in milliseconds
+ * @param events - Events to emit
+ * @returns Some shit
+ *
+ * @example
+ *
+ * const numEvery100ms = F.sequentially(100, [1, 2, 3])
+ *
+ * @public
+ */
+export const sequentially: CurriedSequentially = curry2(_sequentially)
+interface CurriedSequentially {
+  <ValueType>(interval: number, events: Array<ValueType | AnyEvent<ValueType>>): EventStream<
+    ValueType
+  >
+  (interval: number): <ValueType>(
+    events: Array<ValueType | AnyEvent<ValueType>>,
+  ) => EventStream<ValueType>
 }
-
-export const sequentially: SequentiallyOp = curry2(_sequentially)
 
 function _sequentially<T>(interval: number, events: Array<T | AnyEvent<T>>): EventStream<T> {
   checkNaturalInt(interval)

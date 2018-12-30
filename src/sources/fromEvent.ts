@@ -10,12 +10,26 @@ const pairs = [
   ["bind", "unbind"],
 ]
 
-export interface FromEventOp {
-  <T>(target: EventTarget, event: string, ...args: any[]): EventStream<T>
-  (target: EventTarget): <T>(event: string, ...args: any[]) => EventStream<T>
+/**
+ * Creates an EventStream from events on `EventTarget` or `EventEmitter` object,
+ * or an object that supports event listeners using `on`/`off` methods.
+ *
+ * @param target - EventTarget object whose events will be listened
+ * @param event - Name of the listened event
+ * @param args - Extra args passed to the `addListener` / `on` function
+ *
+ * @example
+ *
+ * const bubbleClicks = F.fromEvent(document.querySelector("#my-button"), "click")
+ * const captureClicks = F.fromEvent(document.querySelector("#my-button"), "click", true)
+ *
+ * @public
+ */
+export const fromEvent: CurriedFromEvent = _fromEventCurried as any
+interface CurriedFromEvent {
+  <ValueType>(target: EventTarget, event: string, ...args: any[]): EventStream<ValueType>
+  (target: EventTarget): <ValueType>(event: string, ...args: any[]) => EventStream<ValueType>
 }
-
-export const fromEvent: FromEventOp = _fromEventCurried as any
 
 // tslint:disable:ban-types
 

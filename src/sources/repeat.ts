@@ -8,9 +8,32 @@ import { MultiSourceNode } from "../operators/_multisource"
 import { Concat } from "../operators/concat"
 import { never } from "./never"
 
-export type Generator<T> = (i: number) => Observable<T> | "" | false | null | undefined | 0
+/**
+ * Generator type for `F.repeat`
+ * @see repeat
+ *
+ * @public
+ */
+export type Generator<ValueType> = (
+  i: number,
+) => Observable<ValueType> | "" | false | null | undefined | 0
 
-export function repeat<T>(generator: Generator<T>): EventStream<T> {
+/**
+ * Calls generator function which is expected to return an observable. When the spawned
+ * observable ends, the generator is called again to spawn a new observable. If generator
+ * returns a falsy value, the stream ends.
+ *
+ * @param generator - Generator function that's supposed to return an observable or `null` to end the stream
+ * @returns An EventStream containing values and errors from the spawned observable.
+ * @see Generator
+ *
+ * @example
+ *
+ * const events = F.repeat(i => i < 10 && F.fromArray([...Array(i).keys()].map(_ => i)))
+ *
+ * @public
+ */
+export function repeat<ValueType>(generator: Generator<ValueType>): EventStream<ValueType> {
   checkFunction(generator)
   return makeEventStream(new Repeat(generator))
 }

@@ -3,8 +3,17 @@ import { makeEventStream } from "../_obs"
 import { EventStream } from "../EventStream"
 import { Activation, Root } from "./_base"
 
-export function never<T>(): EventStream<T> {
-  return makeEventStream(new Never<T>())
+/**
+ * Creates an EventStream that immediately ends
+ *
+ * @example
+ *
+ * const emptyNum = F.never<number>()
+ *
+ * @public
+ */
+export function never<ValueType>(): EventStream<ValueType> {
+  return makeEventStream(new Never<ValueType>())
 }
 
 export class Never<T> extends Root<T> {

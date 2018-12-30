@@ -6,12 +6,23 @@ import { Next } from "../Event"
 import { EventStream } from "../EventStream"
 import { TimerBase } from "./_timer"
 
-export interface IntervalOp {
-  <T>(period: number, value: T): EventStream<T>
-  (period: number): <T>(value: T) => EventStream<T>
+/**
+ * Repeats the single element indefinitely with the given interval
+ *
+ * @param period - Inverval in milliseconds
+ * @param value - Repeated value
+ *
+ * @example
+ *
+ * const messages = F.inverval(1000, "Tsers!")
+ *
+ * @public
+ */
+export const interval: CurriedInterval = curry2(_interval)
+interface CurriedInterval {
+  <ValueType>(period: number, value: ValueType): EventStream<ValueType>
+  (period: number): <ValueType>(value: ValueType) => EventStream<ValueType>
 }
-
-export const interval: IntervalOp = curry2(_interval)
 
 function _interval<T>(period: number, value: T): EventStream<T> {
   checkNaturalInt(period)

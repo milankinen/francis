@@ -4,6 +4,22 @@ import * as Event from "../Event"
 import { EventStream } from "../EventStream"
 import { fromBinder } from "./fromBinder"
 
+/**
+ * Creates an EventStream from a function that accepts a callback. The function
+ * is supposed to call its callback just once.
+ *
+ * @param f - Function that gets called at the stream activation
+ *
+ * @example
+ *
+ * const resultStream = F.fromCallback(cb => {
+ *   callSomeLongTask(result => {
+ *     cb(processResult(result))
+ *   })
+ * })
+ *
+ * @public
+ */
 export function fromCallback<ValueType>(f: AsyncCallback<ValueType>): EventStream<ValueType> {
   checkFunction(f)
   return fromBinder<ValueType>(sink => {
@@ -14,6 +30,22 @@ export function fromCallback<ValueType>(f: AsyncCallback<ValueType>): EventStrea
   })
 }
 
+/**
+ * Behaves the same way as `fromCallback`, except that it expects the callback
+ * to be called in the Node.js convention: `callback(error, data)`, where error is
+ * `null` if everything is fine.
+ *
+ * @param f - Function that gets called at the stream activation
+ * @see fromCallback
+ *
+ * @example
+ *
+ * const fileContent = F.fromNodeCallback(cb => {
+ *   fs.readFile("myFile.txt", cb)
+ * })
+ *
+ * @public
+ */
 export function fromNodeCallback<ValueType>(
   f: AsyncNodeCallback<ValueType>,
 ): EventStream<ValueType> {
