@@ -4,29 +4,24 @@ import * as Event from "../Event"
 import { EventStream } from "../EventStream"
 import { fromBinder } from "./fromBinder"
 
-export function fromCallback<T>(f: AsyncCallback<T>, ...args: any[]): EventStream<T> {
+export function fromCallback<ValueType>(f: AsyncCallback<ValueType>): EventStream<ValueType> {
   checkFunction(f)
-  f = bind(f, args)
-  return fromBinder<T>(sink => {
-    const callback = (result: T | AnyEvent<T>) => {
+  return fromBinder<ValueType>(sink => {
+    const callback = (result: ValueType | AnyEvent<ValueType>) => {
       sink([result, new Event.End()])
     }
     f(callback)
   })
 }
 
-export function fromNodeCallback<T>(f: AsyncNodeCallback<T>, ...args: any[]): EventStream<T> {
+export function fromNodeCallback<ValueType>(
+  f: AsyncNodeCallback<ValueType>,
+): EventStream<ValueType> {
   checkFunction(f)
-  f = bind(f, args)
-  return fromBinder<T>(sink => {
-    const callback = (error: Error | null, result?: T | AnyEvent<T>) => {
+  return fromBinder<ValueType>(sink => {
+    const callback = (error: Error | null, result?: ValueType | AnyEvent<ValueType>) => {
       sink([error !== null ? new Event.Error(error) : (result as any), new Event.End()])
     }
     f(callback)
   })
-}
-
-function bind<T, F extends AsyncCallback<T> | AsyncNodeCallback<T>>(f: F, args: any[]): F {
-  const fn = f as any
-  return args.length > 0 ? fn.bind(null, ...args) : f
 }

@@ -1,4 +1,5 @@
 import { assert } from "./_assert"
+import { checkFunction } from "./_check"
 import {
   argsToObservables,
   argsToObservablesAndFunction,
@@ -518,7 +519,6 @@ export { when } from "./operators/when"
 export { zipAsArray } from "./operators/zip"
 export { fromArray } from "./sources/fromArray"
 export { fromBinder } from "./sources/fromBinder"
-export { fromCallback, fromNodeCallback } from "./sources/fromCallback"
 export { never } from "./sources/never"
 export { repeat } from "./sources/repeat"
 export { constant, once } from "./sources/single"
@@ -556,6 +556,16 @@ export function sequentially<T>(
   events: Array<T | F.AnyEvent<T>>,
 ): EventStream<T> {
   return F.sequentially(interval, events)
+}
+
+export function fromCallback<T>(f: F.AsyncCallback<T>, ...args: any[]): EventStream<T> {
+  checkFunction(f)
+  return F.fromCallback(args.length > 0 ? f.bind(null, ...args) : f)
+}
+
+export function fromNodeCallback<T>(f: F.AsyncNodeCallback<T>, ...args: any[]): EventStream<T> {
+  checkFunction(f)
+  return F.fromNodeCallback(args.length > 0 ? f.bind(null, ...args) : f)
 }
 
 export function zipWith<A, T>(f: (a: A) => T, streams: [Observable<A>]): EventStream<T>
