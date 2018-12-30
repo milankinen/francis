@@ -4,10 +4,11 @@ dist
 .vscode
 *.iml
 .idea
-
+.tmp
 *.log
 *.map
 .cache
 dist
 lib
 ref
+wip

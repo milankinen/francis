@@ -1,0 +1,106 @@
+html, body, #-app {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  max-height: 100vh;
+}
+
+#-top-navi #github-btn {
+  display: flex;
+  align-items: center;
+}
+
+#-top-navi #sidebar-toggle {
+  outline: none !important;
+  display: none;
+}
+
+#-content {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: row-reverse;
+}
+
+#-side-navi, #-main {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+#-search {
+  background: #fff !important;
+  margin: 15px 15px 0 15px;
+  border: 1px solid white;
+}
+
+#-search:focus {
+  border: 1px solid #546778;
+}
+
+#-side-navi {
+  flex: 1 0 auto;
+  transition: width 0.4s ease-in-out;
+  width: 0;
+  max-width: 270px;
+  z-index: 100;
+}
+
+#-side-navi article {
+  display: flex;
+  flex-direction: column;
+  margin: 0 15px;
+}
+
+#-side-navi h4 {
+  margin-bottom: 0.5em;
+}
+
+#-side-navi h4 {
+  margin-bottom: 0.5em;
+}
+
+#-side-navi a {
+  margin: 2px 0;
+}
+
+#-main {
+  transition: margin-left 0.4s ease-in-out;
+  margin-left: 0;
+  flex: 1 1 auto;
+  padding: 15px;
+}
+
+#-app.navi-open #-side-navi {
+  width: 270px;
+}
+
+@media only screen and (max-width: 800px) {
+  #-top-navi #sidebar-toggle {
+    display: inline-block;
+  }
+  #-app.navi-open #-main {
+    margin-left: -270px;
+  }
+}
+
+.doc h4 {
+  margin-top: 1rem;
+  margin-bottom: .5rem;
+}
+
+.doc table.params td {
+  vertical-align: top;
+}
+
+.doc table.params .name {
+  padding-right: 10px;
+}
+
+.doc table.params tr:not(:first-child) td {
+  padding-top: 5px;
+}
+
+.doc .returns > p {
+  margin: 0;
+}
+
