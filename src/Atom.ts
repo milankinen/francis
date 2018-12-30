@@ -175,7 +175,7 @@ function toObjectLens<S, A>(lens: Lens<S, A> | string): ObjectUpdateLens<S, A> {
     const propUpdate = (s: S, f: (a: A) => A): S =>
       (s === undefined
         ? { [lens]: f((undefined as any) as A) }
-        : { ...s, [lens]: f((s as any)[lens]) }) as any
+        : Object.assign({}, s, { [lens]: f((s as any)[lens]) })) as any
     return {
       get: propGet,
       update: propUpdate,
