@@ -6,6 +6,7 @@ import { mutable, MutableSource } from "./_mutable"
 import { curry2, is, isFunction, noop } from "./_util"
 import { EventStream, EventStreamDispatcher } from "./EventStream"
 import { Observable } from "./Observable"
+import { subscribe } from "./operators/subscribe"
 import { scheduleActivationTask } from "./scheduler/index"
 
 export interface PushOp {
@@ -117,12 +118,12 @@ class BusSource<T> extends MutableSource<T> implements InvokeableWithoutParam {
 
   private follow(entry: PluggedEntry<T>): void {
     if (!isFunction(entry.dispose)) {
-      entry.dispose = entry.obs.subscribe(event => {
+      entry.dispose = subscribe(event => {
         if (!event.isEnd) {
           // TODO: should we ignore errors as well? check from bacon sources
           this.send(event)
         }
-      })
+      }, entry.obs)
     }
   }
 
