@@ -24,7 +24,7 @@ F.pipe(
 // Hello FRANCIS!!!
 ```
 
-## Oh why?
+## Motivation
 
 **Bacon is really great**, especially its transactions and atomic updates. That said, it consumes
 a lot of memory and loses in performance compared to other stream libraries (especially when using
@@ -42,18 +42,7 @@ npm install --save francis
 
 ## API
 
-Every operator in Francis is [curried](https://en.wikipedia.org/wiki/Currying). This allows
-operator piping so composing with type information and enables efficient tree shaking for
-modern bundlers because observable proptotypes remain untouched.
-
-### Caveats
-
-TODO: explain that operators lose `EventStream`/`Property` type information; must be
-casted with `asProperty`/`asEventStream` is correct return type is needed.
-
-### Reference
-
-`TODO...`
+See [API docs](https://milankinen.github.io/francis/docs).
 
 ## Object oriented API
 

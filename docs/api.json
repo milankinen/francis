@@ -1,0 +1,389 @@
+{
+  "functions": [
+    {
+      "name": "isObservable",
+      "description": "Test whether the given value is Francis observable or not",
+      "signatures": [
+        "(x: any) => boolean"
+      ],
+      "params": {
+        "x": {
+          "name": "x",
+          "index": 0,
+          "description": "Value to be tested",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "boolean"
+      }
+    },
+    {
+      "name": "constant",
+      "description": "Creates a constant Property with the given value.",
+      "signatures": [
+        "(val: ValueType) => Property<ValueType>"
+      ],
+      "params": {
+        "val": {
+          "name": "val",
+          "index": 0,
+          "description": "Property's value\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Property<ValueType>"
+      },
+      "example": "const message = F.constant(\"Tsers!\")"
+    },
+    {
+      "name": "once",
+      "description": "Creates a single-event EventStream with the given value. Stream\nends immediately after the value has been emitted.",
+      "signatures": [
+        "(val: ValueType) => EventStream<ValueType>"
+      ],
+      "params": {
+        "val": {
+          "name": "val",
+          "index": 0,
+          "description": "Stream's value\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const message = F.once(\"Tsers!\")"
+    },
+    {
+      "name": "fromArray",
+      "description": "Creates an EventStream that produces events from the given array. Once the\nstream is activated, all events are emitted at the same tick. You can also send\nerrors by using `F.Error` event in the given array.",
+      "signatures": [
+        "(events: Array<ValueType | AnyEvent<ValueType>>) => EventStream<ValueType>"
+      ],
+      "params": {
+        "events": {
+          "name": "events",
+          "index": 0,
+          "description": "Events to be emitted to the subscribers\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const events = F.fromArray([\"foo\", new F.Error(\"fail\"), \"bar\"])"
+    },
+    {
+      "name": "fromBinder",
+      "description": "When the last subscriber unsubscribes from this stream, subscriber function\ngets disposed and the (optional) disposer function gets called.\n",
+      "signatures": [
+        "(subscribe: Subscribe<ValueType>) => EventStream<ValueType>"
+      ],
+      "params": {
+        "subscribe": {
+          "name": "subscribe",
+          "index": 0,
+          "description": "Subscriber function that is called at the stream activation",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [
+        "Subscribe"
+      ],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const events = F.fromBinder(sink => {\n  sink(\"Hello\")\n  sink(new F.Error(\"oops\"))\n  const id = setTimeout(() => sink(\"world!\"), 1000)\n  return () => {\n    clearTimeout(id)\n  }\n})"
+    },
+    {
+      "name": "fromCallback",
+      "description": "Creates an EventStream from a function that accepts a callback. The function\nis supposed to call its callback just once.",
+      "signatures": [
+        "(f: AsyncCallback<ValueType>) => EventStream<ValueType>"
+      ],
+      "params": {
+        "f": {
+          "name": "f",
+          "index": 0,
+          "description": "Function that gets called at the stream activation\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const resultStream = F.fromCallback(cb => {\n  callSomeLongTask(result => {\n    cb(processResult(result))\n  })\n})"
+    },
+    {
+      "name": "fromNodeCallback",
+      "description": "Behaves the same way as `fromCallback`, except that it expects the callback\nto be called in the Node.js convention: `callback(error, data)`, where error is\n`null` if everything is fine.",
+      "signatures": [
+        "(f: AsyncNodeCallback<ValueType>) => EventStream<ValueType>"
+      ],
+      "params": {
+        "f": {
+          "name": "f",
+          "index": 0,
+          "description": "Function that gets called at the stream activation",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [
+        "fromCallback"
+      ],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const fileContent = F.fromNodeCallback(cb => {\n  fs.readFile(\"myFile.txt\", cb)\n})"
+    },
+    {
+      "name": "never",
+      "description": "Creates an EventStream that immediately ends",
+      "signatures": [
+        "() => EventStream<ValueType>"
+      ],
+      "params": {},
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const emptyNum = F.never<number>()"
+    },
+    {
+      "name": "repeat",
+      "description": "Calls generator function which is expected to return an observable. When the spawned\nobservable ends, the generator is called again to spawn a new observable. If generator\nreturns a falsy value, the stream ends.",
+      "signatures": [
+        "(generator: Generator<ValueType>) => EventStream<ValueType>"
+      ],
+      "params": {
+        "generator": {
+          "name": "generator",
+          "index": 0,
+          "description": "Generator function that's supposed to return an observable or `null` to end the stream",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [
+        "Generator"
+      ],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const events = F.repeat(i => i < 10 && F.fromArray([...Array(i).keys()].map(_ => i)))"
+    },
+    {
+      "name": "asEventStream",
+      "description": "Restores the given observables type information. Fails if the\nobservable's runtime type is not EventSTream.",
+      "signatures": [
+        "(observable: Observable<T>) => EventStream<T>"
+      ],
+      "params": {
+        "observable": {
+          "name": "observable",
+          "index": 0,
+          "description": "Observable whose type information will be restored",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<T>"
+      }
+    },
+    {
+      "name": "asProperty",
+      "description": "Restores the given observables type information. Fails if the\nobservable's runtime type is not Property.",
+      "signatures": [
+        "(observable: Observable<T>) => Property<T>"
+      ],
+      "params": {
+        "observable": {
+          "name": "observable",
+          "index": 0,
+          "description": "Observable whose type information will be restored",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Property<T>"
+      }
+    },
+    {
+      "name": "sequentially",
+      "description": "Creates an EventStream containing the given values emitted\nwith the given interval.",
+      "signatures": [
+        "(interval: number, events: Array<ValueType | AnyEvent<ValueType>>) => EventStream<ValueType>",
+        "(interval: number) => (events: Array<ValueType | AnyEvent<ValueType>>) => EventStream<ValueType>"
+      ],
+      "params": {
+        "interval": {
+          "name": "interval",
+          "index": 0,
+          "description": "Interval in milliseconds",
+          "from": "signature"
+        },
+        "events": {
+          "name": "events",
+          "index": 1,
+          "description": "Events to emit",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>",
+        "description": "Some shit"
+      },
+      "example": "const numEvery100ms = F.sequentially(100, [1, 2, 3])"
+    },
+    {
+      "name": "fromPoll",
+      "description": "Polls given function with given interval. Function should return plain values\nor `F.Event` objects. Polling occurs only when there are subscribers to the stream.\nPolling ends permanently when `f` returns `F.End`.",
+      "signatures": [
+        "(interval: number, f: function) => EventStream<ValueType>",
+        "(interval: number) => (f: function) => EventStream<T>"
+      ],
+      "params": {
+        "interval": {
+          "name": "interval",
+          "index": 0,
+          "description": "Polling interval in milliseconds",
+          "from": "signature"
+        },
+        "f": {
+          "name": "f",
+          "index": 1,
+          "description": "Function that will be called on each tick\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const nowEverySec = F.fromPoll(1000, () => Date.now())"
+    },
+    {
+      "name": "interval",
+      "description": "Repeats the single element indefinitely with the given interval",
+      "signatures": [
+        "(period: number, value: ValueType) => EventStream<ValueType>",
+        "(period: number) => (value: ValueType) => EventStream<ValueType>"
+      ],
+      "params": {
+        "period": {
+          "name": "period",
+          "index": 0,
+          "description": "Inverval in milliseconds",
+          "from": "signature"
+        },
+        "value": {
+          "name": "value",
+          "index": 1,
+          "description": "Repeated value\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const messages = F.inverval(1000, \"Tsers!\")"
+    },
+    {
+      "name": "later",
+      "description": "Creates a single-element stream that emits the given\nvalue after given delay.",
+      "signatures": [
+        "(delay: number, value: ValueType) => EventStream<ValueType>",
+        "(delay: number) => (value: ValueType) => EventStream<ValueType>"
+      ],
+      "params": {
+        "delay": {
+          "name": "delay",
+          "index": 0,
+          "description": "Initial delay in milliseconds",
+          "from": "signature"
+        },
+        "value": {
+          "name": "value",
+          "index": 1,
+          "description": "Value to emit\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const message = F.later(10000, \"Wait for it!\")"
+    },
+    {
+      "name": "fromEvent",
+      "description": "Creates an EventStream from events on `EventTarget` or `EventEmitter` object,\nor an object that supports event listeners using `on`/`off` methods.",
+      "signatures": [
+        "(target: EventTarget, event: string, args: any[]) => EventStream<ValueType>",
+        "(target: EventTarget) => (event: string, args: any[]) => EventStream<ValueType>"
+      ],
+      "params": {
+        "target": {
+          "name": "target",
+          "index": 0,
+          "description": "EventTarget object whose events will be listened",
+          "from": "signature"
+        },
+        "event": {
+          "name": "event",
+          "index": 1,
+          "description": "Name of the listened event",
+          "from": "signature"
+        },
+        "args": {
+          "name": "args",
+          "index": 2,
+          "description": "Extra args passed to the `addListener` / `on` function\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const bubbleClicks = F.fromEvent(document.querySelector(\"#my-button\"), \"click\")\nconst captureClicks = F.fromEvent(document.querySelector(\"#my-button\"), \"click\", true)"
+    },
+    {
+      "name": "repeatedly",
+      "description": "Repeats given elements indefinitely with the given interval.",
+      "signatures": [
+        "(interval: number, events: Array<ValueType | AnyEvent<ValueType>>) => EventStream<ValueType>",
+        "(interval: number) => (events: Array<ValueType | AnyEvent<ValueType>>) => EventStream<ValueType>"
+      ],
+      "params": {
+        "interval": {
+          "name": "interval",
+          "index": 0,
+          "description": "Interval in milliseconds",
+          "from": "signature"
+        },
+        "events": {
+          "name": "events",
+          "index": 1,
+          "description": "Event sequence to repeat indefinitely\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const lolbal = F.repeatedly(10, [\"lol\", \"bal\"])"
+    }
+  ]
+}
