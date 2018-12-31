@@ -78,6 +78,12 @@ export { bufferWithTime, bufferWithCount, bufferWithTimeOrCount } from "./operat
 export { slidingWindow } from "./operators/slidingWindow"
 export { skipDuplicates, skipEquals, Eq } from "./operators/skipDuplicates"
 export { diff, Delta } from "./operators/diff"
+export {
+  toPromise,
+  toCustomPromise,
+  firstToPromise,
+  firstToCustomPromise,
+} from "./operators/toPromise"
 
 // subscribers / side-effects
 export { subscribe, onValue, onValues, onError, onEnd } from "./operators/subscribe"

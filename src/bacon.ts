@@ -6,6 +6,7 @@ import {
   toFunction,
   toFunctionsPropAsIs,
 } from "./_interrop"
+import { isFunction } from "./_util"
 import * as F from "./index"
 import {
   Accum,
@@ -82,6 +83,8 @@ declare module "./Observable" {
     slidingWindow(max: number, min?: number): Property<A[]>
     skipDuplicates(isEqual?: Eq<A>): Observable<A>
     diff<D>(start: A, f: F.Delta<A, D>): Observable<D>
+    toPromise(ctor?: PromiseConstructor): Promise<A>
+    firstToPromise(ctor?: PromiseConstructor): Promise<A>
   }
 }
 
@@ -430,6 +433,14 @@ Observable.prototype.skipDuplicates = function<A>(isEqual?: Eq<A>): Observable<A
 
 Observable.prototype.diff = function<A, D>(start: A, f: F.Delta<A, D>): Observable<D> {
   return F.diff(f, start, this)
+}
+
+Observable.prototype.toPromise = function<A>(ctor?: PromiseConstructor): Promise<A> {
+  return isFunction(ctor) ? F.toCustomPromise(ctor, this) : F.toPromise(this)
+}
+
+Observable.prototype.firstToPromise = function<A>(ctor?: PromiseConstructor): Promise<A> {
+  return isFunction(ctor) ? F.firstToCustomPromise(ctor, this) : F.firstToPromise(this)
 }
 
 EventStream.prototype.toProperty = function<A>(initialValue?: A): Property<A> {
