@@ -44,8 +44,8 @@ reference of the available functions and their usage.
 
 ### Bacon.js compatibility
 
-Because the stream semantics are same in Francis and Bacon, Francis provides a drop-in
-replacement module (with [few differences](BACON.md)) for Bacon. The required changes
+Because the stream semantics are same (with [few differences](BACON.md)) in Francis and
+Bacon, Francis provides a drop-in replacement module for Bacon. The required changes
 in codebase are:
 
 ```diff
