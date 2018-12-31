@@ -5,7 +5,7 @@
 #### NPM
 
 ```bash
-npm install francis
+npm i --save francis
 ```
 
 #### Yarn
@@ -39,4 +39,21 @@ import {map, combineAsArray} from "francis"
 // CommonJS
 const F = require("francis")
 const {map, combineAsArray} = require("francis")
+```
+
+Every operator in Francis is [curried](https://en.wikipedia.org/wiki/Currying). Francis
+offers a built-in convenience function called `pipe` that allows to "chain"
+different operators in a type-safe manner:
+
+```ts
+import * as F from "francis"
+
+F.pipe(
+  F.interval(1000, "!"),
+  F.scan("Francis", (s, x) => s + x),
+  F.map(s => "Hello " + s.toUpperCase()),
+  F.skip(2),
+  F.take(2),
+  F.onValue(console.log),
+)
 ```

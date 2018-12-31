@@ -26,32 +26,27 @@ F.pipe(
 
 ## Motivation
 
-**Bacon is really great**, especially its transactions and atomic updates. That said, it consumes
-a lot of memory and loses in performance compared to other stream libraries (especially when using
-higher order observables such as `flatMap`). **And that is where Francis steps in:** by being
-completely written with TypeScript, having a functional-first API and borrowing some concepts
-from [most](https://github.com/cujojs/most), it provides the same stream semantics as Bacon,
-[improved performance](perf#latest-test-results) and lower memory consumption. And of course being
-typed and 100% tree shakeable.
+**tl;dr** I wanted a functional-first, treeshakeable [Bacon.js](https://github.com/baconjs/bacon.js)
+but [6-10x faster](perf#latest-test-results), lower memory footprint and written
+entirely with TypeScript.
+
 
 ## Installation
 
 ```bash
-npm install --save francis
+npm i --save francis
 ```
 
 ## API
 
-See [API docs](https://milankinen.github.io/francis/docs).
+See **[API docs](https://milankinen.github.io/francis)** (still WIP!) for complete
+reference of the available functions and their usage.
 
 ## Object oriented API
 
-For those prefering object oriented API, Francis provides `francis/bacon` module which
-adds observable methods to `EventStream` and `Property` prototypes. Because the stream
-semantics are almost same in Bacon and Francis, `francis/bacon` can also be used as a
-a drop-in replacement module for `baconjs` (see the differences below). This module
-also implements Bacon's [function construction rules](https://github.com/baconjs/bacon.js#function-construction-rules)
-and other JS-related API changes. The required change in codebase is:
+Because the stream semantics are same in Francis and Bacon, Francis provides a drop-in
+replacement module (with [few differences](BACON.md)) for Bacon. The required changes
+in codebase are:
 
 ```diff
 -import B from "baconjs"
@@ -63,62 +58,37 @@ B.once("Bacon")
   .onValue(console.log)
 ```
 
-### Differences to Bacon
+## Experimental proxied API
 
-* Francis does not distinguish `Initial` and `Next` events. If your code uses (or assumes)
-  `Bacon.Initial`, it will break
+You can convert any Francis observable to a "proxied" observable by using `F.proxied`
+utility. Proxied observables are just like their "normal" counterparts, but in
+addition they provide a way to traverse the underlying data structure by using
+the traditional dot notation. And being typed, of course.
 
-* Francis does not have `bus.plug(...)` because it leaves streams open forever when
-  plugging bus to itself
+**ATTENTION!** This feature is experimental and is probably subject to change.
 
-* Francis does not support `eventTransformer` for `from*` observable factory functions
-  (at least yet)
+```ts
+import * as F from "francis"
 
-* Due to internal optimizations, latest subscribers receive their emit first from the
-  upstream whereas in Bacon the order is opposite. In transactions, this is not the issue
-  due to atomic updates but if your code otherwise relies on this undocumented feature,
-  it will break. For example:
+const state = F.proxied(
+  F.atom({
+    msg: "Tsers",
+    inner: { nums: [1, 2, 4, 5] },
+  }),
+)
 
-```js
-const msg = F.once("tsers")
-msg.log("x")
-msg.log("y")
-// Francis output
-// > y tsers
-// > x tsers
-// > y <end>
-// > x <end>
-// Bacon output
-// > x tsers
-// > y tsers
-// > x <end>
-// > y <end>
+// typeof nums === F.Proxied.Atom<num[]>
+const { nums } = state.inner
+// typeof str === F.Proxied.Property<string>
+const str = nums
+  .map(n => n + 1)
+  .filter(n => n % 2 === 1)
+  .join(",")
+
+F.log("str:", str)
+F.set(nums, [5, 6])
+// logs "3,5" and "7"
 ```
-
-### Non-implemented operators
-
-The following operators are yet to be implemented:
-
-- [ ] `withHandler`
-- [ ] `toString`
-- [ ] `Desc`
-- [ ] `fromESObservable`
-- [ ] `fromPromise`
-- [ ] `$.asEventStream`
-- [ ] `retry`
-- [ ] `try`
-- [ ] `withDescription`
-- [ ] `inspect`
-- [ ] `withStateMachine`
-- [ ] `awaiting`
-- [ ] `decode`
-- [ ] `endOnError`
-- [ ] `toESObservable`
-- [ ] `groupBy`
-- [ ] `firstToPromise`
-- [ ] `toPromise`
-- [ ] `holdWhen`
-- [ ] `bufferWithTime(f)`
 
 ## License
 
