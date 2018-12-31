@@ -16,7 +16,7 @@
   "module": "dist/francis.esm.js",
   "sideEffects": false,
   "scripts": {
-    "docs": "cd docs && npm run build",
+    "docs": "cd docs && npm run build && cd ..",
     "prebuild": "rm -rf lib dist && mkdir lib dist",
     "postbuild": "echo 'gzipped bundle sizes'; for js in dist/*.js; do echo \"$js : $(gzip-size $js)\"; done",
     "package": "for c in build/*; do rollup -c $c; done",
