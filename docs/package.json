@@ -9,7 +9,7 @@
   "scripts": {
     "extract-api": "ts-node src/extractApi.ts",
     "predev": "npm run extract-api",
-    "dev": "parcel dev.html --open",
+    "dev": "parcel src/dev.html --open",
     "prebuild": "npm run extract-api",
     "build": "babel-node src/buildDocs.js"
   },
