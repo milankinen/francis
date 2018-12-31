@@ -27,7 +27,7 @@ F.pipe(
 ## Motivation
 
 **tl;dr** I wanted a functional-first, treeshakeable [Bacon.js](https://github.com/baconjs/bacon.js)
-but [6-10x faster](perf#latest-test-results), lower memory footprint and written
+that is [6-10x faster](perf#latest-test-results), has lower memory footprint and is written
 entirely with TypeScript.
 
 
