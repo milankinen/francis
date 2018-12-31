@@ -42,7 +42,7 @@ npm i --save francis
 See **[API docs](https://milankinen.github.io/francis)** (still WIP!) for complete
 reference of the available functions and their usage.
 
-## Object oriented API
+### Bacon.js compatibility
 
 Because the stream semantics are same in Francis and Bacon, Francis provides a drop-in
 replacement module (with [few differences](BACON.md)) for Bacon. The required changes
@@ -58,7 +58,7 @@ B.once("Bacon")
   .onValue(console.log)
 ```
 
-## Experimental proxied API
+### Experimental proxied API
 
 You can convert any Francis observable to a "proxied" observable by using `F.proxied`
 utility. Proxied observables are just like their "normal" counterparts, but in
