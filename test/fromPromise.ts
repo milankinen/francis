@@ -2,7 +2,7 @@ import * as F from "../src/bacon"
 
 describe("F.fromPromise", () => {
   it("emits promise's value and ends", done => {
-    const promise = Promise.resolve("tsers")
+    const promise = new Promise<string>(resolve => setTimeout(() => resolve("tsers"), 100))
     const rec: any[] = []
     F.fromPromise(promise).subscribe(e => {
       rec.push(e)
@@ -14,9 +14,11 @@ describe("F.fromPromise", () => {
   })
 
   it("emits error if promise gets rejected", done => {
-    const promise = Promise.resolve("tsers").then(() => {
-      throw new Error("oops")
-    })
+    const promise = new Promise<string>(resolve => setTimeout(() => resolve("tsers"), 100)).then(
+      () => {
+        throw new Error("oops")
+      },
+    )
     const rec: any[] = []
     F.fromPromise(promise).subscribe(e => {
       rec.push(e)
