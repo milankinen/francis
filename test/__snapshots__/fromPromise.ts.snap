@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`F.fromPromise emits error if promise gets rejected 1`] = `
+Array [
+  Error {
+    "error": [Error: oops],
+  },
+  End {},
+]
+`;
+
+exports[`F.fromPromise emits promise's value and ends 1`] = `
+Array [
+  Next {
+    "value": "tsers",
+  },
+  End {},
+]
+`;
