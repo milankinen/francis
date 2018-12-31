@@ -16,6 +16,7 @@
   "module": "dist/francis.esm.js",
   "sideEffects": false,
   "scripts": {
+    "docs": "cd docs && npm run build",
     "prebuild": "rm -rf lib dist && mkdir lib dist",
     "postbuild": "echo 'gzipped bundle sizes'; for js in dist/*.js; do echo \"$js : $(gzip-size $js)\"; done",
     "package": "for c in build/*; do rollup -c $c; done",
@@ -29,7 +30,7 @@
     "ncu": "ncu -u -a && ncu -u -a --packageFile perf/package.json",
     "test": "jest",
     "test:ci": "jest --runInBand",
-    "prepublishOnly": "npm t && npm run lint && npm run build"
+    "prepublishOnly": "npm t && npm run lint && npm run build && npm run docs"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
