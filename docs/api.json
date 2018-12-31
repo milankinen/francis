@@ -144,6 +144,32 @@
       "example": "const fileContent = F.fromNodeCallback(cb => {\n  fs.readFile(\"myFile.txt\", cb)\n})"
     },
     {
+      "name": "fromPromise",
+      "description": "Returns a single-value EventStream from the given promise. If promise is rejected,\nan error event will be emitted instead of value.",
+      "signatures": [
+        "(promise: Promise<ValueType>, abort: boolean) => EventStream<ValueType>"
+      ],
+      "params": {
+        "promise": {
+          "name": "promise",
+          "index": 0,
+          "description": "Promise to follow",
+          "from": "signature"
+        },
+        "abort": {
+          "name": "abort",
+          "index": 1,
+          "description": "Optional flag whether or not to call `promise.abort` if all subscribers\nhave been removed from the created stream.\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "EventStream<ValueType>"
+      },
+      "example": "const response = F.fromPromise(fetch(\"/my-api.json\"))"
+    },
+    {
       "name": "never",
       "description": "Creates an EventStream that immediately ends",
       "signatures": [
@@ -215,6 +241,54 @@
       "returns": {
         "type": "Property<T>"
       }
+    },
+    {
+      "name": "firstToPromise",
+      "description": "Returns a Promise which will be resolved with the first event (or error) coming from\nan Observable. Uses global ES6 promise implementation to construct the promise.",
+      "signatures": [
+        "(obs: Observable<ValueType>) => Promise<ValueType>"
+      ],
+      "params": {
+        "obs": {
+          "name": "obs",
+          "index": 0,
+          "description": "Observable whose first event/error will be resolved to the promise\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [
+        "firstToCustomPromise",
+        "toPromise",
+        "toCustomPromise"
+      ],
+      "returns": {
+        "type": "Promise<ValueType>"
+      },
+      "example": "F.firstToPromise(F.sequentially(100, [1, 2, 3])).then(console.log)\n// => 1"
+    },
+    {
+      "name": "toPromise",
+      "description": "Returns a Promise which will be resolved with the last event (or first error) coming from\nan Observable. Uses global ES6 promise implementation to construct the promise.",
+      "signatures": [
+        "(obs: Observable<ValueType>) => Promise<ValueType>"
+      ],
+      "params": {
+        "obs": {
+          "name": "obs",
+          "index": 0,
+          "description": "Observable whose last event/error will be resolved to the promise\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [
+        "toCustomPromise",
+        "firstToPromise",
+        "firstToCustomPromise"
+      ],
+      "returns": {
+        "type": "Promise<ValueType>"
+      },
+      "example": "F.firstToPromise(F.sequentially(100, [1, 2, 3])).then(console.log)\n// => 3"
     },
     {
       "name": "sequentially",
@@ -384,6 +458,95 @@
         "type": "EventStream<ValueType>"
       },
       "example": "const lolbal = F.repeatedly(10, [\"lol\", \"bal\"])"
+    },
+    {
+      "name": "awaiting",
+      "description": "Creates a Property that indicates whether observable is awaiting the other observable,\ni.e. has produced a value after the latest value from the other. This is handy for\nkeeping track whether we are currently awaiting an AJAX response",
+      "signatures": [
+        "(toWait: Observable<any>, obs: Observable<any>) => Property<boolean>",
+        "(toWait: Observable<any>) => (obs: Observable<any>) => Property<boolean>"
+      ],
+      "params": {
+        "toWait": {
+          "name": "toWait",
+          "index": 0,
+          "description": "Observable whose value is waited after each event of `obs`",
+          "from": "signature"
+        },
+        "obs": {
+          "name": "obs",
+          "index": 1,
+          "description": "Observable who is waiting `toWait`\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Property<boolean>"
+      },
+      "example": "const searchReq = F.map(toRequest, searchTextChange)\nconst searchRes = F.flatMapLatest(sendRequest, searchReq)\nconst isRequestPending = F.awaiting(searchRes, searchReq)"
+    },
+    {
+      "name": "firstToCustomPromise",
+      "description": "Works same as `firstToPromise` but offers way to use custom promise\nimplementation instead.",
+      "signatures": [
+        "(ctor: PromiseConstructor, obs: Observable<ValueType>) => Promise<ValueType>",
+        "(ctor: PromiseConstructor) => (obs: Observable<ValueType>) => Promise<ValueType>"
+      ],
+      "params": {
+        "ctor": {
+          "name": "ctor",
+          "index": 0,
+          "description": "Constructor to the custom promise implementation",
+          "from": "signature"
+        },
+        "obs": {
+          "name": "obs",
+          "index": 1,
+          "description": "Observable whose first event/error will be resolved to the promise\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [
+        "firstToPromise",
+        "toPromise",
+        "toCustomPromise"
+      ],
+      "returns": {
+        "type": "Promise<ValueType>"
+      },
+      "example": "import * as Promise from \"bluebird\"\nconst bluebirdPromise = F.firstToCustomPromise(Promise, F.later(100, \"tsers!\"))"
+    },
+    {
+      "name": "toCustomPromise",
+      "description": "Works same as `toPromise` but offers way to use custom promise implementation instead.",
+      "signatures": [
+        "(ctor: PromiseConstructor, obs: Observable<ValueType>) => Promise<ValueType>",
+        "(ctor: PromiseConstructor) => (obs: Observable<ValueType>) => Promise<ValueType>"
+      ],
+      "params": {
+        "ctor": {
+          "name": "ctor",
+          "index": 0,
+          "description": "Constructor to the custom promise implementation",
+          "from": "signature"
+        },
+        "obs": {
+          "name": "obs",
+          "index": 1,
+          "description": "Observable whose last event/error will be resolved to the promise\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [
+        "toPromise",
+        "firstToPromise",
+        "firstToCustomPromise"
+      ],
+      "returns": {
+        "type": "Promise<ValueType>"
+      },
+      "example": "import * as Promise from \"bluebird\"\nconst bluebirdPromise = F.toCustomPromise(Promise, F.later(100, \"tsers!\"))"
     }
   ]
 }
