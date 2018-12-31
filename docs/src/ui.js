@@ -131,7 +131,7 @@ const FunctionDoc = ({ name, description, signatures, params, returns, seeAlso, 
       </div>
       {seeAlso.length ? <h4>See also</h4> : null}
       {seeAlso.map((name, i) => (
-        <a key={i} href={`#${name.toLowerCase()}`} className="siimple-small">
+        <a key={i} href={`#${name.toLowerCase()}`} className="siimple-small see-also">
           {name}
         </a>
       ))}

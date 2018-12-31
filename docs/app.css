@@ -104,3 +104,7 @@ html, body, #-app {
   margin: 0;
 }
 
+.doc a.see-also {
+  margin-right: 10px;
+}
+
