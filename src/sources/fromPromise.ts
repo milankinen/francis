@@ -1,5 +1,4 @@
-import { isFunction } from "util"
-import { noop } from "../_util"
+import { isFunction, noop } from "../_util"
 import { End, Error } from "../Event"
 import { EventStream } from "../EventStream"
 import { fromBinder } from "./fromBinder"
