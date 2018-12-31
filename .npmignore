@@ -6,7 +6,7 @@ node_modules
 .vscode
 .idea
 *.iml
-docs
+docs/*
 !docs/index.html
 !docs/api.json
 !docs/app.css
