@@ -1,0 +1,110 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Observable.awaiting(obsevable) returns boolean indicating whether the observable is waiting another or not 1`] = `
+Array [
+  Next {
+    "value": false,
+  },
+  Next {
+    "value": true,
+  },
+  Next {
+    "value": false,
+  },
+  Next {
+    "value": true,
+  },
+  End {},
+]
+`;
+
+exports[`Observable.awaiting(obsevable) supports awaiting Properties 1`] = `
+Array [
+  Next {
+    "value": false,
+  },
+  Next {
+    "value": true,
+  },
+  Next {
+    "value": false,
+  },
+  Next {
+    "value": true,
+  },
+  End {},
+]
+`;
+
+exports[`Observable.awaiting(obsevable) works with same origin 1`] = `
+Object {
+  "case #1": Array [
+    Next {
+      "value": false,
+    },
+    End {},
+  ],
+  "case #2": Array [
+    Next {
+      "value": false,
+    },
+    End {},
+  ],
+  "case #3": Array [
+    Next {
+      "value": false,
+    },
+    End {},
+  ],
+}
+`;
+
+exports[`Property.awaiting(property) works same as Observabe.awaiting(observable) 1`] = `
+Array [
+  Next {
+    "value": false,
+  },
+  Next {
+    "value": true,
+  },
+  Next {
+    "value": false,
+  },
+  Next {
+    "value": true,
+  },
+  End {},
+]
+`;
+
+exports[`Property.awaiting(property) works with higher-order same origin 1`] = `
+Array [
+  Next {
+    "value": false,
+  },
+  End {},
+]
+`;
+
+exports[`Property.awaiting(property) works with same origin 1`] = `
+Object {
+  "case #1": Array [
+    Next {
+      "value": false,
+    },
+    End {},
+  ],
+  "case #2": Array [
+    Next {
+      "value": false,
+    },
+    End {},
+  ],
+  "case #3": Array [
+    Next {
+      "value": false,
+    },
+    End {},
+  ],
+}
+`;

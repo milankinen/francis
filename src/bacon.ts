@@ -31,6 +31,7 @@ import {
 declare module "./Observable" {
   interface Observable<A> {
     subscribe(handler: Handler<A>): Dispose
+    awaiting(otherObservable: Observable<any>): Property<boolean>
     onValue(f: ValueHandler<A>): Dispose
     onValues(f: ValuesHandler<A>): Dispose
     onError(f: ErrorHandler): Dispose
@@ -191,6 +192,10 @@ export type SampleFn<V, S, R> = (value: V, sample: S) => R
 
 Observable.prototype.subscribe = function<A>(handler: Handler<A>, ...rest: any[]): Dispose {
   return F.subscribe(toFunction(handler, rest), this)
+}
+
+Observable.prototype.awaiting = function<A>(otherObservable: Observable<any>): Property<boolean> {
+  return F.awaiting(otherObservable, this)
 }
 
 Observable.prototype.onValue = function<A>(f: ValueHandler<A>, ...rest: any[]): Dispose {

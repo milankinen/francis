@@ -27,6 +27,7 @@ export { repeatedly } from "./sources/repeatedly"
 
 // operators
 export { asEventStream, asProperty } from "./operators/as"
+export { awaiting } from "./operators/awaiting"
 export { map } from "./operators/map"
 export { mapError } from "./operators/mapError"
 export { mapEnd, EndProjection } from "./operators/mapEnd"
