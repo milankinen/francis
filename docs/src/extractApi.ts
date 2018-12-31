@@ -79,7 +79,11 @@ const publicDeclarationsOf = (kind: ReflectionKind) =>
 
 const callSignatures = (type: Type): SignatureReflection[] => {
   if (type.type === "reference") {
-    const kind = (type as ReferenceType).reflection.kind
+    const refType = type as ReferenceType
+    if (!refType.reflection) {
+      return []
+    }
+    const kind = refType.reflection.kind
     if (kind === ReflectionKind.Interface || kind === ReflectionKind.TypeLiteral) {
       return ((type as ReferenceType).reflection as DeclarationReflection)
         .getAllSignatures()
