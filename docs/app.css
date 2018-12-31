@@ -31,6 +31,7 @@ html, body, #-app {
   background: #fff !important;
   margin: 15px 15px 0 15px;
   border: 1px solid white;
+  margin-bottom: 1em;
 }
 
 #-search:focus {
@@ -51,12 +52,17 @@ html, body, #-app {
   margin: 0 15px;
 }
 
-#-side-navi h4 {
-  margin-bottom: 0.5em;
+#-side-navi article.static a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#-side-navi article.static a:hover {
+  text-decoration: underline;
 }
 
 #-side-navi h4 {
-  margin-bottom: 0.5em;
+  margin: 0.5em 0;
 }
 
 #-side-navi a {

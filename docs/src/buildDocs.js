@@ -6,6 +6,8 @@ import { UI, setupInteractions } from "./ui"
 const api = require("../api.json")
 const version = require("../../package.json").version
 
+const intro = fs.readFileSync("./INTRODUCTION.md").toString()
+
 const setupInteractionsOnPageLoad = () =>
   `document.addEventListener("DOMContentLoaded", ${setupInteractions.toString()});`
 
@@ -28,7 +30,7 @@ const APIDocs = () => (
       <link rel="stylesheet" href="./app.css" />
     </head>
     <body>
-      <UI version={version} api={api} />
+      <UI version={version} api={api} intro={intro} />
       {script(setupInteractionsOnPageLoad())}
     </body>
   </html>

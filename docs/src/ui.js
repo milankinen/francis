@@ -3,9 +3,11 @@ import React from "react"
 import Markdown from "react-markdown/with-html"
 import SyntaxHighlighter, { registerLanguage } from "react-syntax-highlighter/dist/prism-light"
 import tsLang from "react-syntax-highlighter/dist/languages/prism/typescript"
+import bashLang from "react-syntax-highlighter/dist/languages/prism/bash"
 import baseCodeStyle from "react-syntax-highlighter/dist/styles/prism/base16-ateliersulphurpool.light"
 
 registerLanguage("ts", tsLang)
+registerLanguage("bash", bashLang)
 
 const codeStyle = _.extend(
   _.transform(baseCodeStyle, (res, value, key) =>
@@ -36,7 +38,7 @@ const Md = ({ value }) => (
     source={value}
     escapeHtml={false}
     renderers={{
-      code: ({ children }) => <CodeBlock code={children} />,
+      code: ({ language, value }) => <CodeBlock language={language} code={value} />,
       inlineCode: ({ children }) => <InlineCode>{children}</InlineCode>,
     }}
   />
@@ -85,6 +87,14 @@ const SearchableGroup = ({ title, items }) => (
 const Sidebar = ({ functions }) => (
   <section id="-side-navi" className="siimple--bg-light">
     <input id="-search" type="text" className="siimple-input" placeholder="Search..." />
+    <article className="static">
+      <h4>
+        <a href="#installation">Installation</a>
+      </h4>
+      <h4>
+        <a href="#usage">Usage</a>
+      </h4>
+    </article>
     {/* <SearchableGroup title="Classes" items={[]} /> */}
     <SearchableGroup
       title="Functions"
@@ -141,15 +151,25 @@ const FunctionDoc = ({ name, description, signatures, params, returns, seeAlso, 
   </div>
 )
 
-const Main = ({ functions }) => (
+const Introduction = ({ text }) => (
+  <div className="siimple-card">
+    <Md value={text} />
+  </div>
+)
+
+const Main = ({ intro, functions }) => (
   <section id="-main">
+    <Introduction text={intro} />
+
+    <h2>Functions</h2>
     {functions.map((f, i) => (
       <FunctionDoc key={i} {...f} />
     ))}
   </section>
 )
 
-export const UI = ({ version, api: { functions } }) => {
+export const UI = ({ version, intro, api: { functions } }) => {
+  const introWithVersion = intro.replace("{{{VERSION}}}", version)
   const sortedFunctions = _.chain(functions)
     .sortBy(f => f.name)
     .value()
@@ -157,7 +177,7 @@ export const UI = ({ version, api: { functions } }) => {
     <div id="-app" className="navi-open">
       <Navbar version={version} />
       <div id="-content">
-        <Main functions={sortedFunctions} />
+        <Main intro={introWithVersion} functions={sortedFunctions} />
         <Sidebar functions={sortedFunctions} />
       </div>
     </div>
