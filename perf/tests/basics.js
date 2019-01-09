@@ -1,4 +1,3 @@
-const { Kefir: K } = require("../_libs")
 const { range, times, subsB, subsK } = require("../_util")
 
 const inc = x => x + 1
@@ -14,7 +13,7 @@ const mapFilter = (B, depth, nEvents, property, done) => {
   subsB(result, done)
 }
 
-mapFilter.kefir = (depth, nEvents, property, done) => {
+mapFilter.kefir = (K, depth, nEvents, property, done) => {
   const stream = K.fromArray(range(nEvents))
   const result = times(depth, null).reduce(
     s => s.map(inc).filter(even),
@@ -28,7 +27,7 @@ const flatMapLatest = (B, nOuter, nInner, done) => {
   subsB(B.fromArray(range(nOuter)).flatMapLatest(_ => B.fromArray(innerEvents)), done)
 }
 
-flatMapLatest.kefir = (nOuter, nInner, done) => {
+flatMapLatest.kefir = (K, nOuter, nInner, done) => {
   const innerEvents = range(nInner).map(i => ({ i }))
   // inner stream must be sync or otherwise it won't emit any events
   // before next outer event unsubscribe the it
@@ -49,7 +48,7 @@ const combineTemplate = (B, nEvents, depth, width, done) => {
   subsB(t(depth), done)
 }
 
-combineTemplate.kefir = (nEvents, depth, width, done) => {
+combineTemplate.kefir = (K, nEvents, depth, width, done) => {
   const stream = K.fromArray(range(nEvents))
   const t = depth =>
     depth === 0
@@ -68,7 +67,7 @@ const zip = (B, nEvents, width, done) => {
   subsB(B.zipAsArray(times(width).map(() => stream.map(x => x))), done)
 }
 
-zip.kefir = (nEvents, width, done) => {
+zip.kefir = (K, nEvents, width, done) => {
   const stream = K.fromArray(range(nEvents))
   subsK(K.zip(times(width).map(() => stream.map(x => x))), done)
 }

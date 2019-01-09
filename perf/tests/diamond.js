@@ -1,4 +1,3 @@
-const { Kefir: K } = require("../_libs")
 const { range, subsB, subsK } = require("../_util")
 
 const diamond = (B, ticks, layers, margin) => {
@@ -26,7 +25,7 @@ const diamondTest = (B, layers, done) => {
   subsB(diamond(B, ticks, layers, 10), done)
 }
 
-diamondTest.kefir = (layers, done) => {
+diamondTest.kefir = (K, layers, done) => {
   const ticks = K.fromArray(range(1000))
   const margin = 10
   const layer = (srcs, y) => {

@@ -2,7 +2,7 @@ const memwatch = require("@airbnb/node-memwatch")
 const Benchmark = require("benchmark")
 const bytes = require("pretty-bytes")
 const { format } = require("util")
-const { Francis, Bacon } = require("./_libs")
+const { Francis, Bacon, Kefir } = require("./_libs")
 
 const MEMORY = !!process.env.SHOW_MEMORY_USAGE
 let heapStats = []
@@ -10,6 +10,7 @@ let gcTime = 0
 
 const withFrancis = f => (...args) => f(Francis, ...args)
 const withBacon = f => (...args) => f(Bacon, ...args)
+const withKefir = f => (...args) => f(Kefir, ...args)
 
 const resetHeapStats = () => {
   gcTime = 0
@@ -49,7 +50,7 @@ const testCases = (label, fn, combinations = []) => {
   return [
     ...(process.env.NO_FRANCIS ? [] : cases("francis", withFrancis(fn))),
     ...(process.env.NO_BACON ? [] : cases("bacon  ", withBacon(fn))),
-    ...(process.env.NO_KEFIR || !fn.kefir ? [] : cases("kefir  ", fn.kefir)),
+    ...(process.env.NO_KEFIR || !fn.kefir ? [] : cases("kefir  ", withKefir(fn.kefir))),
   ]
 }
 

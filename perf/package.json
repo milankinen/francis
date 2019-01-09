@@ -10,6 +10,7 @@
     "sysinfo": "node sysinfo.js",
     "prestart": "npm run sysinfo",
     "start": "node index.js",
+    "memtest": "node memtest.js",
     "mem:francis": "echo '=== francis memory usage ===' && NO_BACON=1 SHOW_MEMORY_USAGE=1 node index.js",
     "mem:bacon": "echo '=== bacon.js memory usage ===' && NO_FRANCIS=1 SHOW_MEMORY_USAGE=1 node index.js",
     "premem": "npm run sysinfo",

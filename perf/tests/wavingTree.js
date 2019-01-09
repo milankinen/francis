@@ -1,4 +1,3 @@
-const { Kefir: K } = require("../_libs")
 const { range, subsB, subsK } = require("../_util")
 
 const STEP = Math.PI / 5
@@ -39,7 +38,7 @@ const treeTest = (B, depth, done) => {
   subsB(tree(B, ticks, depth), done)
 }
 
-treeTest.kefir = (depth, done) => {
+treeTest.kefir = (K, depth, done) => {
   const ticks = K.fromArray(range(10))
 
   const oscillate = ticks => {
