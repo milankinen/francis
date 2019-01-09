@@ -39,7 +39,7 @@ const all = [
   },
   {
     key: "diamond",
-    cases: testCases("diamond x %d layers", diamondTest, [[2], [20]]),
+    cases: testCases("diamond x %d layers", diamondTest, [[2], [5], [10], [20]]),
   },
   {
     key: "tree",

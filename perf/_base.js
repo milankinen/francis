@@ -8,6 +8,9 @@ const MEMORY = !!process.env.SHOW_MEMORY_USAGE
 let heapStats = []
 let gcTime = 0
 
+const withFrancis = f => (...args) => f(Francis, ...args)
+const withBacon = f => (...args) => f(Bacon, ...args)
+
 const resetHeapStats = () => {
   gcTime = 0
   heapStats = []
@@ -26,15 +29,27 @@ if (MEMORY) {
 }
 
 const testCases = (label, fn, combinations = []) => {
-  const cases = (name, B) =>
-    combinations.map(args => ({
-      description: `${name} ${format(label + "|||", ...args).split("|||")[0]}`,
-      defer: true,
-      fn: d => fn(B, ...args).subscribe(e => e.isEnd && d.resolve()),
-    }))
+  const accepted = (testFn, args) => !testFn.accept || testFn.accept(...args)
+  const cases = (name, testFn) =>
+    combinations
+      .map(
+        args =>
+          accepted(testFn, args) && {
+            description:
+              `${name} ${format(label + "|||", ...args).split("|||")[0]}` +
+              (testFn.note ? ` (${testFn.note})` : ""),
+            defer: true,
+            fn: d => {
+              const done = () => d.resolve()
+              testFn(...args, done)
+            },
+          },
+      )
+      .filter(x => x)
   return [
-    ...(process.env.NO_FRANCIS ? [] : cases("francis", Francis)),
-    ...(process.env.NO_BACON ? [] : cases("bacon  ", Bacon)),
+    ...(process.env.NO_FRANCIS ? [] : cases("francis", withFrancis(fn))),
+    ...(process.env.NO_BACON ? [] : cases("bacon  ", withBacon(fn))),
+    ...(process.env.NO_KEFIR || !fn.kefir ? [] : cases("kefir  ", fn.kefir)),
   ]
 }
 
