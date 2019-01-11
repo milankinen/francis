@@ -129,6 +129,7 @@ class View<S, A> extends Operator<S, A> implements AtomSrc<A> {
 class AtomDispatcher<T> extends PropertyDispatcher<T> implements AtomSrc<T> {
   public next(tx: Transaction, val: T): void {
     const { val: prev } = this
+    this.has = true
     if (prev !== val) {
       this.sink.next(tx, (this.val = val))
     }

@@ -1,5 +1,5 @@
 import { NONE, NOOP_SUBSCRIBER, sendEndInTx, sendNextInTx, Subscriber, Subscription } from "./_core"
-import { Dispatcher } from "./_dispatcher"
+import { Dispatcher, MCSNode } from "./_dispatcher"
 import { Transaction } from "./_tx"
 import { is } from "./_util"
 import { Observable } from "./Observable"
@@ -15,6 +15,7 @@ export function isProperty<T>(x: any): x is Property<T> {
 }
 
 export class PropertyDispatcher<T> extends Dispatcher<T> {
+  protected has: boolean = false
   protected val: T = NONE
   protected ended: boolean = false
 
@@ -25,10 +26,27 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
   }
 
   public activate(subscriber: Subscriber<T>, initialNeeded: boolean): void {
-    super.activate(subscriber, initialNeeded && this.replayState(subscriber))
+    const isLateActivation = this.active
+    super.activate(subscriber, initialNeeded)
+    const noSourceInitialDuringFirstActivation = !isLateActivation && !this.has
+    if (
+      this.active &&
+      (isLateActivation || noSourceInitialDuringFirstActivation) &&
+      initialNeeded
+    ) {
+      this.replayState(subscriber)
+    }
+  }
+
+  public dispose(node: MCSNode<T>): void {
+    super.dispose(node)
+    if (this.active === false) {
+      this.has = false
+    }
   }
 
   public next(tx: Transaction, val: T): void {
+    this.has = true
     this.sink.next(tx, (this.val = val))
   }
 
@@ -37,15 +55,14 @@ export class PropertyDispatcher<T> extends Dispatcher<T> {
     this.sink.end(tx)
   }
 
-  public replayState(subscriber: Subscriber<T>): boolean {
+  public replayState(subscriber: Subscriber<T>): void {
     const { val, ended } = this
-    const hasVal = val !== NONE
-    const hasInitial = hasVal || ended
-    if (hasInitial) {
-      hasVal && sendNextInTx(subscriber, val)
-      ended === true && sendEndInTx(subscriber)
+    if (val !== NONE) {
+      sendNextInTx(subscriber, val)
     }
-    return !hasInitial
+    if (ended === true) {
+      sendEndInTx(subscriber)
+    }
   }
 }
 
