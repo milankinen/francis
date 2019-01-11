@@ -1,13 +1,12 @@
 import { checkObservable } from "../_check"
 import { invoke, Invokeable, sendNextInTx, Source, Subscriber, Subscription } from "../_core"
-import { makeEventStream, makeProperty } from "../_obs"
-import { Transaction } from "../_tx"
+import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
 import { EventStream } from "../EventStream"
 import { dispatcherOf, Observable } from "../Observable"
-import { isProperty, Property } from "../Property"
+import { isProperty, Property, PropertyDispatcher } from "../Property"
 import { scheduleActivationTask } from "../scheduler/index"
-import { Identity, Operator } from "./_base"
+import { Identity } from "./_base"
 
 export interface StartWithOp {
   <T>(value: T, observable: Observable<T>): Observable<T>
@@ -28,32 +27,13 @@ export function _startWithE<T>(value: T, stream: EventStream<T>): EventStream<T>
 }
 
 export function _startWithP<T>(value: T, property: Property<T>): Property<T> {
-  return makeProperty(new StartWithP(dispatcherOf(property), value))
+  return new Property(new StartWithDispatcher(dispatcherOf(property), value))
 }
 
-class StartWithP<T> extends Operator<T, T> {
-  // flag indicating whether we have an existing initial value for property or not
-  // if this flag is set to true, there is no point running this operator anymore
-  private has: boolean = false
-  constructor(source: Source<T>, private readonly value: T) {
+class StartWithDispatcher<T> extends PropertyDispatcher<T> {
+  constructor(source: Source<T>, value: T) {
     super(source)
-  }
-
-  public activate(initialNeeded: boolean): void {
-    super.activate(initialNeeded)
-    this.sendInitial()
-  }
-
-  public next(tx: Transaction, val: T): void {
-    this.has = true
-    this.sink.next(tx, val)
-  }
-
-  private sendInitial(): void {
-    if (this.active && !this.has) {
-      this.has = true
-      sendNextInTx(this.sink, this.value)
-    }
+    this.val = value
   }
 }
 
