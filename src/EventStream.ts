@@ -1,13 +1,19 @@
 import { invoke, Invokeable, NOOP_SUBSCRIBER, sendEndInTx, Subscriber, Subscription } from "./_core"
 import { Dispatcher } from "./_dispatcher"
+import { Subscribe } from "./_interfaces"
 import { Transaction } from "./_tx"
 import { is } from "./_util"
 import { Observable } from "./Observable"
 import { scheduleActivationTask } from "./scheduler/index"
+import { FromBinder } from "./sources/_binder"
 
 export class EventStream<A> extends Observable<A> {
-  constructor(d: EventStreamDispatcher<A>) {
-    super(d)
+  constructor(dispatcherOrSubscribe: EventStreamDispatcher<A> | Subscribe<A>) {
+    super(
+      dispatcherOrSubscribe instanceof EventStreamDispatcher
+        ? dispatcherOrSubscribe
+        : dispatcherFromSubscribe(dispatcherOrSubscribe),
+    )
   }
 }
 
@@ -26,6 +32,10 @@ export class EventStreamDispatcher<T> extends Dispatcher<T> {
     this.ended = true
     this.sink.end(tx)
   }
+}
+
+function dispatcherFromSubscribe<T>(subscribe: Subscribe<T>): EventStreamDispatcher<T> {
+  return new EventStreamDispatcher(new FromBinder(subscribe))
 }
 
 class StreamEndedSubscription implements Subscription, Invokeable<undefined> {
