@@ -1,5 +1,7 @@
 import * as F from "../src/bacon"
+import { map } from "../src/index"
 import { run } from "./_base"
+import { testInitialValueShouldBeDerivableFromSource } from "./_common"
 
 describe("F.map", () => {
   it("preserves mapped observable kind", () => {
@@ -96,5 +98,9 @@ describe("F.map", () => {
         .subscribe(record),
     )
     expect(recording).toMatchSnapshot()
+  })
+
+  it("should be stateless w.r.t Property's initial value derivation", () => {
+    testInitialValueShouldBeDerivableFromSource(map<number, number>((x: number) => x))
   })
 })

@@ -1,5 +1,7 @@
 import * as F from "../src/bacon"
+import { filter } from "../src/index"
 import { run } from "./_base"
+import { testInitialValueShouldBeDerivableFromSource } from "./_common"
 
 describe("EventStream.filter", () => {
   it("results in EventStream", () => {
@@ -58,5 +60,9 @@ describe("Property.filter", () => {
         .subscribe(record),
     )
     expect(recording).toMatchSnapshot()
+  })
+
+  it("should be stateless w.r.t Property's initial value derivation", () => {
+    testInitialValueShouldBeDerivableFromSource(filter<number>(_ => true))
   })
 })
