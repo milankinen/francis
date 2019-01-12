@@ -5,7 +5,7 @@ export { isObservable } from "./_obs"
 export { Observable } from "./Observable"
 export { EventStream, isEventStream } from "./EventStream"
 export { Property, isProperty } from "./Property"
-export { Bus, push, pushNext, pushError, pushEnd, plug } from "./Bus"
+export { bus, Bus, push, pushNext, pushError, pushEnd, plug } from "./Bus"
 export { Atom, Lens, atom, set, get, modify, view } from "./Atom"
 
 // utils

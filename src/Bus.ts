@@ -35,6 +35,15 @@ export const pushError: PushErrorOp = curry2(_pushError)
 export const pushEnd = _pushEnd
 export const plug: PlugOp = curry2(_plug)
 
+/**
+ * Creates a new `Bus` instance.
+ *
+ * @public
+ */
+export function bus<ValueType>(): Bus<ValueType> {
+  return new Bus<ValueType>()
+}
+
 function _push<T>(bus: Bus<T>, event: T | AnyEvent<T>): void {
   if (__DEVBUILD__) {
     checkBus(bus)
