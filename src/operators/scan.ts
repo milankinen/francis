@@ -8,14 +8,41 @@ import { dispatcherOf, Observable } from "../Observable"
 import { Property } from "../Property"
 import { Operator } from "./_base"
 
-export interface ScanOp {
-  <S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S>
-  <S, T>(seed: S): (acc: Accum<S, T>, observable: Observable<T>) => Property<S>
-  <S, T>(seed: S, acc: Accum<S, T>): (observable: Observable<T>) => Property<S>
-  <S, T>(seed: S): (acc: Accum<S, T>) => (observable: Observable<T>) => Property<S>
+/**
+ * Scans `EventStream` or `Property` with given seed value and accumulator
+ * function, resulting to a `Property`. The seed value is used as an initial
+ * value for the result property.
+ *
+ * @param seed Seed value to use for the accumulation
+ * @param acc Accumulator function `(state, value) => state`
+ * @param observable Source observable
+ *
+ * @example
+ *
+ * F.pipe(F.fromArray(["!", "!"]),
+ *  F.scan("Hello Francis", (state, value) => state + value),
+ *  F.log("Greeting:"))
+ * // logs: "Hello Francis", "Hello Francis!", "Hello Francis!!", <end>
+ *
+ * @stateful
+ * @public
+ */
+export const scan: CurriedScan = curry3(_scan)
+interface CurriedScan {
+  <State, Value>(seed: State, acc: Accum<State, Value>, observable: Observable<Value>): Property<
+    State
+  >
+  <State>(seed: State): <Value>(
+    acc: Accum<State, Value>,
+    observable: Observable<Value>,
+  ) => Property<State>
+  <State, Value>(seed: State, acc: Accum<State, Value>): (
+    observable: Observable<Value>,
+  ) => Property<State>
+  <State>(seed: State): <Value>(
+    acc: Accum<State, Value>,
+  ) => (observable: Observable<Value>) => Property<State>
 }
-
-export const scan: ScanOp = curry3(_scan)
 
 function _scan<S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S> {
   checkObservable(observable)

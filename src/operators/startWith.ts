@@ -8,12 +8,37 @@ import { isProperty, Property, PropertyDispatcher } from "../Property"
 import { scheduleActivationTask } from "../scheduler/index"
 import { Identity } from "./_base"
 
-export interface StartWithOp {
-  <T>(value: T, observable: Observable<T>): Observable<T>
-  <T>(value: T): (observable: Observable<T>) => Observable<T>
+/**
+ * For `EventStream`, this operator adds an extra event with the given value
+ * to the beginning of the stream.
+ *
+ * For `Property`, this operator ensures that the property has an initial value.
+ * If the property already has an initial value then this operator is a no-op.
+ *
+ * @param value Value to be added to the stream / property's initial value
+ * @param observable Source observable
+ *
+ * @example
+ *
+ * F.pipe(F.once(1),
+ *  F.startWith(2),
+ *  F.startWith(3),
+ *  F.log("EventStream"))
+ * // logs: 3, 2, 1, <end>
+ *
+ * F.pipe(F.constant(1),
+ *  F.startWith(2),
+ *  F.startWith(3),
+ *  F.log("Property"))
+ * // logs: 1, <end>
+ *
+ * @public
+ */
+export const startWith: CurriedStartWith = curry2(_startWith)
+interface CurriedStartWith {
+  <ValueType>(value: ValueType, observable: Observable<ValueType>): Observable<ValueType>
+  <ValueType>(value: ValueType): (observable: Observable<ValueType>) => Observable<ValueType>
 }
-
-export const startWith: StartWithOp = curry2(_startWith)
 
 function _startWith<T>(value: T, observable: Observable<T>): Observable<T> {
   checkObservable(observable)
