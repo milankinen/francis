@@ -59,6 +59,34 @@ Array [
 ]
 `;
 
+exports[`Property.scan remember it's state and continues from there after re-activation 1`] = `
+Object {
+  "first": Array [
+    Next {
+      "value": 0,
+    },
+    Sync {},
+    Next {
+      "value": 1,
+    },
+    Next {
+      "value": 3,
+    },
+    End {},
+  ],
+  "sencond": Array [
+    Next {
+      "value": 3,
+    },
+    Sync {},
+    Next {
+      "value": 6,
+    },
+    End {},
+  ],
+}
+`;
+
 exports[`Property.scan with initial value, starts with f(seed, init),immediately 1`] = `
 Array [
   Next {

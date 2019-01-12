@@ -79,6 +79,23 @@ describe("Property.scan", () => {
     })
     expect(recording).toMatchSnapshot()
   })
+
+  it("remember it's state and continues from there after re-activation", () => {
+    const recording = run((record, wait) => {
+      const recordFirst = labeled(record, "first")
+      const recordSecond = labeled(record, "sencond")
+      const prop = F.sequentially(1, [1, 2, 3])
+        .toProperty(0)
+        .scan(0, add)
+      prop.take(3).subscribe(recordFirst)
+      recordFirst(Sync)
+      wait(100, () => {
+        prop.subscribe(recordSecond)
+        recordSecond(Sync)
+      })
+    })
+    expect(byLabel(recording)).toMatchSnapshot()
+  })
 })
 
 function add(a: number, b: number): number {

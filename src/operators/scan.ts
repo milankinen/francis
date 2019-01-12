@@ -57,7 +57,7 @@ class Scan<T, S> extends Operator<T, S> {
   }
 
   public activate(initialNeeded: boolean): void {
-    super.activate(initialNeeded)
+    super.activate(initialNeeded && !this.has)
     this.sendInitial()
   }
 
@@ -68,8 +68,9 @@ class Scan<T, S> extends Operator<T, S> {
   }
 
   private sendInitial(): void {
-    if (this.active && !this.has) {
-      this.has = true
+    const shouldSent = this.active && !this.has
+    this.has = true
+    if (shouldSent) {
       sendNextInTx(this.sink, this.state)
     }
   }
