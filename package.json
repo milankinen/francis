@@ -1,7 +1,7 @@
 {
   "name": "francis",
-  "version": "2.0.0-alpha11",
-  "description": "Bacon++",
+  "version": "2.0.0",
+  "description": "Reactive programming with focus on developer friendly stream semantics, high performance and functional usage",
   "author": "Matti Lankinen <m.lankinen@iki.fi>",
   "license": "MIT",
   "keywords": [

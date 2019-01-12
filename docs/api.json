@@ -20,6 +20,18 @@
       }
     },
     {
+      "name": "bus",
+      "description": "Creates a new `Bus` instance.",
+      "signatures": [
+        "() => Bus<ValueType>"
+      ],
+      "params": {},
+      "seeAlso": [],
+      "returns": {
+        "type": "Bus<ValueType>"
+      }
+    },
+    {
       "name": "constant",
       "description": "Creates a constant Property with the given value.",
       "signatures": [
@@ -460,6 +472,61 @@
       "example": "const lolbal = F.repeatedly(10, [\"lol\", \"bal\"])"
     },
     {
+      "name": "map",
+      "description": "Maps the `Observable`'s values using the given projection function.",
+      "signatures": [
+        "(project: Projection<InType, OutType>, observable: Observable<InType>) => Observable<OutType>",
+        "(project: Projection<InType, OutType>) => (observable: Observable<InType>) => Observable<OutType>"
+      ],
+      "params": {
+        "project": {
+          "name": "project",
+          "index": 0,
+          "description": "Projection function `in => out`",
+          "from": "signature"
+        },
+        "observable": {
+          "name": "observable",
+          "index": 1,
+          "description": "Source observable",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Observable<OutType>",
+        "description": "An `Observable` having `project` function applied to its values"
+      },
+      "example": "F.pipe(F.fromArray([1, 2, 3]),\n F.map(x => x + 1),\n F.log(\"Result\"))\n// logs: 2, 3, 4, <end>"
+    },
+    {
+      "name": "startWith",
+      "description": "For `EventStream`, this operator adds an extra event with the given value\nto the beginning of the stream.",
+      "signatures": [
+        "(value: ValueType, observable: Observable<ValueType>) => Observable<ValueType>",
+        "(value: ValueType) => (observable: Observable<ValueType>) => Observable<ValueType>"
+      ],
+      "params": {
+        "value": {
+          "name": "value",
+          "index": 0,
+          "description": "Value to be added to the stream / property's initial value",
+          "from": "signature"
+        },
+        "observable": {
+          "name": "observable",
+          "index": 1,
+          "description": "Source observable\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Observable<ValueType>"
+      },
+      "example": "F.pipe(F.once(1),\n F.startWith(2),\n F.startWith(3),\n F.log(\"EventStream\"))\n// logs: 3, 2, 1, <end>\n\nF.pipe(F.constant(1),\n F.startWith(2),\n F.startWith(3),\n F.log(\"Property\"))\n// logs: 1, <end>"
+    },
+    {
       "name": "awaiting",
       "description": "Creates a Property that indicates whether observable is awaiting the other observable,\ni.e. has produced a value after the latest value from the other. This is handy for\nkeeping track whether we are currently awaiting an AJAX response",
       "signatures": [
@@ -485,6 +552,69 @@
         "type": "Property<boolean>"
       },
       "example": "const searchReq = F.map(toRequest, searchTextChange)\nconst searchRes = F.flatMapLatest(sendRequest, searchReq)\nconst isRequestPending = F.awaiting(searchRes, searchReq)"
+    },
+    {
+      "name": "filter",
+      "description": "Filters Observable's values using the given predicate function. Supports\nalso filtering by `Property` - values are passed only when the property has\ntruthy value.",
+      "signatures": [
+        "(predicateOrProperty: Predicate<ValueType> | Property<any>, observable: Observable<ValueType>) => Observable<ValueType>",
+        "(predicateOrProperty: Predicate<ValueType> | Property<any>) => (observable: Observable<ValueType>) => Observable<ValueType>"
+      ],
+      "params": {
+        "predicateOrProperty": {
+          "name": "predicateOrProperty",
+          "index": 0,
+          "description": "Predicate function `x => boolean` or `Property` which is used to filter out value events",
+          "from": "signature"
+        },
+        "observable": {
+          "name": "observable",
+          "index": 1,
+          "description": "Source observable",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Observable<ValueType>",
+        "description": "An `Observable` whose values pass the given predicate."
+      },
+      "example": "// Filtering by predicate function\nF.pipe(F.fromArray([1, 2, 3, 4]),\n F.filter(x => x % 2 === 0),\n F.log(\"Result\"))\n// logs: 2, 4, <end>\n\n// Filtering by Property\nconst isLoading: Property<boolean> = getLoading(document)\nconst clicksWhenNotLoading =\n F.pipe(F.fromEvents(document.getElementById(\"myButton\"), \"click\"),\n  F.filter(F.not(isLoading)))"
+    },
+    {
+      "name": "scan",
+      "description": "Scans `EventStream` or `Property` with given seed value and accumulator\nfunction, resulting to a `Property`. The seed value is used as an initial\nvalue for the result property.",
+      "signatures": [
+        "(seed: State, acc: Accum<State, Value>, observable: Observable<Value>) => Property<State>",
+        "(seed: State, acc: Accum<State, Value>) => (observable: Observable<Value>) => Property<State>",
+        "(seed: State) => (acc: Accum<State, Value>) => (observable: Observable<Value>) => Property<State>",
+        "(seed: State) => (acc: Accum<State, Value>, observable: Observable<Value>) => Property<State>"
+      ],
+      "params": {
+        "seed": {
+          "name": "seed",
+          "index": 0,
+          "description": "Seed value to use for the accumulation",
+          "from": "signature"
+        },
+        "acc": {
+          "name": "acc",
+          "index": 1,
+          "description": "Accumulator function `(state, value) => state`",
+          "from": "signature"
+        },
+        "observable": {
+          "name": "observable",
+          "index": 2,
+          "description": "Source observable\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Property<State>"
+      },
+      "example": "F.pipe(F.fromArray([\"!\", \"!\"]),\n F.scan(\"Hello Francis\", (state, value) => state + value),\n F.log(\"Greeting:\"))\n// logs: \"Hello Francis\", \"Hello Francis!\", \"Hello Francis!!\", <end>"
     },
     {
       "name": "firstToCustomPromise",
