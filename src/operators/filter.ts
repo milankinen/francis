@@ -9,12 +9,42 @@ import { isProperty, Property } from "../Property"
 import { Operator } from "./_base"
 import { sampleWith } from "./sample"
 
-export interface FilterOp {
-  <T>(predicate: Predicate<T> | Property<any>, observable: Observable<T>): Observable<T>
-  <T>(predicate: Predicate<T> | Property<any>): (observable: Observable<T>) => Observable<T>
+/**
+ * Filters Observable's values using the given predicate function. Supports
+ * also filtering by `Property` - values are passed only when the property has
+ * truthy value.
+ *
+ * @param predicateOrProperty Predicate function `x => boolean` or `Property` which is used to filter out value events
+ * @param observable Source observable
+ * @returns An `Observable` whose values pass the given predicate.
+ *
+ * @example
+ *
+ * // Filtering by predicate function
+ * F.pipe(F.fromArray([1, 2, 3, 4]),
+ *  F.filter(x => x % 2 === 0),
+ *  F.log("Result"))
+ * // logs: 2, 4, <end>
+ *
+ * // Filtering by Property
+ * const isLoading: Property<boolean> = getLoading(document)
+ * const clicksWhenNotLoading =
+ *  F.pipe(F.fromEvents(document.getElementById("myButton"), "click"),
+ *   F.filter(F.not(isLoading)))
+ *
+ * @public
+ * @endomorphic
+ */
+export const filter: CurriedFilter = curry2(_filter)
+interface CurriedFilter {
+  <ValueType>(
+    predicateOrProperty: Predicate<ValueType> | Property<any>,
+    observable: Observable<ValueType>,
+  ): Observable<ValueType>
+  <ValueType>(predicateOrProperty: Predicate<ValueType> | Property<any>): (
+    observable: Observable<ValueType>,
+  ) => Observable<ValueType>
 }
-
-export const filter: FilterOp = curry2(_filter)
 
 function _filter<T>(
   predicate: Predicate<T> | Property<any>,

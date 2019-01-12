@@ -245,7 +245,8 @@ Observable.prototype.map = function<A, B>(
   project: Projection<A, B> | Property<B>,
   ...rest: any[]
 ): Observable<B> {
-  return F.map(toFunctionsPropAsIs(project, rest), this)
+  const proj = toFunctionsPropAsIs(project, rest)
+  return F.isProperty(proj) ? F.sampleBy(this, proj) : F.map(proj, this)
 }
 
 Observable.prototype.mapError = function<A>(
