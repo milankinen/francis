@@ -44,6 +44,8 @@ export function bus<ValueType>(): Bus<ValueType> {
   return new Bus<ValueType>()
 }
 
+// tslint:disable:no-shadowed-variable
+
 function _push<T>(bus: Bus<T>, event: T | AnyEvent<T>): void {
   if (__DEVBUILD__) {
     checkBus(bus)
