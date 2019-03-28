@@ -1,13 +1,17 @@
 import { invoke, Invokeable, NOOP_SUBSCRIBER, sendEndInTx, Subscriber, Subscription } from "./_core"
 import { Dispatcher } from "./_dispatcher"
 import { Subscribe } from "./_interfaces"
+import * as Sym from "./_symbols"
 import { Transaction } from "./_tx"
 import { is } from "./_util"
-import { Observable } from "./Observable"
+import { HKT, Observable } from "./Observable"
 import { scheduleActivationTask } from "./scheduler/index"
 import { FromBinder } from "./sources/_binder"
 
-export class EventStream<A> extends Observable<A> {
+export class EventStream<A> extends Observable<A> implements HKT<EventStream<A>> {
+  public [Sym.HKT]!: EventStream<A>
+  protected __isEventStream!: true
+
   constructor(dispatcherOrSubscribe: EventStreamDispatcher<A> | Subscribe<A>) {
     super(
       dispatcherOrSubscribe instanceof EventStreamDispatcher

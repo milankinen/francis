@@ -1,10 +1,14 @@
 import { NONE, NOOP_SUBSCRIBER, sendEndInTx, sendNextInTx, Subscriber, Subscription } from "./_core"
 import { Dispatcher, MCSNode } from "./_dispatcher"
+import * as Sym from "./_symbols"
 import { Transaction } from "./_tx"
 import { is } from "./_util"
-import { Observable } from "./Observable"
+import { HKT, Observable } from "./Observable"
 
-export class Property<A> extends Observable<A> {
+export class Property<A> extends Observable<A> implements HKT<Property<A>> {
+  public [Sym.HKT]!: Property<A>
+  protected __isProperty!: true
+
   constructor(d: PropertyDispatcher<A>) {
     super(d)
   }
