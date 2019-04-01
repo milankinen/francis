@@ -1,30 +1,35 @@
 import { checkFunction } from "../_check"
 import { Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
-import { EventStream } from "../EventStream"
-import { dispatcherOf, Observable } from "../Observable"
-import { Property } from "../Property"
+import { dispatcherOf } from "../Observable"
 import { Sliding } from "./slidingWindow"
 
 export type Eq<T> = (a: T, b: T) => boolean
 
-export interface SkipDuplicatesOp {
-  <T>(isEqual: Eq<T>, observable: Observable<T>): Observable<T>
-  <T>(isEqual: Eq<T>): (observable: Observable<T>) => Observable<T>
+export const skipDuplicates: CurriedSkipDuplicates = curry2(_skipDuplicates)
+export interface CurriedSkipDuplicates {
+  <ObsType, ValueType>(isEqual: Eq<ValueType>, observable: In<ObsType, ValueType>): Out<
+    ObsType,
+    ValueType
+  >
+  <ValueType>(isEqual: Eq<ValueType>): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
 
-export const skipDuplicates: SkipDuplicatesOp = curry2(_skipDuplicates)
-
-export function skipEquals<T>(observable: Property<T>): Property<T>
-export function skipEquals<T>(observable: EventStream<T>): EventStream<T>
-export function skipEquals<T>(observable: Observable<T>): Observable<T>
-export function skipEquals<T>(observable: Observable<T>): Observable<T> {
+export function skipEquals<ObsType, ValueType>(
+  observable: In<ObsType, ValueType>,
+): Out<ObsType, ValueType> {
   return _skipDuplicates((a, b) => a === b, observable)
 }
 
-function _skipDuplicates<T>(isEqual: Eq<T>, observable: Observable<T>): Observable<T> {
+function _skipDuplicates<ObsType, ValueType>(
+  isEqual: Eq<ValueType>,
+  observable: In<ObsType, ValueType>,
+): Out<ObsType, ValueType> {
   checkFunction(isEqual)
   return makeObservable(observable, new SkipDuplicates(dispatcherOf(observable), isEqual))
 }

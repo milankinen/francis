@@ -1,5 +1,6 @@
 import { checkObservable } from "../_check"
 import { NOOP_SUBSCRIBER, Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -9,12 +10,16 @@ import { JoinOperator } from "./_join"
 import { SVSource } from "./sample"
 import { toEventStream } from "./toEventStream"
 
-export interface SkipUntilOp {
-  <T>(trigger: Observable<any>, observable: Observable<T>): Observable<T>
-  <T>(trigger: Observable<any>): (observable: Observable<T>) => Observable<T>
+export const skipUntil: CurriedSkipUntil = curry2(_skipUntil)
+export interface CurriedSkipUntil {
+  <ObsType, ValueType>(trigger: Observable<any>, observable: In<ObsType, ValueType>): Out<
+    ObsType,
+    ValueType
+  >
+  <ValueType>(trigger: Observable<any>): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const skipUntil: SkipUntilOp = curry2(_skipUntil)
 
 function _skipUntil<T>(trigger: Observable<any>, observable: Observable<T>): Observable<T> {
   checkObservable(trigger)

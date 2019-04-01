@@ -1,5 +1,6 @@
 import { checkNaturalInt } from "../_check"
 import { NONE, sendEndInTx, sendNextInTx, Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -7,18 +8,24 @@ import { dispatcherOf, Observable } from "../Observable"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { InitialAndChanges } from "./_changes"
 
-export interface ThrottleOp {
-  <T>(delay: number, observable: Observable<T>): Observable<T>
-  <T>(delay: number): (observable: Observable<T>) => Observable<T>
+export const throttle: CurriedThrottle = curry2(_throttle)
+export interface CurriedThrottle {
+  <ObsType, ValueType>(delay: number, observable: In<ObsType, ValueType>): Out<ObsType, ValueType>
+  (delay: number): <ObsType, ValueType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
 
-export interface BufferingThrottleOp {
-  <T>(minimumInterval: number, observable: Observable<T>): Observable<T>
-  <T>(minimumInterval: number): (observable: Observable<T>) => Observable<T>
+export const bufferingThrottle: CurriedBufferingThrottle = curry2(_bufferingThrottle)
+export interface CurriedBufferingThrottle {
+  <ObsType, ValueType>(minimumInterval: number, observable: In<ObsType, ValueType>): Out<
+    ObsType,
+    ValueType
+  >
+  (minimumInterval: number): <ObsType, ValueType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const throttle: ThrottleOp = curry2(_throttle)
-export const bufferingThrottle: BufferingThrottleOp = curry2(_bufferingThrottle)
 
 function _throttle<T>(delay: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(delay)

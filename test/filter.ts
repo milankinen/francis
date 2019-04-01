@@ -63,6 +63,6 @@ describe("Property.filter", () => {
   })
 
   it("should be stateless w.r.t Property's initial value derivation", () => {
-    testInitialValueShouldBeDerivableFromSource(filter<number>(_ => true))
+    testInitialValueShouldBeDerivableFromSource(filter(_ => true))
   })
 })

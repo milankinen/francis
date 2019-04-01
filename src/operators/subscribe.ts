@@ -14,36 +14,35 @@ import * as Event from "../Event"
 import { Observable } from "../Observable"
 import { Eff, runEffects } from "./_eff"
 
-export interface SubscribeOp {
-  <T>(f: Handler<T>, observable: Observable<T>): Dispose
-  <T>(f: Handler<T>): (observable: Observable<T>) => Dispose
+export const subscribe: CurriedSubscribe = curry2(_subscribe)
+export interface CurriedSubscribe {
+  <ValueType>(f: Handler<ValueType>, observable: Observable<ValueType>): Dispose
+  <ValueType>(f: Handler<ValueType>): (observable: Observable<ValueType>) => Dispose
 }
 
-export interface OnValueOp {
-  <T>(f: ValueHandler<T>, observable: Observable<T>): Dispose
-  <T>(f: ValueHandler<T>): (observable: Observable<T>) => Dispose
+export const onValue: CurriedOnValue = curry2(_onValue)
+export interface CurriedOnValue {
+  <ValueType>(f: ValueHandler<ValueType>, observable: Observable<ValueType>): Dispose
+  <ValueType>(f: ValueHandler<ValueType>): (observable: Observable<ValueType>) => Dispose
 }
 
-export interface OnValuesOp {
-  <T>(f: ValuesHandler<T>, observable: Observable<T>): Dispose
-  <T>(f: ValuesHandler<T>): (observable: Observable<T>) => Dispose
+export const onValues: CurriedOnValues = curry2(_onValues)
+export interface CurriedOnValues {
+  <ValueType>(f: ValuesHandler<ValueType>, observable: Observable<ValueType>): Dispose
+  <ValueType>(f: ValuesHandler<ValueType>): (observable: Observable<ValueType>) => Dispose
 }
 
-export interface OnErrorOp {
+export const onError: CurriedOnError = curry2(_onError)
+export interface CurriedOnError {
   (f: ErrorHandler, observable: Observable<any>): Dispose
   (f: ErrorHandler): (observable: Observable<any>) => Dispose
 }
 
-export interface OnEndOp {
+export const onEnd: CurriedOnEnd = curry2(_onEnd)
+export interface CurriedOnEnd {
   (f: EndHandler, observable: Observable<any>): Dispose
   (f: EndHandler): (observable: Observable<any>) => Dispose
 }
-
-export const subscribe: SubscribeOp = curry2(_subscribe)
-export const onValue: OnValueOp = curry2(_onValue)
-export const onValues: OnValuesOp = curry2(_onValues)
-export const onError: OnErrorOp = curry2(_onError)
-export const onEnd: OnEndOp = curry2(_onEnd)
 
 function _subscribe<T>(f: Handler<T>, observable: Observable<T>): Dispose {
   checkFunction(f)

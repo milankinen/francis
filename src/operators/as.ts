@@ -9,6 +9,7 @@ import { Property } from "../Property"
  *
  * @param observable - Observable whose type information will be restored
  * @public
+ * @deprecated
  */
 export function asEventStream<T>(observable: Observable<T>): EventStream<T> {
   checkEventStream(observable)
@@ -21,6 +22,7 @@ export function asEventStream<T>(observable: Observable<T>): EventStream<T> {
  *
  * @param observable - Observable whose type information will be restored
  * @public
+ * @deprecated
  */
 export function asProperty<T>(observable: Observable<T>): Property<T> {
   checkProperty(observable)

@@ -101,6 +101,6 @@ describe("F.map", () => {
   })
 
   it("should be stateless w.r.t Property's initial value derivation", () => {
-    testInitialValueShouldBeDerivableFromSource(map<number, number>((x: number) => x))
+    testInitialValueShouldBeDerivableFromSource(map((x: number) => x))
   })
 })

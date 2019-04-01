@@ -1,7 +1,15 @@
 import * as Event from "./Event"
 import { EventStream } from "./EventStream"
-import { Observable } from "./Observable"
+import { HKT, Observable } from "./Observable"
 import { Property } from "./Property"
+
+export type In<ObsType, ValueType> = HKT<ObsType> & Observable<ValueType>
+
+export type Out<ObsType, ValueType> = ObsType extends Property<any>
+  ? Property<ValueType>
+  : ObsType extends EventStream<any>
+  ? EventStream<ValueType>
+  : Observable<ValueType>
 
 export type JSMap<K, V> = Map<K, V>
 

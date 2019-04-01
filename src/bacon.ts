@@ -10,7 +10,6 @@ import { isFunction } from "./_util"
 import * as F from "./index"
 import {
   Accum,
-  AndResult,
   Bus,
   Dispose,
   EndHandler,
@@ -21,13 +20,13 @@ import {
   FlatAccum,
   Handler,
   Observable,
-  OrResult,
   Predicate,
   Projection,
   Property,
   ValueHandler,
   ValuesHandler,
 } from "./index"
+import * as Logic from "./operators/logic"
 
 declare module "./Observable" {
   interface Observable<A> {
@@ -168,8 +167,8 @@ declare module "./Property" {
     sampledBy<B, C>(sampler: Property<B>, f: SampleFn<A, B, C>): Property<C>
     sample(interval: number): EventStream<A>
     startWith(value: A): Property<A>
-    and<B>(other: Property<B>): Property<AndResult<A, B>>
-    or<B>(other: Property<B>): Property<OrResult<A, B>>
+    and<B>(other: Property<B>): Property<Logic.Result<A, B>>
+    or<B>(other: Property<B>): Property<Logic.Result<A, B>>
     not<B>(): Property<boolean>
     errors(): Property<A>
     throttle(delay: number): Property<A>
@@ -481,12 +480,12 @@ Property.prototype.sample = function<A>(i: number): EventStream<A> {
   return F.sampleBy(F.interval(i, null as any), this) as EventStream<A>
 }
 
-Property.prototype.and = function<A, B>(other: Property<B>): Property<AndResult<A, B>> {
-  return F.and(this, other) as Property<AndResult<A, B>>
+Property.prototype.and = function<A, B>(other: Property<B>): Property<Logic.Result<A, B>> {
+  return F.and(this, other) as Property<Logic.Result<A, B>>
 }
 
-Property.prototype.or = function<A, B>(other: Property<B>): Property<OrResult<A, B>> {
-  return F.or(this, other) as Property<OrResult<A, B>>
+Property.prototype.or = function<A, B>(other: Property<B>): Property<Logic.Result<A, B>> {
+  return F.or(this, other) as Property<Logic.Result<A, B>>
 }
 
 Property.prototype.not = function<A>(): Property<boolean> {

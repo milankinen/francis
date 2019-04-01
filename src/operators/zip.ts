@@ -40,25 +40,28 @@ export function zipAsArray(streams: Array<Observable<any>>): EventStream<any[]> 
   }
 }
 
-export function zipWith<A, T>(f: (a: A) => T, streams: [Observable<A>]): EventStream<T>
-export function zipWith<A, B, T>(
-  f: (a: A, b: B) => T,
+export function zipWith<A, ResultType>(
+  f: (a: A) => ResultType,
+  streams: [Observable<A>],
+): EventStream<ResultType>
+export function zipWith<A, B, ResultType>(
+  f: (a: A, b: B) => ResultType,
   streams: [Observable<A>, Observable<B>],
-): EventStream<T>
-export function zipWith<A, B, C, T>(
-  f: (a: A, b: B, c: C) => T,
+): EventStream<ResultType>
+export function zipWith<A, B, C, ResultType>(
+  f: (a: A, b: B, c: C) => ResultType,
   streams: [Observable<A>, Observable<B>, Observable<C>],
-): EventStream<T>
-export function zipWith<A, B, C, D, T>(
-  f: (a: A, b: B, c: C, d: D) => T,
+): EventStream<ResultType>
+export function zipWith<A, B, C, D, ResultType>(
+  f: (a: A, b: B, c: C, d: D) => ResultType,
   streams: [Observable<A>, Observable<B>, Observable<C>, Observable<D>],
-): EventStream<T>
-export function zipWith<A, B, C, D, E, T>(
-  f: (a: A, b: B, c: C, d: D, e: E) => T,
+): EventStream<ResultType>
+export function zipWith<A, B, C, D, E, ResultType>(
+  f: (a: A, b: B, c: C, d: D, e: E) => ResultType,
   streams: [Observable<A>, Observable<B>, Observable<C>, Observable<D>, Observable<E>],
-): EventStream<T>
-export function zipWith<A, B, C, D, E, F, T>(
-  f: (a: A, b: B, c: C, d: D, e: E, f: F) => T,
+): EventStream<ResultType>
+export function zipWith<A, B, C, D, E, F, ResultType>(
+  f: (a: A, b: B, c: C, d: D, e: E, f: F) => ResultType,
   streams: [
     Observable<A>,
     Observable<B>,
@@ -67,11 +70,11 @@ export function zipWith<A, B, C, D, E, F, T>(
     Observable<E>,
     Observable<F>
   ],
-): EventStream<T>
-export function zipWith<T>(
-  f: (...args: any[]) => T,
+): EventStream<ResultType>
+export function zipWith<ResultType>(
+  f: (...args: any[]) => ResultType,
   streams: Array<Observable<any>>,
-): EventStream<T> {
+): EventStream<ResultType> {
   checkArray(streams)
   checkFunction(f)
   switch (streams.length) {

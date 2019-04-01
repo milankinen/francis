@@ -7,11 +7,13 @@ import { Property } from "../Property"
 import { scheduleActivationTask } from "../scheduler/index"
 import { Identity } from "./_base"
 
-export function toEventStream<T>(observable: Observable<T>): EventStream<T> {
+export function toEventStream<ValueType>(
+  observable: Observable<ValueType>,
+): EventStream<ValueType> {
   checkObservable(observable)
-  return isEventStream<T>(observable)
+  return isEventStream<ValueType>(observable)
     ? observable
-    : makeEventStream(new ToEventStream(dispatcherOf(observable as Property<T>)))
+    : makeEventStream(new ToEventStream(dispatcherOf(observable as Property<ValueType>)))
 }
 
 export class ToEventStream<T> extends Identity<T> {

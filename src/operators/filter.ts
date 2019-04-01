@@ -1,6 +1,6 @@
 import { checkFunctionOrProperty } from "../_check"
 import { Source } from "../_core"
-import { Predicate } from "../_interfaces"
+import { In, Out, Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -37,13 +37,13 @@ import { sampleWith } from "./sample"
  */
 export const filter: CurriedFilter = curry2(_filter)
 interface CurriedFilter {
-  <ValueType>(
+  <ObsType, ValueType>(
     predicateOrProperty: Predicate<ValueType> | Property<any>,
-    observable: Observable<ValueType>,
-  ): Observable<ValueType>
-  <ValueType>(predicateOrProperty: Predicate<ValueType> | Property<any>): (
-    observable: Observable<ValueType>,
-  ) => Observable<ValueType>
+    observable: In<ObsType, ValueType>,
+  ): Out<ObsType, ValueType>
+  <ValueType>(predicateOrProperty: Predicate<ValueType> | Property<any>): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
 
 function _filter<T>(

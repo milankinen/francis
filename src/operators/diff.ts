@@ -1,21 +1,32 @@
 import { checkFunction } from "../_check"
 import { Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry3 } from "../_util"
 import { dispatcherOf, Observable } from "../Observable"
 import { Sliding } from "./slidingWindow"
 
-export type Delta<T, D> = (a: T, b: T) => D
+export type Delta<ValueType, DeltaType> = (a: ValueType, b: ValueType) => DeltaType
 
-export interface DiffOp {
-  <T, D>(f: Delta<T, D>, start: T, observable: Observable<T>): Observable<D>
-  <T, D>(f: Delta<T, D>): (start: T, observable: Observable<T>) => Observable<D>
-  <T, D>(f: Delta<T, D>, start: T): (observable: Observable<T>) => Observable<D>
-  <T, D>(f: Delta<T, D>): (start: T) => (observable: Observable<T>) => Observable<D>
+export const diff: CurriedDiff = curry3(_diff)
+export interface CurriedDiff {
+  <ObsType, ValueType, DeltaType>(
+    f: Delta<ValueType, DeltaType>,
+    start: ValueType,
+    observable: In<ObsType, ValueType>,
+  ): Out<ObsType, DeltaType>
+  <ValueType, DeltaType>(f: Delta<ValueType, DeltaType>): <ObsType>(
+    start: ValueType,
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, DeltaType>
+  <ValueType, DeltaType>(f: Delta<ValueType, DeltaType>, start: ValueType): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, DeltaType>
+  <ValueType, DeltaType>(f: Delta<ValueType, DeltaType>): (
+    start: ValueType,
+  ) => <ObsType>(observable: In<ObsType, ValueType>) => Out<ObsType, DeltaType>
 }
-
-export const diff: DiffOp = curry3(_diff)
 
 function _diff<T, D>(f: Delta<T, D>, start: T, observable: Observable<T>): Observable<D> {
   checkFunction(f)

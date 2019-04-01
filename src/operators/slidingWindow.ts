@@ -8,14 +8,20 @@ import { Property } from "../Property"
 import { Operator } from "./_base"
 import { toPropertyWith } from "./toProperty"
 
-export interface SlidingWindowOp {
-  <T>(min: number, max: number, observable: Observable<T>): Property<T[]>
-  <T>(min: number): (max: number, observable: Observable<T>) => Property<T[]>
-  <T>(min: number, max: number): (observable: Observable<T>) => Property<T[]>
-  <T>(min: number): (max: number) => (observable: Observable<T>) => Property<T[]>
+export const slidingWindow: CurriedSlidingWindow = curry3(_slidingWindow)
+export interface CurriedSlidingWindow {
+  <ValueType>(min: number, max: number, observable: Observable<ValueType>): Property<ValueType[]>
+  (min: number): <ValueType>(
+    max: number,
+    observable: Observable<ValueType>,
+  ) => Property<ValueType[]>
+  (min: number, max: number): <ValueType>(
+    observable: Observable<ValueType>,
+  ) => Property<ValueType[]>
+  (min: number): (
+    max: number,
+  ) => <ValueType>(observable: Observable<ValueType>) => Property<ValueType[]>
 }
-
-export const slidingWindow: SlidingWindowOp = curry3(_slidingWindow)
 
 function _slidingWindow<T>(min: number, max: number, observable: Observable<T>): Property<T[]> {
   checkObservable(observable)

@@ -1,11 +1,15 @@
-import { EventStream } from "../EventStream"
-import { Observable } from "../Observable"
-import { Property } from "../Property"
+import { In, Out } from "../_interfaces"
 import { take } from "./take"
 
-export function first<T>(stream: EventStream<T>): EventStream<T>
-export function first<T>(property: Property<T>): Property<T>
-export function first<T>(observable: Observable<T>): Observable<T>
-export function first<T>(observable: Observable<T>): Observable<T> {
+/**
+ *
+ * @param observable
+ *
+ * @public
+ * @endomorphic
+ */
+export function first<ObsType, ValueType>(
+  observable: In<ObsType, ValueType>,
+): Out<ObsType, ValueType> {
   return take(1, observable)
 }

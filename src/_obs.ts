@@ -1,12 +1,16 @@
 import { checkObservable } from "./_check"
 import { Source } from "./_core"
+import { In, Out } from "./_interfaces"
 import { EventStream, EventStreamDispatcher, isEventStream } from "./EventStream"
 import { Observable } from "./Observable"
 import { isProperty, Property, PropertyDispatcher } from "./Property"
 
-export function makeObservable<T>(parent: Observable<any>, source: Source<T>): Observable<T> {
+export function makeObservable<ObsValueType, NewValueType, ObsType = Observable<ObsValueType>>(
+  parent: In<ObsType, ObsValueType>,
+  source: Source<NewValueType>,
+): Out<ObsType, NewValueType> {
   checkObservable(parent)
-  return isProperty(parent) ? makeProperty(source) : makeEventStream(source)
+  return (isProperty(parent) ? makeProperty(source) : makeEventStream(source)) as any
 }
 
 export function makeEventStream<T>(source: Source<T>): EventStream<T> {

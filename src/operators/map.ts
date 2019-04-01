@@ -1,6 +1,6 @@
 import { checkFunction } from "../_check"
 import { Source } from "../_core"
-import { Projection } from "../_interfaces"
+import { In, Out, Projection } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -26,13 +26,13 @@ import { Operator } from "./_base"
  */
 export const map: CurriedMap = curry2(_map)
 interface CurriedMap {
-  <InType, OutType>(
+  <ObsType, InType, OutType>(
     project: Projection<InType, OutType>,
-    observable: Observable<InType>,
-  ): Observable<OutType>
-  <InType, OutType>(project: Projection<InType, OutType>): (
-    observable: Observable<InType>,
-  ) => Observable<OutType>
+    observable: In<ObsType, InType>,
+  ): Out<ObsType, OutType>
+  <InType, OutType>(project: Projection<InType, OutType>): <ObsType>(
+    observable: In<ObsType, InType>,
+  ) => Out<ObsType, OutType>
 }
 
 function _map<A, B>(project: Projection<A, B>, observable: Observable<A>): Observable<B> {

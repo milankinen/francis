@@ -7,12 +7,16 @@ import { EventStream } from "../EventStream"
 import { Observable } from "../Observable"
 import { makeMultiSourceStream, MultiSource, MultiSourceNode } from "./_multisource"
 
-export function merge<T>(...observables: Array<Observable<T>>): EventStream<T> {
+export function merge<ValueType>(
+  ...observables: Array<Observable<ValueType>>
+): EventStream<ValueType> {
   return mergeAll(observables)
 }
 
-export function mergeAll<T>(observables: Array<Observable<T>>): EventStream<T> {
-  return makeMultiSourceStream<T>(observables, Merge)
+export function mergeAll<ValueType>(
+  observables: Array<Observable<ValueType>>,
+): EventStream<ValueType> {
+  return makeMultiSourceStream<ValueType>(observables, Merge)
 }
 
 class Merge<T> extends MultiSource<T> {

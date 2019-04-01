@@ -1,6 +1,7 @@
 import { checkFunction, checkObservable } from "../_check"
 import { sendNextInTx, Source } from "../_core"
 import { Accum } from "../_interfaces"
+import { In, Out } from "../_interfaces"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry3 } from "../_util"
@@ -28,20 +29,22 @@ import { Operator } from "./_base"
  * @public
  */
 export const scan: CurriedScan = curry3(_scan)
-interface CurriedScan {
-  <State, Value>(seed: State, acc: Accum<State, Value>, observable: Observable<Value>): Property<
-    State
-  >
-  <State>(seed: State): <Value>(
-    acc: Accum<State, Value>,
-    observable: Observable<Value>,
-  ) => Property<State>
-  <State, Value>(seed: State, acc: Accum<State, Value>): (
-    observable: Observable<Value>,
-  ) => Property<State>
-  <State>(seed: State): <Value>(
-    acc: Accum<State, Value>,
-  ) => (observable: Observable<Value>) => Property<State>
+export interface CurriedScan {
+  <StateType, ValueType>(
+    seed: StateType,
+    acc: Accum<StateType, ValueType>,
+    observable: In<Observable<ValueType>, ValueType>,
+  ): Out<Property<StateType>, StateType>
+  <StateType>(seed: StateType): <ValueType>(
+    acc: Accum<StateType, ValueType>,
+    observable: In<Observable<ValueType>, ValueType>,
+  ) => Property<StateType>
+  <StateType, ValueType>(seed: StateType, acc: Accum<StateType, ValueType>): (
+    observable: In<Observable<ValueType>, ValueType>,
+  ) => Property<StateType>
+  <StateType>(seed: StateType): <ValueType>(
+    acc: Accum<StateType, ValueType>,
+  ) => (observable: In<Observable<ValueType>, ValueType>) => Property<StateType>
 }
 
 function _scan<S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S> {

@@ -1,14 +1,12 @@
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
-import { EventStream } from "../EventStream"
-import { dispatcherOf, Observable } from "../Observable"
-import { Property } from "../Property"
+import { dispatcherOf } from "../Observable"
 import { Identity } from "./_base"
 
-export function skipErrors<T>(observable: Property<T>): Property<T>
-export function skipErrors<T>(observable: EventStream<T>): EventStream<T>
-export function skipErrors<T>(observable: Observable<T>): Observable<T>
-export function skipErrors<T>(observable: Observable<T>): Observable<T> {
+export function skipErrors<ObsType, ValueType>(
+  observable: In<ObsType, ValueType>,
+): Out<ObsType, ValueType> {
   return makeObservable(observable, new SkipErrors(dispatcherOf(observable)))
 }
 

@@ -1,5 +1,6 @@
 import { checkNaturalInt } from "../_check"
 import { sendEndInTx, sendNextInTx, Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -7,12 +8,13 @@ import { dispatcherOf, Observable } from "../Observable"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { InitialAndChanges } from "./_changes"
 
-export interface DelayOp {
-  <T>(time: number, observable: Observable<T>): Observable<T>
-  <T>(time: number): (observable: Observable<T>) => Observable<T>
+export const delay: CurriedDelay = curry2(_delay)
+export interface CurriedDelay {
+  <ObsType, ValueType>(time: number, observable: In<ObsType, ValueType>): Out<ObsType, ValueType>
+  (time: number): <ObsType, ValueType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const delay: DelayOp = curry2(_delay)
 
 function _delay<T>(time: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(time)

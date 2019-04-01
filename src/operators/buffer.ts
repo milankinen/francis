@@ -8,26 +8,34 @@ import { dispatcherOf, Observable } from "../Observable"
 import { OnTimeout, scheduleTimeout, Timeout } from "../scheduler/index"
 import { Operator } from "./_base"
 
-export interface BufferWithTimeOp {
-  <T>(delay: number, observable: Observable<T>): Observable<T[]>
-  <T>(delay: number): (observable: Observable<T>) => Observable<T[]>
+export const bufferWithTime: CurriedBufferWithTime = curry2(_bufferWithTime)
+export interface CurriedBufferWithTime {
+  <ValueType>(delay: number, stream: EventStream<ValueType>): EventStream<ValueType[]>
+  (delay: number): <ValueType>(stream: EventStream<ValueType>) => EventStream<ValueType[]>
 }
 
-export interface BufferWithCountOp {
-  <T>(count: number, observable: Observable<T>): Observable<T[]>
-  <T>(count: number): (observable: Observable<T>) => Observable<T[]>
+export const bufferWithCount: CurriedBufferWithCount = curry2(_bufferWithCount)
+export interface CurriedBufferWithCount {
+  <ValueType>(count: number, stream: EventStream<ValueType>): EventStream<ValueType[]>
+  (count: number): <ValueType>(stream: EventStream<ValueType>) => EventStream<ValueType[]>
 }
 
-export interface BufferWithTimeOrCountOp {
-  <T>(delay: number, count: number, observable: Observable<T>): Observable<T[]>
-  <T>(delay: number): (count: number, observable: Observable<T>) => Observable<T[]>
-  <T>(delay: number, count: number): (observable: Observable<T>) => Observable<T[]>
-  <T>(delay: number): (count: number) => (observable: Observable<T>) => Observable<T[]>
+export const bufferWithTimeOrCount: CurriedBufferWithTimeOrCount = curry3(_bufferWithTimeOrCount)
+export interface CurriedBufferWithTimeOrCount {
+  <ValueType>(delay: number, count: number, stream: EventStream<ValueType>): EventStream<
+    ValueType[]
+  >
+  (delay: number): <ValueType>(
+    count: number,
+    stream: EventStream<ValueType>,
+  ) => EventStream<ValueType[]>
+  (delay: number, count: number): <ValueType>(
+    stream: EventStream<ValueType>,
+  ) => EventStream<ValueType[]>
+  (delay: number): (
+    count: number,
+  ) => <ValueType>(stream: Observable<ValueType>) => EventStream<ValueType[]>
 }
-
-export const bufferWithTime: BufferWithTimeOp = curry2(_bufferWithTime)
-export const bufferWithCount: BufferWithCountOp = curry2(_bufferWithCount)
-export const bufferWithTimeOrCount: BufferWithTimeOrCountOp = curry3(_bufferWithTimeOrCount)
 
 function _bufferWithTime<T>(delay: number, stream: EventStream<T>): EventStream<T[]> {
   checkNaturalInt(delay)
