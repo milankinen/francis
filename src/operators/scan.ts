@@ -1,7 +1,6 @@
 import { checkFunction, checkObservable } from "../_check"
 import { sendNextInTx, Source } from "../_core"
 import { Accum } from "../_interfaces"
-import { In, Out } from "../_interfaces"
 import { makeProperty } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry3 } from "../_util"
@@ -33,18 +32,18 @@ export interface CurriedScan {
   <StateType, ValueType>(
     seed: StateType,
     acc: Accum<StateType, ValueType>,
-    observable: In<Observable<ValueType>, ValueType>,
-  ): Out<Property<StateType>, StateType>
+    observable: Observable<ValueType>,
+  ): Property<StateType>
   <StateType>(seed: StateType): <ValueType>(
     acc: Accum<StateType, ValueType>,
-    observable: In<Observable<ValueType>, ValueType>,
+    observable: Observable<ValueType>,
   ) => Property<StateType>
   <StateType, ValueType>(seed: StateType, acc: Accum<StateType, ValueType>): (
-    observable: In<Observable<ValueType>, ValueType>,
+    observable: Observable<ValueType>,
   ) => Property<StateType>
   <StateType>(seed: StateType): <ValueType>(
     acc: Accum<StateType, ValueType>,
-  ) => (observable: In<Observable<ValueType>, ValueType>) => Property<StateType>
+  ) => (observable: Observable<ValueType>) => Property<StateType>
 }
 
 function _scan<S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S> {
