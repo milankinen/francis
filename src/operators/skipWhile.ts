@@ -1,6 +1,6 @@
 import { checkFunctionOrProperty } from "../_check"
 import { Source } from "../_core"
-import { Predicate } from "../_interfaces"
+import { In, Out, Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -11,19 +11,20 @@ import { filter } from "./filter"
 import { skipUntil } from "./skipUntil"
 import { startWith } from "./startWith"
 
-export interface SkipWhileOp {
-  <T>(f: Predicate<T> | Property<boolean>, observable: Observable<T>): Observable<T>
-  <T>(f: Predicate<T> | Property<boolean>): (observable: Observable<T>) => Observable<T>
+export const skipWhile: CurriedSkipWhile = curry2(_skipWhile)
+export interface CurriedSkipWhile {
+  <ObsType, ValueType>(
+    f: Predicate<ValueType> | Property<any>,
+    observable: In<ObsType, ValueType>,
+  ): Out<ObsType, ValueType>
+  <ValueType>(f: Predicate<ValueType> | Property<any>): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
 
-export const skipWhile: SkipWhileOp = curry2(_skipWhile)
-
-function _skipWhile<T>(
-  f: Predicate<T> | Property<boolean>,
-  observable: Observable<T>,
-): Observable<T> {
+function _skipWhile<T>(f: Predicate<T> | Property<any>, observable: Observable<T>): Observable<T> {
   checkFunctionOrProperty(f)
-  return isProperty(f)
+  return isProperty<any>(f)
     ? skipUntil(filter(x => !x, startWith(true, f)), observable)
     : makeObservable(observable, new SkipWhile(dispatcherOf(observable), f))
 }

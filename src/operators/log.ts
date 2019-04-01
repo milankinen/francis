@@ -4,12 +4,11 @@ import { curry2 } from "../_util"
 import { Observable } from "../Observable"
 import { Eff, runEffects } from "./_eff"
 
-export interface LogOp {
+export const log: CurriedLog = curry2(_log)
+export interface CurriedLog {
   (label: string | undefined, observable: Observable<any>): Dispose
   (label: string | undefined): (observable: Observable<any>) => Dispose
 }
-
-export const log: LogOp = curry2(_log)
 
 function _log<T>(label: string | undefined, observable: Observable<T>): Dispose {
   const logger = new Logger(label)

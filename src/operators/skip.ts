@@ -1,17 +1,17 @@
 import { checkNaturalInt } from "../_check"
 import { Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
 import { dispatcherOf, Observable } from "../Observable"
 import { Operator } from "./_base"
 
-export interface SkipOp {
-  <T>(n: number, observable: Observable<T>): Observable<T>
-  <T>(n: number): (observable: Observable<T>) => Observable<T>
+export const skip: CurriedSkip = curry2(_skip)
+export interface CurriedSkip {
+  <ObsType, ValueType>(n: number, observable: In<ObsType, ValueType>): Out<ObsType, ValueType>
+  <ValueType>(n: number): <ObsType>(observable: In<ObsType, ValueType>) => Out<ObsType, ValueType>
 }
-
-export const skip: SkipOp = curry2(_skip)
 
 function _skip<T>(n: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(n)

@@ -1,5 +1,6 @@
 import { checkNaturalInt } from "../_check"
 import { Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -7,12 +8,11 @@ import { dispatcherOf, Observable } from "../Observable"
 import { Never } from "../sources/never"
 import { Operator } from "./_base"
 
-export interface TakeOp {
-  <T>(n: number, observable: Observable<T>): Observable<T>
-  <T>(n: number): (observable: Observable<T>) => Observable<T>
+export const take: CurriedTake = curry2(_take)
+export interface CurriedTake {
+  <ObsType, ValueType>(n: number, observable: In<ObsType, ValueType>): Out<ObsType, ValueType>
+  (n: number): <ObsType, ValueType>(observable: In<ObsType, ValueType>) => Out<ObsType, ValueType>
 }
-
-export const take: TakeOp = curry2(_take)
 
 function _take<T>(n: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(n)

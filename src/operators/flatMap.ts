@@ -1,6 +1,6 @@
 import { checkFunction, checkPositiveInt } from "../_check"
 import { NOOP_SUBSCRIPTION, Source, Subscription } from "../_core"
-import { Projection } from "../_interfaces"
+import { In, Out, Projection } from "../_interfaces"
 import { toObs } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -10,56 +10,75 @@ import { stepIn, stepOut } from "../scheduler/index"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 
-export type ToFlatten<T> = T | Observable<T>
+export type InnerResult<T> = T | Observable<T>
 
-export interface FlatMapLatestOp {
-  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
-  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+export const flatMapLatest: CurriedFlatMapLatest = curry2(_flatMapLatest)
+export interface CurriedFlatMapLatest {
+  <ObsType, InType, OutType>(
+    project: Projection<InType, InnerResult<OutType>>,
+    observable: In<ObsType, InType>,
+  ): Out<ObsType, OutType>
+  <InType, OutType>(project: Projection<InType, InnerResult<OutType>>): <ObsType>(
+    observable: In<ObsType, InType>,
+  ) => Out<ObsType, OutType>
 }
 
-export interface FlatMapFirstOp {
-  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
-  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+export const flatMapFirst: CurriedFlatMapFirst = curry2(_flatMapFirst)
+export interface CurriedFlatMapFirst {
+  <ObsType, InType, OutType>(
+    project: Projection<InType, InnerResult<OutType>>,
+    observable: In<ObsType, InType>,
+  ): Out<ObsType, OutType>
+  <InType, OutType>(project: Projection<InType, InnerResult<OutType>>): <ObsType>(
+    observable: In<ObsType, InType>,
+  ) => Out<ObsType, OutType>
 }
 
-export interface FlatMapOp {
-  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
-  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+export const flatMap: CurriedFlatMap = curry2(_flatMap)
+export interface CurriedFlatMap {
+  <ObsType, InType, OutType>(
+    project: Projection<InType, InnerResult<OutType>>,
+    observable: In<ObsType, InType>,
+  ): Out<ObsType, OutType>
+  <InType, OutType>(project: Projection<InType, InnerResult<OutType>>): <ObsType>(
+    observable: In<ObsType, InType>,
+  ) => Out<ObsType, OutType>
 }
 
-export interface FlatMapConcatOp {
-  <A, B>(project: Projection<A, ToFlatten<B>>, observable: Observable<A>): Observable<B>
-  <A, B>(project: Projection<A, ToFlatten<B>>): (observable: Observable<A>) => Observable<B>
+export const flatMapConcat: CurriedFlatMapConcat = curry2(_flatMapConcat)
+export interface CurriedFlatMapConcat {
+  <ObsType, InType, OutType>(
+    project: Projection<InType, InnerResult<OutType>>,
+    observable: In<ObsType, InType>,
+  ): Out<ObsType, OutType>
+  <InType, OutType>(project: Projection<InType, InnerResult<OutType>>): <ObsType>(
+    observable: In<ObsType, InType>,
+  ) => Out<ObsType, OutType>
 }
 
-export interface FlatMapWithConcurrencyLimitOp {
-  <A, B>(
-    limit: number,
-    project: Projection<A, ToFlatten<B>>,
-    observable: Observable<A>,
-  ): Observable<B>
-  <A, B>(limit: number, project: Projection<A, ToFlatten<B>>): (
-    observable: Observable<A>,
-  ) => Observable<B>
-  <A, B>(limit: number): (
-    project: Projection<A, ToFlatten<B>>,
-    observable: Observable<A>,
-  ) => Observable<B>
-  <A, B>(limit: number): (
-    project: Projection<A, ToFlatten<B>>,
-  ) => (observable: Observable<A>) => Observable<B>
-}
-
-export const flatMapLatest: FlatMapLatestOp = curry2(_flatMapLatest)
-export const flatMapFirst: FlatMapFirstOp = curry2(_flatMapFirst)
-export const flatMap: FlatMapOp = curry2(_flatMap)
-export const flatMapConcat: FlatMapConcatOp = curry2(_flatMapConcat)
-export const flatMapWithConcurrencyLimit: FlatMapWithConcurrencyLimitOp = curry3(
+export const flatMapWithConcurrencyLimit: CurriedFlatMapWithConcurrencyLimit = curry3(
   _flatMapWithConcurrencyLimit,
 )
+export interface CurriedFlatMapWithConcurrencyLimit {
+  <ObsType, InType, OutType>(
+    limit: number,
+    project: Projection<InType, InnerResult<OutType>>,
+    observable: In<ObsType, InType>,
+  ): Out<ObsType, OutType>
+  <InType, OutType>(limit: number, project: Projection<InType, InnerResult<OutType>>): <ObsType>(
+    observable: In<ObsType, InType>,
+  ) => Out<ObsType, OutType>
+  (limit: number): <ObsType, InType, OutType>(
+    project: Projection<InType, InnerResult<OutType>>,
+    observable: In<ObsType, InType>,
+  ) => Out<ObsType, OutType>
+  (limit: number): <InType, OutType>(
+    project: Projection<InType, InnerResult<OutType>>,
+  ) => <ObsType>(observable: In<ObsType, InType>) => Out<ObsType, OutType>
+}
 
 function _flatMapLatest<A, B>(
-  project: Projection<A, ToFlatten<B>>,
+  project: Projection<A, InnerResult<B>>,
   observable: Observable<A>,
 ): Observable<B> {
   checkFunction(project)

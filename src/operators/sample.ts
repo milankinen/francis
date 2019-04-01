@@ -7,6 +7,7 @@ import {
   Subscriber,
   Subscription,
 } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2, curry3 } from "../_util"
@@ -15,31 +16,36 @@ import { Property } from "../Property"
 import { Pipe, PipeSubscriber } from "./_base"
 import { JoinOperator } from "./_join"
 
-export interface SampleWithOp {
-  <S, V, R>(
-    sampler: Observable<S>,
-    project: (value: V, sample: S) => R,
-    value: Property<V>,
-  ): Observable<R>
-  <S, V, R>(sampler: Observable<S>): (
-    project: (value: V, sample: S) => R,
-    value: Property<V>,
-  ) => Observable<R>
-  <S, V, R>(sampler: Observable<S>, project: (value: V, sample: S) => R): (
-    value: Property<V>,
-  ) => Observable<R>
-  <S, V, R>(sampler: Observable<S>): (
-    project: (value: V, sample: S) => R,
-  ) => (value: Property<V>) => Observable<R>
+export const sampleWith: CurriedSampleWith = curry3(_sampleWith)
+export interface CurriedSampleWith {
+  <ObsType, SampleType, ValueType, ResultType>(
+    sampler: In<ObsType, SampleType>,
+    project: (value: ValueType, sample: SampleType) => ResultType,
+    value: Property<ValueType>,
+  ): Out<ObsType, ResultType>
+  <ObsType, SampleType, ValueType, ResultType>(sampler: In<ObsType, SampleType>): (
+    project: (value: ValueType, sample: SampleType) => ResultType,
+    value: Property<ValueType>,
+  ) => Out<ObsType, ResultType>
+  <ObsType, SampleType, ValueType, ResultType>(
+    sampler: In<ObsType, SampleType>,
+    project: (value: ValueType, sample: SampleType) => ResultType,
+  ): (value: Property<ValueType>) => Out<ObsType, ResultType>
+  <ObsType, SampleType, ValueType, ResultType>(sampler: In<ObsType, SampleType>): (
+    project: (value: ValueType, sample: SampleType) => ResultType,
+  ) => (value: Property<ValueType>) => Out<ObsType, ResultType>
 }
 
-export interface SampleByOp {
-  <S, V>(sampler: Observable<S>, value: Property<V>): Observable<V>
-  <S, V>(sampler: Observable<S>): (value: Property<V>) => Observable<V>
+export const sampleBy: CurriedSampleBy = curry2(_sampleBy)
+export interface CurriedSampleBy {
+  <ObsType, SampleType, ValueType>(
+    sampler: In<ObsType, SampleType>,
+    value: Property<ValueType>,
+  ): Out<ObsType, ValueType>
+  <ObsType, SampleType, ValueType>(sampler: In<ObsType, SampleType>): (
+    value: Property<ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const sampleWith: SampleWithOp = curry3(_sampleWith)
-export const sampleBy: SampleByOp = curry2(_sampleBy)
 
 function _sampleWith<S, V, R>(
   sampler: Observable<S>,

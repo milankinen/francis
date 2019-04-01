@@ -1,22 +1,26 @@
 import { checkNaturalInt } from "../_check"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
 import { dispatcherOf, Observable } from "../Observable"
 import { Throttle, ThrottleBase } from "./throttle"
 
-export interface DebounceOp {
-  <T>(delay: number, observable: Observable<T>): Observable<T>
-  <T>(delay: number): (observable: Observable<T>) => Observable<T>
+export const debounce: CurriedDebounce = curry2(_debounce)
+export interface CurriedDebounce {
+  <ObsType, ValueType>(delay: number, observable: In<ObsType, ValueType>): Out<ObsType, ValueType>
+  (delay: number): <ObsType, ValueType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
 
-export interface DebounceImmediateOp {
-  <T>(delay: number, observable: Observable<T>): Observable<T>
-  <T>(delay: number): (observable: Observable<T>) => Observable<T>
+export const debounceImmediate: CurriedDebounceImmediate = curry2(_debounceImmediate)
+export interface CurriedDebounceImmediate {
+  <ObsType, ValueType>(delay: number, observable: In<ObsType, ValueType>): Out<ObsType, ValueType>
+  (delay: number): <ObsType, ValueType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const debounce: DebounceOp = curry2(_debounce)
-export const debounceImmediate: DebounceImmediateOp = curry2(_debounceImmediate)
 
 function _debounce<T>(delay: number, observable: Observable<T>): Observable<T> {
   checkNaturalInt(delay)

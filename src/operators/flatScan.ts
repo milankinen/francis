@@ -8,14 +8,24 @@ import { doAction } from "./do"
 import { flatMapConcat } from "./flatMap"
 import { toPropertyWith } from "./toProperty"
 
-export interface FlatScanOp {
-  <S, T>(seed: S, acc: FlatAccum<S, T>, observable: Observable<T>): Property<S>
-  <S, T>(seed: S, acc: FlatAccum<S, T>): (observable: Observable<T>) => Property<S>
-  <S, T>(seed: S): (acc: FlatAccum<S, T>, observable: Observable<T>) => Property<S>
-  <S, T>(seed: S): (acc: FlatAccum<S, T>) => (observable: Observable<T>) => Property<S>
+export const flatScan: CurriedFlatScan = curry3(_flatScan)
+export interface CurriedFlatScan {
+  <StateType, ValueType>(
+    seed: StateType,
+    acc: FlatAccum<StateType, ValueType>,
+    observable: Observable<ValueType>,
+  ): Property<StateType>
+  <StateType, ValueType>(seed: StateType, acc: FlatAccum<StateType, ValueType>): (
+    observable: Observable<ValueType>,
+  ) => Property<StateType>
+  <StateType, ValueType>(seed: StateType): (
+    acc: FlatAccum<StateType, ValueType>,
+    observable: Observable<ValueType>,
+  ) => Property<StateType>
+  <StateType, ValueType>(seed: StateType): (
+    acc: FlatAccum<StateType, ValueType>,
+  ) => (observable: Observable<ValueType>) => Property<StateType>
 }
-
-export const flatScan: FlatScanOp = curry3(_flatScan)
 
 function _flatScan<S, T>(seed: S, acc: FlatAccum<S, T>, observable: Observable<T>): Property<S> {
   checkFunction(acc)

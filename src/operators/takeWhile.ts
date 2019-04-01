@@ -1,6 +1,6 @@
 import { checkFunctionOrProperty } from "../_check"
 import { Source } from "../_core"
-import { Predicate } from "../_interfaces"
+import { In, Out, Predicate } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { curry2 } from "../_util"
@@ -11,12 +11,16 @@ import { filter } from "./filter"
 import { startWith } from "./startWith"
 import { takeUntil } from "./takeUntil"
 
-export interface TakeWhileOp {
-  <T>(f: Predicate<T> | Property<boolean>, observable: Observable<T>): Observable<T>
-  <T>(f: Predicate<T> | Property<boolean>): (observable: Observable<T>) => Observable<T>
+export const takeWhile: CurriedTakeWhile = curry2(_takeWhile)
+export interface CurriedTakeWhile {
+  <ObsType, ValueType>(
+    f: Predicate<ValueType> | Property<any>,
+    observable: In<ObsType, ValueType>,
+  ): Out<ObsType, ValueType>
+  <ValueType>(f: Predicate<ValueType> | Property<any>): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const takeWhile: TakeWhileOp = curry2(_takeWhile)
 
 function _takeWhile<T>(
   f: Predicate<T> | Property<boolean>,

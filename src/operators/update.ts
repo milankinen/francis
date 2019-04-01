@@ -5,7 +5,10 @@ import { Property } from "../Property"
 import { IndexedSource } from "./_indexed"
 import { Buffer, extractPatternsAndBuffers, Pattern, When } from "./when"
 
-export function update<T>(initial: T, ...patternsAndHandlers: any[]): Property<T> {
+export function update<ValueType>(
+  initial: ValueType,
+  ...patternsAndHandlers: any[]
+): Property<ValueType> {
   const [patterns, buffers, sources] = extractPatternsAndBuffers(patternsAndHandlers, false)
   return makeProperty(new Update(initial, new IndexedSource(sources), patterns, buffers))
 }

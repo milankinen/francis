@@ -66,7 +66,7 @@ export type CombinedTemplate<O> = {
     : O[K]
 }
 
-export function combineTemplate<T>(template: T): Observable<CombinedTemplate<T>> {
+export function combineTemplate<T>(template: T): Property<CombinedTemplate<T>> {
   const observables = [] as Array<Observable<any>>
   const constants = [] as any[]
   function collect(obj: any): string {

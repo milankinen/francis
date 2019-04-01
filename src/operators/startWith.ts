@@ -1,5 +1,6 @@
 import { checkObservable } from "../_check"
 import { invoke, Invokeable, sendNextInTx, Source, Subscriber, Subscription } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeEventStream } from "../_obs"
 import { curry2 } from "../_util"
 import { EventStream } from "../EventStream"
@@ -36,8 +37,13 @@ import { Identity } from "./_base"
  */
 export const startWith: CurriedStartWith = curry2(_startWith)
 interface CurriedStartWith {
-  <ValueType>(value: ValueType, observable: Observable<ValueType>): Observable<ValueType>
-  <ValueType>(value: ValueType): (observable: Observable<ValueType>) => Observable<ValueType>
+  <ObsType, ValueType>(value: ValueType, observable: In<ObsType, ValueType>): Out<
+    ObsType,
+    ValueType
+  >
+  <ValueType>(value: ValueType): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
 
 function _startWith<T>(value: T, observable: Observable<T>): Observable<T> {

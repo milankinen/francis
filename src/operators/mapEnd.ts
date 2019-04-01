@@ -1,4 +1,5 @@
 import { Source } from "../_core"
+import { In, Out } from "../_interfaces"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
 import { constantly, curry2, isFunction } from "../_util"
@@ -7,12 +8,16 @@ import { Identity } from "./_base"
 
 export type EndProjection<T> = T | (() => T)
 
-export interface MapEndOp {
-  <T>(f: EndProjection<T>, observable: Observable<T>): Observable<T>
-  <T>(f: EndProjection<T>): (observable: Observable<T>) => Observable<T>
+export const mapEnd: CurriedMapEnd = curry2(_mapEnd)
+export interface CurriedMapEnd {
+  <ObsType, ValueType>(f: EndProjection<ValueType>, observable: In<ObsType, ValueType>): Out<
+    ObsType,
+    ValueType
+  >
+  <ValueType>(f: EndProjection<ValueType>): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const mapEnd: MapEndOp = curry2(_mapEnd)
 
 function _mapEnd<T>(f: EndProjection<T>, observable: Observable<T>): Observable<T> {
   const projection = isFunction(f) ? (f as () => T) : constantly((f as any) as T)

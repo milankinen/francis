@@ -1,6 +1,6 @@
 import { checkFunction } from "../_check"
 import { Source } from "../_core"
-import { Projection } from "../_interfaces"
+import { In, Out, Projection } from "../_interfaces"
 import { toObs } from "../_interrop"
 import { makeObservable } from "../_obs"
 import { Transaction } from "../_tx"
@@ -8,21 +8,25 @@ import { curry2 } from "../_util"
 import { dispatcherOf, Observable } from "../Observable"
 import { once } from "../sources/single"
 import { Operator } from "./_base"
-import { flatMap } from "./flatMap"
+import { flatMap, InnerResult } from "./flatMap"
 
-export interface FlatMapErrorOp {
-  <T>(project: Projection<Error, T | Observable<T>>, observable: Observable<T>): Observable<T>
-  <T>(project: Projection<Error, T | Observable<T>>): (observable: Observable<T>) => Observable<T>
+export const flatMapError: CurriedFlatMapError = curry2(_flatMapError)
+export interface CurriedFlatMapError {
+  <ObsType, ValueType>(
+    project: Projection<Error, InnerResult<ValueType>>,
+    observable: In<ObsType, ValueType>,
+  ): Out<ObsType, ValueType>
+  <ValueType>(project: Projection<Error, InnerResult<ValueType>>): <ObsType>(
+    observable: In<ObsType, ValueType>,
+  ) => Out<ObsType, ValueType>
 }
-
-export const flatMapError: FlatMapErrorOp = curry2(_flatMapError)
 
 function _flatMapError<T>(
   project: Projection<Error, T | Observable<T>>,
   observable: Observable<T>,
 ): Observable<T> {
   checkFunction(project)
-  return flatMap<M<T>, T>(
+  return flatMap<Observable<M<T>>, M<T>, T>(
     unpack,
     makeObservable(observable, new MapM(dispatcherOf(observable), project)),
   )

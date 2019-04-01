@@ -5,16 +5,15 @@ import { dispatcherOf, Observable } from "../Observable"
 import { isProperty, Property } from "../Property"
 import { _startWithP } from "./startWith"
 
-export interface ToPropertyWithOp {
-  <T>(initial: T, observable: Observable<T>): Property<T>
-  <T>(initial: T): (observable: Observable<T>) => Property<T>
+export const toPropertyWith: CurriedToPropertyWith = curry2(_toPropertyWith)
+export interface CurriedToPropertyWith {
+  <ValueType>(initial: ValueType, observable: Observable<ValueType>): Property<ValueType>
+  <ValueType>(initial: ValueType): (observable: Observable<ValueType>) => Property<ValueType>
 }
 
-export const toPropertyWith: ToPropertyWithOp = curry2(_toPropertyWith)
-
-export function toProperty<T>(observable: Observable<T>): Property<T> {
+export function toProperty<ValueType>(observable: Observable<ValueType>): Property<ValueType> {
   checkObservable(observable)
-  return isProperty<T>(observable) ? observable : makeProperty(dispatcherOf(observable))
+  return isProperty<ValueType>(observable) ? observable : makeProperty(dispatcherOf(observable))
 }
 
 function _toPropertyWith<T>(initial: T, observable: Observable<T>): Property<T> {

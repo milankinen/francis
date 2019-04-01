@@ -5,14 +5,24 @@ import { Property } from "../Property"
 import { last } from "./last"
 import { scan } from "./scan"
 
-export interface FoldOp {
-  <S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S>
-  <S, T>(seed: S): (acc: Accum<S, T>, observable: Observable<T>) => Property<S>
-  <S, T>(seed: S, acc: Accum<S, T>): (observable: Observable<T>) => Property<S>
-  <S, T>(seed: S): (acc: Accum<S, T>) => (observable: Observable<T>) => Property<S>
+export const fold: CurriedFold = curry3(_fold)
+export interface CurriedFold {
+  <StateType, ValueType>(
+    seed: StateType,
+    acc: Accum<StateType, ValueType>,
+    observable: Observable<ValueType>,
+  ): Property<StateType>
+  <StateType>(seed: StateType): <ValueType>(
+    acc: Accum<StateType, ValueType>,
+    observable: Observable<ValueType>,
+  ) => Property<StateType>
+  <StateType, ValueType>(seed: StateType, acc: Accum<StateType, ValueType>): (
+    observable: Observable<ValueType>,
+  ) => Property<StateType>
+  <StateType>(seed: StateType): <ValueType>(
+    acc: Accum<StateType, ValueType>,
+  ) => (observable: Observable<ValueType>) => Property<StateType>
 }
-
-export const fold: FoldOp = curry3(_fold)
 
 function _fold<S, T>(seed: S, acc: Accum<S, T>, observable: Observable<T>): Property<S> {
   return last(scan(seed, acc, observable))
