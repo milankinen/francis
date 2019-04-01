@@ -9,4 +9,5 @@ exports.observable = hasNative
 
 // internal symbols
 
-exports.DISPATCHER = S("francisDispatcher")
+exports.DISPATCHER = S("francis.dispatcher")
+exports.HKT = S("francis.hkt")
