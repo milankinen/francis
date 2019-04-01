@@ -255,6 +255,25 @@
       }
     },
     {
+      "name": "first",
+      "description": "",
+      "signatures": [
+        "(observable: In<ObsType, ValueType>) => Out<ObsType, ValueType>"
+      ],
+      "params": {
+        "observable": {
+          "name": "observable",
+          "index": 0,
+          "description": "\n",
+          "from": "signature"
+        }
+      },
+      "seeAlso": [],
+      "returns": {
+        "type": "Out<ObsType, ValueType>"
+      }
+    },
+    {
       "name": "firstToPromise",
       "description": "Returns a Promise which will be resolved with the first event (or error) coming from\nan Observable. Uses global ES6 promise implementation to construct the promise.",
       "signatures": [
@@ -475,8 +494,8 @@
       "name": "map",
       "description": "Maps the `Observable`'s values using the given projection function.",
       "signatures": [
-        "(project: Projection<InType, OutType>, observable: Observable<InType>) => Observable<OutType>",
-        "(project: Projection<InType, OutType>) => (observable: Observable<InType>) => Observable<OutType>"
+        "(project: Projection<InType, OutType>, observable: In<ObsType, InType>) => Out<ObsType, OutType>",
+        "(project: Projection<InType, OutType>) => (observable: In<ObsType, InType>) => Out<ObsType, OutType>"
       ],
       "params": {
         "project": {
@@ -494,7 +513,7 @@
       },
       "seeAlso": [],
       "returns": {
-        "type": "Observable<OutType>",
+        "type": "Out<ObsType, OutType>",
         "description": "An `Observable` having `project` function applied to its values"
       },
       "example": "F.pipe(F.fromArray([1, 2, 3]),\n F.map(x => x + 1),\n F.log(\"Result\"))\n// logs: 2, 3, 4, <end>"
@@ -503,8 +522,8 @@
       "name": "startWith",
       "description": "For `EventStream`, this operator adds an extra event with the given value\nto the beginning of the stream.",
       "signatures": [
-        "(value: ValueType, observable: Observable<ValueType>) => Observable<ValueType>",
-        "(value: ValueType) => (observable: Observable<ValueType>) => Observable<ValueType>"
+        "(value: ValueType, observable: In<ObsType, ValueType>) => Out<ObsType, ValueType>",
+        "(value: ValueType) => (observable: In<ObsType, ValueType>) => Out<ObsType, ValueType>"
       ],
       "params": {
         "value": {
@@ -522,7 +541,7 @@
       },
       "seeAlso": [],
       "returns": {
-        "type": "Observable<ValueType>"
+        "type": "Out<ObsType, ValueType>"
       },
       "example": "F.pipe(F.once(1),\n F.startWith(2),\n F.startWith(3),\n F.log(\"EventStream\"))\n// logs: 3, 2, 1, <end>\n\nF.pipe(F.constant(1),\n F.startWith(2),\n F.startWith(3),\n F.log(\"Property\"))\n// logs: 1, <end>"
     },
@@ -557,8 +576,8 @@
       "name": "filter",
       "description": "Filters Observable's values using the given predicate function. Supports\nalso filtering by `Property` - values are passed only when the property has\ntruthy value.",
       "signatures": [
-        "(predicateOrProperty: Predicate<ValueType> | Property<any>, observable: Observable<ValueType>) => Observable<ValueType>",
-        "(predicateOrProperty: Predicate<ValueType> | Property<any>) => (observable: Observable<ValueType>) => Observable<ValueType>"
+        "(predicateOrProperty: Predicate<ValueType> | Property<any>, observable: In<ObsType, ValueType>) => Out<ObsType, ValueType>",
+        "(predicateOrProperty: Predicate<ValueType> | Property<any>) => (observable: In<ObsType, ValueType>) => Out<ObsType, ValueType>"
       ],
       "params": {
         "predicateOrProperty": {
@@ -576,7 +595,7 @@
       },
       "seeAlso": [],
       "returns": {
-        "type": "Observable<ValueType>",
+        "type": "Out<ObsType, ValueType>",
         "description": "An `Observable` whose values pass the given predicate."
       },
       "example": "// Filtering by predicate function\nF.pipe(F.fromArray([1, 2, 3, 4]),\n F.filter(x => x % 2 === 0),\n F.log(\"Result\"))\n// logs: 2, 4, <end>\n\n// Filtering by Property\nconst isLoading: Property<boolean> = getLoading(document)\nconst clicksWhenNotLoading =\n F.pipe(F.fromEvents(document.getElementById(\"myButton\"), \"click\"),\n  F.filter(F.not(isLoading)))"
@@ -585,10 +604,10 @@
       "name": "scan",
       "description": "Scans `EventStream` or `Property` with given seed value and accumulator\nfunction, resulting to a `Property`. The seed value is used as an initial\nvalue for the result property.",
       "signatures": [
-        "(seed: State, acc: Accum<State, Value>, observable: Observable<Value>) => Property<State>",
-        "(seed: State, acc: Accum<State, Value>) => (observable: Observable<Value>) => Property<State>",
-        "(seed: State) => (acc: Accum<State, Value>) => (observable: Observable<Value>) => Property<State>",
-        "(seed: State) => (acc: Accum<State, Value>, observable: Observable<Value>) => Property<State>"
+        "(seed: StateType, acc: Accum<StateType, ValueType>, observable: Observable<ValueType>) => Property<StateType>",
+        "(seed: StateType, acc: Accum<StateType, ValueType>) => (observable: Observable<ValueType>) => Property<StateType>",
+        "(seed: StateType) => (acc: Accum<StateType, ValueType>) => (observable: Observable<ValueType>) => Property<StateType>",
+        "(seed: StateType) => (acc: Accum<StateType, ValueType>, observable: Observable<ValueType>) => Property<StateType>"
       ],
       "params": {
         "seed": {
@@ -612,7 +631,7 @@
       },
       "seeAlso": [],
       "returns": {
-        "type": "Property<State>"
+        "type": "Property<StateType>"
       },
       "example": "F.pipe(F.fromArray([\"!\", \"!\"]),\n F.scan(\"Hello Francis\", (state, value) => state + value),\n F.log(\"Greeting:\"))\n// logs: \"Hello Francis\", \"Hello Francis!\", \"Hello Francis!!\", <end>"
     },
